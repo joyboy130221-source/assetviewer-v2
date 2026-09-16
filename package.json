@@ -1,14 +1,14 @@
 {
   "name": "maximo-asset-viewer-react",
-  "version": "4.3.0",
+  "version": "4.5.0",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "vercel:dev": "vercel dev",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\" \"lib/**/*.js\" \"*.{json,ts,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\" \"lib/**/*.js\" \"*.{json,ts,md}\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\""
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.2",

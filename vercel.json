@@ -1,17 +1,65 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "headers": [{ "source": "/(.*)", "headers": [{ "key": "Content-Security-Policy", "value": "frame-ancestors *" }] }],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors *"
+        }
+      ]
+    }
+  ],
   "rewrites": [
-    { "source": "/index.html", "destination": "/" },
-    { "source": "/work-order.html", "destination": "/work-order" },
-    { "source": "/work-order-update.html", "destination": "/work-order-update" },
-    { "source": "/login.html", "destination": "/login" },
-    { "source": "/admin.html", "destination": "/admin" },
-    { "source": "/users.html", "destination": "/admin/users" },
-    { "source": "/roles.html", "destination": "/admin/roles" },
-    { "source": "/maximo-environments.html", "destination": "/admin/maximo-environments" },
-    { "source": "/api-logs.html", "destination": "/admin/api-logs" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/index.html",
+      "destination": "/"
+    },
+    {
+      "source": "/work-order.html",
+      "destination": "/work-order"
+    },
+    {
+      "source": "/work-order-update.html",
+      "destination": "/work-order-update"
+    },
+    {
+      "source": "/login.html",
+      "destination": "/login"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/admin"
+    },
+    {
+      "source": "/users.html",
+      "destination": "/admin/users"
+    },
+    {
+      "source": "/roles.html",
+      "destination": "/admin/roles"
+    },
+    {
+      "source": "/external-views.html",
+      "destination": "/admin/external-views"
+    },
+    {
+      "source": "/maximo-environments.html",
+      "destination": "/admin/maximo-environments"
+    },
+    {
+      "source": "/api-logs.html",
+      "destination": "/admin/api-logs"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api?route=:path*"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ]
 }
