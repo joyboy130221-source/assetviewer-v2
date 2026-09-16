@@ -3,6 +3,15 @@ const SITE_ID = 'BEDFORD';
 const OBJECT_STRUCTURE = 'mxasset';
 const PROTECTED_FIELDS = new Set(['href', '_rowstamp', 'assetid', 'assetnum', 'siteid', 'orgid', 'status_description']);
 
+function extractFirstMember(payload) {
+  // Maximo normally returns { member: [...] }. Keep this defensive because some
+  // gateways/proxies wrap the Maximo payload in a data property.
+  if (!payload || typeof payload !== 'object') return null;
+  if (Array.isArray(payload.member)) return payload.member[0] || null;
+  if (payload.data && typeof payload.data === 'object') return extractFirstMember(payload.data);
+  return null;
+}
+
 function cleanAttributes(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
   const output = {};
@@ -28,12 +37,12 @@ module.exports = async function handler(request, response) {
       const url = new URL(objectStructureUrl(env, OBJECT_STRUCTURE));
       url.searchParams.set('lean', '1'); url.searchParams.set('oslc.select', '*'); url.searchParams.set('oslc.where', where);
       const { data } = await maximoFetch(env, url);
-      const asset = Array.isArray(data?.member) ? data.member[0] || null : null;
+      const asset = extractFirstMember(data);
       response.setHeader('Cache-Control', 'no-store');
       return response.status(200).json({
         asset,
         data,
-        count: Array.isArray(data?.member) ? data.member.length : 0
+        count: asset ? 1 : 0
       });
     }
     if (request.method !== 'POST') return response.status(405).json({ error: 'Method not allowed' });
