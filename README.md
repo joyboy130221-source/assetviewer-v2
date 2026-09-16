@@ -67,10 +67,16 @@ The React pages are intentionally separated from API services, types, utilities,
 - Refreshed API Request Log filters, truncated long request URLs, and replaced View text with an icon action.
 - Reorganized navigation into Dashboards, Setup, and Monitoring groups.
 
+## Vercel Serverless Function architecture
 
-## v4.3 UI maintenance
-- Sticky headers for Maximo API Endpoint, API Request Log, Roles, and Users grids.
-- Confirmation copy no longer exposes the selected runtime environment on operational screens.
-- Work Order Update now preserves the asset number when navigating back to Asset Viewer.
-- Refined Worklog styling and right-aligned submission actions.
-- Added Prettier scripts for consistent source formatting. Run `npm install`, then `npm run format` before committing UI changes.
+This version consolidates the backend into **3 Vercel Serverless Functions** (`api/auth.js`, `api/admin.js`, and `api/maximo.js`). Request-specific logic remains separated under `server/controllers/` to keep the code maintainable. See `docs/ARCHITECTURE.md` for details.
+
+After extracting the project, install dependencies and generate a fresh lockfile:
+
+```bash
+npm install
+npm run format
+npm run build
+```
+
+Commit the generated `package-lock.json` after a successful local install/build.
