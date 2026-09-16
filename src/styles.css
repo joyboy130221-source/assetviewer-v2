@@ -215,3 +215,44 @@ h1{font-size:clamp(26px,3vw,36px);line-height:1.15;letter-spacing:-.025em}h2{fon
   .workorder-submit-card { grid-template-columns: 1fr; }
   .workorder-footer-actions { justify-content: flex-end; flex-wrap: wrap; }
 }
+
+/* v4.4 fixed administration shell and external view launcher */
+@media (min-width: 801px) {
+  .admin-shell { height: 100vh; min-height: 0; overflow: hidden; }
+  .admin-sidebar { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+  .admin-main { height: 100vh; overflow-y: auto; overscroll-behavior: contain; }
+  .admin-nav { min-height: 0; overflow-y: auto; }
+  .sidebar-signout { flex: 0 0 auto; }
+}
+.admin-table-scroll { height: clamp(320px, 55vh, 580px); max-height: none; }
+.dashboard-section-head { display:flex; align-items:center; justify-content:space-between; gap:20px; margin:0 0 16px; }
+.dashboard-section-head h2 { margin:0 0 5px; font-size:20px; color:#172033; }
+.dashboard-section-head p:not(.eyebrow) { margin:0; color:#64748b; font-size:13px; line-height:1.55; }
+.dashboard-section-icon { display:grid; place-items:center; width:42px; height:42px; flex:0 0 auto; border-radius:11px; background:#eaf2ff; color:#1769e0; }
+.external-view-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); gap:16px; }
+.external-view-card { display:flex; flex-direction:column; min-width:0; padding:20px; border:1px solid #dbe3ee; border-radius:14px; background:#fff; box-shadow:0 4px 18px rgba(15,23,42,.045); }
+.external-view-card-head { display:flex; align-items:flex-start; gap:12px; padding-bottom:16px; border-bottom:1px solid #edf1f6; }
+.external-view-icon { display:grid; place-items:center; width:38px; height:38px; flex:0 0 auto; border-radius:10px; background:#edf5ff; color:#1769e0; }
+.external-view-card h3 { margin:1px 0 4px; font-size:16px; color:#172033; }
+.external-view-card-head p { margin:0; color:#64748b; font-size:12px; line-height:1.5; }
+.external-view-fields { display:grid; gap:13px; padding:17px 0 13px; }
+.external-view-fields label { display:grid; gap:6px; color:#475569; font-size:12px; font-weight:700; }
+.external-view-fields select,.external-view-fields textarea { width:100%; min-height:40px; padding:9px 11px; border:1px solid #cbd5e1; border-radius:9px; background:#fff; color:#172033; font:inherit; font-size:13px; resize:vertical; }
+.external-view-fields select:focus,.external-view-fields textarea:focus { outline:0; border-color:#1769e0; box-shadow:0 0 0 3px rgba(23,105,224,.1); }
+.launch-preview { display:flex; align-items:center; gap:7px; min-width:0; padding:9px 10px; border-radius:8px; background:#f8fafc; color:#64748b; font-size:11px; }
+.launch-preview svg { flex:0 0 auto; }
+.launch-preview span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.external-view-actions { display:flex; justify-content:flex-end; margin-top:15px; }
+.external-view-actions .primary-button:disabled { cursor:not-allowed; opacity:.5; }
+.external-url-cell { display:flex; align-items:flex-start; gap:6px; max-width:460px; overflow:hidden; text-overflow:ellipsis; color:#475569; font-size:12px; }
+.external-url-cell svg { flex:0 0 auto; margin-top:2px; }
+@media (max-width: 800px) {
+  .admin-shell { min-height:100vh; }
+  .admin-sidebar { height:auto; overflow:visible; }
+  .admin-main { height:auto; overflow:visible; }
+  .admin-table-scroll { height:min(60vh,520px); }
+  .external-view-grid { grid-template-columns:1fr; }
+}
+@media (min-width: 801px) {
+  .admin-sidebar .admin-nav { flex: 1 1 auto; }
+}
