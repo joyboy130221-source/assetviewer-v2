@@ -47,7 +47,7 @@ export function AdminLayout({ permission, eyebrow, title, subtitle, children }: 
 
   return <div className="admin-shell">
     <aside className="admin-sidebar">
-      <div className="admin-brand"><span className="admin-brand-icon"><ServerCog size={20} /></span><span>Asset Viewer <small>Admin Console</small></span></div>
+      <div className="admin-brand"><span className="admin-brand-icon"><ServerCog size={20} /></span><span>Integration Hub <small>Admin Console</small></span></div>
       <nav className="admin-nav"><NavLink to="/admin" end><span className="nav-icon"><Gauge size={17} /></span><span>Dashboards</span></NavLink>{group('Setup', setup)}{group('Monitoring', monitoring)}</nav>
       <button onClick={logout} className="sidebar-signout"><LogOut size={17} />Sign Out</button>
     </aside>

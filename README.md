@@ -1,6 +1,6 @@
-# Maximo Asset Viewer — React + Vite + TypeScript
+# Integration Hub — React + Vite + TypeScript
 
-This is the migrated version of the original plain-JavaScript Maximo Asset Viewer. The Vercel serverless API (`api/`) and shared backend libraries (`lib/`) are intentionally preserved to reduce migration risk, while the browser UI is now React + TypeScript.
+This is the migrated version of the original plain-JavaScript Integration Hub. The Vercel serverless API (`api/`) and shared backend libraries (`lib/`) are intentionally preserved to reduce migration risk, while the browser UI is now React + TypeScript.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ This separation keeps business/UI code reusable if the frontend is later migrate
 
 ## Routes
 
-- `/` — Asset Viewer (`?env=demo-coh&assetId=V6-0401`)
+- `/` — Integration Hub (`?env=demo-coh&assetId=V6-0401`)
 - `/work-order` — Create Work Order
 - `/work-order-update` — Update Work Order and Worklogs
 - `/login` — Administration login
