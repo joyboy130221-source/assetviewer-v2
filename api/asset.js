@@ -27,7 +27,14 @@ module.exports = async function handler(request, response) {
     if (request.method === 'GET') {
       const url = new URL(objectStructureUrl(env, OBJECT_STRUCTURE));
       url.searchParams.set('lean', '1'); url.searchParams.set('oslc.select', '*'); url.searchParams.set('oslc.where', where);
-      const { data } = await maximoFetch(env, url); response.setHeader('Cache-Control', 'no-store'); return response.status(200).json(data);
+      const { data } = await maximoFetch(env, url);
+      const asset = Array.isArray(data?.member) ? data.member[0] || null : null;
+      response.setHeader('Cache-Control', 'no-store');
+      return response.status(200).json({
+        asset,
+        data,
+        count: Array.isArray(data?.member) ? data.member.length : 0
+      });
     }
     if (request.method !== 'POST') return response.status(405).json({ error: 'Method not allowed' });
 
