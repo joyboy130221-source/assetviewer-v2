@@ -59,3 +59,10 @@ Keep the same environment variables used by the original project. The backend fi
 ## Future Next.js migration
 
 The React pages are intentionally separated from API services, types, utilities, and reusable components. A later Next.js migration can move routing into `app/` while retaining most components, types, and domain logic.
+
+## v4.2.0 Administration UX
+- Fixed login password visibility toggle and aligned the eye icon inside the password field.
+- Added explicit Add New workflow for Maximo API Endpoint, Roles, and Users.
+- Consolidated table edit/delete actions into a single horizontal action group with icons.
+- Refreshed API Request Log filters, truncated long request URLs, and replaced View text with an icon action.
+- Reorganized navigation into Dashboards, Setup, and Monitoring groups.
