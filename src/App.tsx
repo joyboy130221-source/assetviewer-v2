@@ -1,14 +1,14 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import AdminDashboard from './pages/AdminDashboard';
-import AssetViewerPage from './pages/AssetViewerPage';
-import CreateWorkOrderPage from './pages/CreateWorkOrderPage';
-import LoginPage from './pages/LoginPage';
-import UpdateWorkOrderPage from './pages/UpdateWorkOrderPage';
-import ApiLogsPage from './pages/admin/ApiLogsPage';
-import EnvironmentsPage from './pages/admin/EnvironmentsPage';
-import ExternalViewsPage from './pages/admin/ExternalViewsPage';
-import RolesPage from './pages/admin/RolesPage';
-import UsersPage from './pages/admin/UsersPage';
+import { Navigate, Route, Routes } from "react-router-dom";
+import AdminDashboard from "./pages/AdminDashboard";
+import AssetViewerPage from "./pages/AssetViewerPage";
+import CreateWorkOrderPage from "./pages/CreateWorkOrderPage";
+import LoginPage from "./pages/LoginPage";
+import UpdateWorkOrderPage from "./pages/UpdateWorkOrderPage";
+import ApiLogsPage from "./pages/admin/ApiLogsPage";
+import EnvironmentsPage from "./pages/admin/EnvironmentsPage";
+import ExternalViewsPage from "./pages/admin/ExternalViewsPage";
+import RolesPage from "./pages/admin/RolesPage";
+import UsersPage from "./pages/admin/UsersPage";
 
 export default function App() {
   return (

@@ -1,5 +1,52 @@
-export const friendlyNames: Record<string,string> = { assetnum:'Asset Number',assetid:'Asset ID',description:'Description',siteid:'Site',orgid:'Organization',location:'Location',status:'Status',status_description:'Status Description',assethealth:'Asset Health',isrunning:'Running',changeby:'Changed By',changedate:'Changed Date',totalcost:'Total Cost',ytdcost:'Year-to-Date Cost',serialnum:'Serial Number',manufacturer:'Manufacturer',modelnum:'Model Number',priority:'Priority' };
-export function displayName(key:string){ return friendlyNames[key] || key.replace(/^_+/,'').replace(/_/g,' ').replace(/([a-z0-9])([A-Z])/g,'$1 $2').replace(/\b(id|url|api|ytd)\b/gi,w=>w.toUpperCase()).replace(/\b\w/g,l=>l.toUpperCase()); }
-export function displayValue(v:unknown):string { if(v===null||v===undefined||v==='')return '—'; if(typeof v==='boolean')return v?'Yes':'No'; if(typeof v==='object')return JSON.stringify(v); if(typeof v==='string'&&/^\d{4}-\d{2}-\d{2}T/.test(v)){const d=new Date(v);if(!Number.isNaN(d.valueOf()))return d.toLocaleString();} return String(v); }
-export const pad=(n:number)=>String(n).padStart(2,'0');
-export function toMaximoDateTime(v:string){const m=v.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);if(!m)throw new Error('Report Date has an invalid date and time.');const[,y,mo,d,h,mi,s='00']=m;const dt=new Date(+y,+mo-1,+d,+h,+mi,+s),off=-dt.getTimezoneOffset(),sign=off>=0?'+':'-',a=Math.abs(off);return `${y}-${mo}-${d}T${h}:${mi}:${s}${sign}${pad(Math.floor(a/60))}:${pad(a%60)}`;}
+export const friendlyNames: Record<string, string> = {
+  assetnum: "Asset Number",
+  assetid: "Asset ID",
+  description: "Description",
+  siteid: "Site",
+  orgid: "Organization",
+  location: "Location",
+  status: "Status",
+  status_description: "Status Description",
+  assethealth: "Asset Health",
+  isrunning: "Running",
+  changeby: "Changed By",
+  changedate: "Changed Date",
+  totalcost: "Total Cost",
+  ytdcost: "Year-to-Date Cost",
+  serialnum: "Serial Number",
+  manufacturer: "Manufacturer",
+  modelnum: "Model Number",
+  priority: "Priority",
+};
+export function displayName(key: string) {
+  return (
+    friendlyNames[key] ||
+    key
+      .replace(/^_+/, "")
+      .replace(/_/g, " ")
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/\b(id|url|api|ytd)\b/gi, (w) => w.toUpperCase())
+      .replace(/\b\w/g, (l) => l.toUpperCase())
+  );
+}
+export function displayValue(v: unknown): string {
+  if (v === null || v === undefined || v === "") return "—";
+  if (typeof v === "boolean") return v ? "Yes" : "No";
+  if (typeof v === "object") return JSON.stringify(v);
+  if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}T/.test(v)) {
+    const d = new Date(v);
+    if (!Number.isNaN(d.valueOf())) return d.toLocaleString();
+  }
+  return String(v);
+}
+export const pad = (n: number) => String(n).padStart(2, "0");
+export function toMaximoDateTime(v: string) {
+  const m = v.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+  if (!m) throw new Error("Report Date has an invalid date and time.");
+  const [, y, mo, d, h, mi, s = "00"] = m;
+  const dt = new Date(+y, +mo - 1, +d, +h, +mi, +s),
+    off = -dt.getTimezoneOffset(),
+    sign = off >= 0 ? "+" : "-",
+    a = Math.abs(off);
+  return `${y}-${mo}-${d}T${h}:${mi}:${s}${sign}${pad(Math.floor(a / 60))}:${pad(a % 60)}`;
+}

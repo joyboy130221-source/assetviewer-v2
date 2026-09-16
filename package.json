@@ -2,30 +2,35 @@
   "name": "maximo-asset-viewer-react",
   "version": "4.5.0",
   "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "vercel:dev": "vercel dev",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\""
-  },
+"scripts": {
+  "dev": "concurrently -k \"npm:dev:frontend\" \"npm:dev:backend\"",
+  "dev:frontend": "vite",
+  "dev:backend": "node --env-file=.env.local server/local-server.js",
+  "build": "tsc -b && vite build",
+  "preview": "vite preview",
+  "vercel:dev": "vercel dev",
+  "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\"",
+  "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\""
+},
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.15",
     "@vitejs/plugin-react": "^5.0.2",
-    "vite": "^7.1.5",
-    "typescript": "^5.9.2",
+    "express": "^5.2.1",
+    "lucide-react": "^0.544.0",
+    "pg": "^8.16.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
-    "pg": "^8.16.3",
     "sonner": "^2.0.7",
-    "@radix-ui/react-alert-dialog": "^1.1.15",
-    "lucide-react": "^0.544.0"
+    "typescript": "^5.9.2",
+    "vite": "^7.1.5"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^24.3.1",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
-    "@types/node": "^24.3.1",
+    "concurrently": "^10.0.5",
     "prettier": "^3.6.2"
   }
 }

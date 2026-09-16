@@ -1,2 +1,225 @@
-import { useEffect,useState,type FormEvent } from 'react';import { Pencil,Plus,Trash2,X } from 'lucide-react';import { AdminLayout } from '../../components/AdminLayout';import { LoadingOverlay,useAppUI } from '../../components/AppUI';import { api,jsonInit } from '../../services/api';
-export default function RolesPage(){const[data,setData]=useState<any[]>([]),[available,setAvailable]=useState<any[]>([]),[edit,setEdit]=useState<any>(null),[formOpen,setFormOpen]=useState(false),[loading,setLoading]=useState(false),ui=useAppUI();const load=()=>api<any>('/api/admin/roles').then(b=>{setData(b.data);setAvailable(b.availablePermissions)});useEffect(()=>{load().catch(e=>ui.toast(e.message,'error'))},[]);const save=async(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();const fd=new FormData(e.currentTarget),b:any=Object.fromEntries(fd);b.active=b.active==='true';b.permissions=Object.fromEntries(available.map(p=>[p.key,fd.get(`perm_${p.key}`)==='on']));const editing=!!b.id;if(!await ui.confirm({title:editing?'Update role?':'Create role?',message:`Save role “${b.name}” and its page permissions?`,confirmText:editing?'Update':'Create'}))return;setLoading(true);try{const r=await api<any>('/api/admin/roles',jsonInit(editing?'PUT':'POST',b));setEdit(null);setFormOpen(false);await load();ui.toast(r.message)}catch(e:any){ui.toast(e.message,'error')}finally{setLoading(false)}};const del=async(x:any)=>{if(await ui.confirm({title:'Delete role?',message:`Delete role “${x.name}”?`,confirmText:'Delete',danger:true})){try{const r=await api<any>('/api/admin/roles',jsonInit('DELETE',{id:x.id}));await load();ui.toast(r.message)}catch(e:any){ui.toast(e.message,'error')}}};return <><AdminLayout permission="roles" eyebrow="ACCESS CONTROL" title="User Roles"><section className="data-card"><div className="card-toolbar"><div><h2>Roles</h2><p>Manage role records and access configuration.</p></div><button className="primary-button" onClick={()=>{setEdit(null);setFormOpen(true)}}><Plus size={16}/>Add New</button></div>{formOpen&&<form key={edit?.id||'new'} className="admin-form" onSubmit={save}><input type="hidden" name="id" defaultValue={edit?.id||''}/><label>Role Name<input name="name" defaultValue={edit?.name||''} required/></label><label>Description<input name="description" defaultValue={edit?.description||''}/></label><label>Active<select name="active" defaultValue={String(edit?.active??true)}><option value="true">Yes</option><option value="false">No</option></select></label><div className="wide"><strong>Enabled Administration Pages</strong><div className="permission-grid">{available.map(p=><label className="permission-chip" key={p.key}><input type="checkbox" name={`perm_${p.key}`} defaultChecked={!!edit?.permissions?.[p.key]}/><span>{p.label}</span></label>)}</div></div><div className="wide inline-actions"><button className="primary-button">{edit?'Update Role':'Create Role'}</button><button type="button" className="secondary-button" onClick={()=>{setEdit(null);setFormOpen(false)}}><X size={16}/>Cancel</button></div></form>}<div className="table-wrap admin-table-scroll"><table className="admin-table"><thead><tr><th>Role</th><th>Description</th><th>Enabled Pages</th><th>Status</th><th>Actions</th></tr></thead><tbody>{data.map(x=><tr key={x.id}><td><strong>{x.name}</strong></td><td>{x.description||'—'}</td><td>{available.filter(p=>x.permissions?.[p.key]).map(p=>p.label).join(', ')||'None'}</td><td><span className={x.active?'badge-active':'badge-inactive'}>{x.active?'Active':'Inactive'}</span></td><td><div className="inline-actions"><button className="icon-button table-action" title="Edit role" aria-label="Edit role" onClick={()=>{setEdit(x);setFormOpen(true);scrollTo({top:0,behavior:'smooth'})}}><Pencil size={16}/></button><button className="icon-button table-action danger" title="Delete role" aria-label="Delete role" onClick={()=>del(x)}><Trash2 size={16}/></button></div></td></tr>)}</tbody></table></div></section></AdminLayout><LoadingOverlay show={loading}/></>}
+import { useEffect, useState, type FormEvent } from "react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { AdminLayout } from "../../components/AdminLayout";
+import { LoadingOverlay, useAppUI } from "../../components/AppUI";
+import { api, jsonInit } from "../../services/api";
+export default function RolesPage() {
+  const [data, setData] = useState<any[]>([]),
+    [available, setAvailable] = useState<any[]>([]),
+    [edit, setEdit] = useState<any>(null),
+    [formOpen, setFormOpen] = useState(false),
+    [loading, setLoading] = useState(false),
+    ui = useAppUI();
+  const load = () =>
+    api<any>("/api/admin/roles").then((b) => {
+      setData(b.data);
+      setAvailable(b.availablePermissions);
+    });
+  useEffect(() => {
+    load().catch((e) => ui.toast(e.message, "error"));
+  }, []);
+  const save = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget),
+      b: any = Object.fromEntries(fd);
+    b.active = b.active === "true";
+    b.permissions = Object.fromEntries(
+      available.map((p) => [p.key, fd.get(`perm_${p.key}`) === "on"]),
+    );
+    const editing = !!b.id;
+    if (
+      !(await ui.confirm({
+        title: editing ? "Update role?" : "Create role?",
+        message: `Save role “${b.name}” and its page permissions?`,
+        confirmText: editing ? "Update" : "Create",
+      }))
+    )
+      return;
+    setLoading(true);
+    try {
+      const r = await api<any>(
+        "/api/admin/roles",
+        jsonInit(editing ? "PUT" : "POST", b),
+      );
+      setEdit(null);
+      setFormOpen(false);
+      await load();
+      ui.toast(r.message);
+    } catch (e: any) {
+      ui.toast(e.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const del = async (x: any) => {
+    if (
+      await ui.confirm({
+        title: "Delete role?",
+        message: `Delete role “${x.name}”?`,
+        confirmText: "Delete",
+        danger: true,
+      })
+    ) {
+      try {
+        const r = await api<any>(
+          "/api/admin/roles",
+          jsonInit("DELETE", { id: x.id }),
+        );
+        await load();
+        ui.toast(r.message);
+      } catch (e: any) {
+        ui.toast(e.message, "error");
+      }
+    }
+  };
+  return (
+    <>
+      <AdminLayout
+        permission="roles"
+        eyebrow="ACCESS CONTROL"
+        title="User Roles"
+      >
+        <section className="data-card">
+          <div className="card-toolbar">
+            <div>
+              <h2>Roles</h2>
+              <p>Manage role records and access configuration.</p>
+            </div>
+            <button
+              className="primary-button"
+              onClick={() => {
+                setEdit(null);
+                setFormOpen(true);
+              }}
+            >
+              <Plus size={16} />
+              Add New
+            </button>
+          </div>
+          {formOpen && (
+            <form
+              key={edit?.id || "new"}
+              className="admin-form"
+              onSubmit={save}
+            >
+              <input type="hidden" name="id" defaultValue={edit?.id || ""} />
+              <label>
+                Role Name
+                <input name="name" defaultValue={edit?.name || ""} required />
+              </label>
+              <label>
+                Description
+                <input
+                  name="description"
+                  defaultValue={edit?.description || ""}
+                />
+              </label>
+              <label>
+                Active
+                <select
+                  name="active"
+                  defaultValue={String(edit?.active ?? true)}
+                >
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </label>
+              <div className="wide">
+                <strong>Enabled Administration Pages</strong>
+                <div className="permission-grid">
+                  {available.map((p) => (
+                    <label className="permission-chip" key={p.key}>
+                      <input
+                        type="checkbox"
+                        name={`perm_${p.key}`}
+                        defaultChecked={!!edit?.permissions?.[p.key]}
+                      />
+                      <span>{p.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="wide inline-actions">
+                <button className="primary-button">
+                  {edit ? "Update Role" : "Create Role"}
+                </button>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    setEdit(null);
+                    setFormOpen(false);
+                  }}
+                >
+                  <X size={16} />
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+          <div className="table-wrap admin-table-scroll">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Role</th>
+                  <th>Description</th>
+                  <th>Enabled Pages</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((x) => (
+                  <tr key={x.id}>
+                    <td>
+                      <strong>{x.name}</strong>
+                    </td>
+                    <td>{x.description || "—"}</td>
+                    <td>
+                      {available
+                        .filter((p) => x.permissions?.[p.key])
+                        .map((p) => p.label)
+                        .join(", ") || "None"}
+                    </td>
+                    <td>
+                      <span
+                        className={x.active ? "badge-active" : "badge-inactive"}
+                      >
+                        {x.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="inline-actions">
+                        <button
+                          className="icon-button table-action"
+                          title="Edit role"
+                          aria-label="Edit role"
+                          onClick={() => {
+                            setEdit(x);
+                            setFormOpen(true);
+                            scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          className="icon-button table-action danger"
+                          title="Delete role"
+                          aria-label="Delete role"
+                          onClick={() => del(x)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </AdminLayout>
+      <LoadingOverlay show={loading} />
+    </>
+  );
+}

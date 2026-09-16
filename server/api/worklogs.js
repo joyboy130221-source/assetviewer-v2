@@ -1,66 +1,52 @@
 const {
-    escapeOslc,
-    maximoFetch,
-    objectStructureUrl,
-    parseBody,
-    sendError,
-    getEnvironment
-} = require('../lib/maximo');
+  escapeOslc,
+  maximoFetch,
+  objectStructureUrl,
+  parseBody,
+  sendError,
+  getEnvironment,
+} = require("../lib/maximo");
 
-const ALLOWED = new Set([
-    'APPTNOTE',
-    'CLIENTNOTE',
-    'UPDATE',
-    'WORK'
-]);
+const ALLOWED = new Set(["APPTNOTE", "CLIENTNOTE", "UPDATE", "WORK"]);
 
 /**
  * Validate and normalize Worklog input.
  */
 function normalize(input) {
-    const description = String(
-        input.description || ''
-    ).trim();
+  const description = String(input.description || "").trim();
 
-    const longDescription = String(
-        input.description_longdescription || ''
-    ).trim();
+  const longDescription = String(
+    input.description_longdescription || "",
+  ).trim();
 
-    const logtype = String(
-        input.logtype || ''
-    ).trim().toUpperCase();
+  const logtype = String(input.logtype || "")
+    .trim()
+    .toUpperCase();
 
-    if (!description) {
-        throw Object.assign(
-            new Error('Worklog description is required.'), {
-                status: 400
-            }
-        );
-    }
+  if (!description) {
+    throw Object.assign(new Error("Worklog description is required."), {
+      status: 400,
+    });
+  }
 
-    if (!longDescription) {
-        throw Object.assign(
-            new Error('Worklog long description is required.'), {
-                status: 400
-            }
-        );
-    }
+  if (!longDescription) {
+    throw Object.assign(new Error("Worklog long description is required."), {
+      status: 400,
+    });
+  }
 
-    if (!ALLOWED.has(logtype)) {
-        throw Object.assign(
-            new Error('Invalid worklog log type.'), {
-                status: 400
-            }
-        );
-    }
+  if (!ALLOWED.has(logtype)) {
+    throw Object.assign(new Error("Invalid worklog log type."), {
+      status: 400,
+    });
+  }
 
-    return {
-        description,
-        description_longdescription: longDescription,
-        logtype
-    };
+  return {
+    description,
+    description_longdescription: longDescription,
+    logtype,
+  };
 }
-
 
 /**
  * ============================================================
@@ -80,63 +66,47 @@ function normalize(input) {
  * depending on the selected environment.
  */
 async function listWorklogs(env, wonum, siteid) {
+  if (!wonum) {
+    throw Object.assign(new Error("Work Order number is required."), {
+      status: 400,
+    });
+  }
 
-    if (!wonum) {
-        throw Object.assign(
-            new Error('Work Order number is required.'), {
-                status: 400
-            }
-        );
-    }
+  const url = new URL(objectStructureUrl(env, "mxapiworklog"));
 
-    const url = new URL(
-        objectStructureUrl(env, 'mxapiworklog')
-    );
+  url.searchParams.set("lean", "1");
 
-    url.searchParams.set('lean', '1');
+  url.searchParams.set(
+    "oslc.select",
+    [
+      "worklogid",
+      "recordkey",
+      "class",
+      "siteid",
+      "description",
+      "description_longdescription",
+      "logtype",
+      "createby",
+      "createdate",
+      "modifyby",
+      "modifydate",
+      "href",
+    ].join(","),
+  );
 
-    url.searchParams.set(
-        'oslc.select',
-        [
-            'worklogid',
-            'recordkey',
-            'class',
-            'siteid',
-            'description',
-            'description_longdescription',
-            'logtype',
-            'createby',
-            'createdate',
-            'modifyby',
-            'modifydate',
-            'href'
-        ].join(',')
-    );
+  url.searchParams.set(
+    "oslc.where",
+    `recordkey="${escapeOslc(wonum)}"` +
+      ` and class="WORKORDER"` +
+      ` and siteid="${escapeOslc(siteid)}"`,
+  );
 
-    url.searchParams.set(
-        'oslc.where',
-        `recordkey="${escapeOslc(wonum)}"` +
-        ` and class="WORKORDER"` +
-        ` and siteid="${escapeOslc(siteid)}"`
-    );
+  url.searchParams.set("oslc.orderBy", "-createdate");
 
-    url.searchParams.set(
-        'oslc.orderBy',
-        '-createdate'
-    );
+  const { data } = await maximoFetch(env, url);
 
-    const {
-        data
-    } = await maximoFetch(
-        env,
-        url
-    );
-
-    return Array.isArray(data.member) ?
-        data.member :
-        [];
+  return Array.isArray(data.member) ? data.member : [];
 }
-
 
 /**
  * ============================================================
@@ -149,47 +119,31 @@ async function listWorklogs(env, wonum, siteid) {
  *
  * /os/mxapiworklog?lean=1
  */
-async function createWorklog(
-    env,
-    wonum,
+async function createWorklog(env, wonum, siteid, input) {
+  if (!wonum) {
+    throw Object.assign(new Error("Work Order number is required."), {
+      status: 400,
+    });
+  }
+
+  const url = new URL(objectStructureUrl(env, "mxapiworklog"));
+
+  url.searchParams.set("lean", "1");
+
+  const body = {
+    recordkey: wonum,
+    class: "WORKORDER",
     siteid,
-    input
-) {
+    ...normalize(input),
+  };
 
-    if (!wonum) {
-        throw Object.assign(
-            new Error('Work Order number is required.'), {
-                status: 400
-            }
-        );
-    }
+  const { data } = await maximoFetch(env, url, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 
-    const url = new URL(
-        objectStructureUrl(env, 'mxapiworklog')
-    );
-
-    url.searchParams.set('lean', '1');
-
-    const body = {
-        recordkey: wonum,
-        class: 'WORKORDER',
-        siteid,
-        ...normalize(input)
-    };
-
-    const {
-        data
-    } = await maximoFetch(
-        env,
-        url, {
-            method: 'POST',
-            body: JSON.stringify(body)
-        }
-    );
-
-    return data;
+  return data;
 }
-
 
 /**
  * ============================================================
@@ -224,115 +178,88 @@ async function createWorklog(
  * /maxrest/api/os/mxapiwo/
  * _QkVERk9SRC8xMzQ0/modifyworklog/0-116
  */
-async function getWorkOrderWithWorklogs(
-    env,
-    wonum,
-    siteid
-) {
-
-    if (!wonum) {
-        throw Object.assign(
-            new Error(
-                'Work Order number is required to update a Worklog.'
-            ), {
-                status: 400
-            }
-        );
-    }
-
-    const url = new URL(
-        objectStructureUrl(env, 'mxapiwo')
+async function getWorkOrderWithWorklogs(env, wonum, siteid) {
+  if (!wonum) {
+    throw Object.assign(
+      new Error("Work Order number is required to update a Worklog."),
+      {
+        status: 400,
+      },
     );
+  }
 
-    url.searchParams.set('lean', '1');
+  const url = new URL(objectStructureUrl(env, "mxapiwo"));
 
-    /*
-     * We intentionally request the Worklog relationship.
-     *
-     * "*" is used because your tested Maximo responses already
-     * return:
-     *
-     * worklog_collectionref
-     * worklog[]
-     * worklog[].localref
-     */
-    url.searchParams.set(
-        'oslc.select',
-        '*'
+  url.searchParams.set("lean", "1");
+
+  /*
+   * We intentionally request the Worklog relationship.
+   *
+   * "*" is used because your tested Maximo responses already
+   * return:
+   *
+   * worklog_collectionref
+   * worklog[]
+   * worklog[].localref
+   */
+  url.searchParams.set("oslc.select", "*");
+
+  url.searchParams.set(
+    "oslc.where",
+    `wonum="${escapeOslc(wonum)}"` + ` and siteid="${escapeOslc(siteid)}"`,
+  );
+
+  const { data } = await maximoFetch(env, url);
+
+  const members = Array.isArray(data.member) ? data.member : [];
+
+  if (members.length === 0) {
+    throw Object.assign(
+      new Error(`Work Order ${wonum} was not found for site ${siteid}.`),
+      {
+        status: 404,
+      },
     );
+  }
 
-    url.searchParams.set(
-        'oslc.where',
-        `wonum="${escapeOslc(wonum)}"` +
-        ` and siteid="${escapeOslc(siteid)}"`
-    );
-
-    const {
-        data
-    } = await maximoFetch(
-        env,
-        url
-    );
-
-    const members = Array.isArray(data.member) ?
-        data.member :
-        [];
-
-    if (members.length === 0) {
-        throw Object.assign(
-            new Error(
-                `Work Order ${wonum} was not found for site ${siteid}.`
-            ), {
-                status: 404
-            }
-        );
-    }
-
-    return members[0];
+  return members[0];
 }
-
 
 /**
  * ============================================================
  * FIND WORKLOG FROM MXAPIWO RESPONSE
  * ============================================================
  */
-function findWorklog(
-    workOrder,
-    worklogid
-) {
+function findWorklog(workOrder, worklogid) {
+  const id = String(worklogid == null ? "" : worklogid).trim();
 
-    const id = String(worklogid == null ? '' : worklogid).trim();
+  if (!id) {
+    throw Object.assign(new Error("A valid worklogid is required."), {
+      status: 400,
+    });
+  }
 
-    if (!id) {
-        throw Object.assign(new Error('A valid worklogid is required.'), { status: 400 });
-    }
+  const worklogs = Array.isArray(workOrder.worklog) ? workOrder.worklog : [];
 
-    const worklogs = Array.isArray(
-            workOrder.worklog
-        ) ?
-        workOrder.worklog :
-        [];
+  const worklog = worklogs.find(
+    (item) =>
+      String(item.worklogid == null ? "" : item.worklogid).trim() === id,
+  );
 
-    const worklog = worklogs.find(
-        item =>
-        String(item.worklogid == null ? '' : item.worklogid).trim() === id
+  if (!worklog) {
+    throw Object.assign(
+      new Error(
+        `Worklog ${worklogid} was not found ` +
+          `inside Work Order ${workOrder.wonum || ""}.`,
+      ),
+      {
+        status: 404,
+      },
     );
+  }
 
-    if (!worklog) {
-        throw Object.assign(
-            new Error(
-                `Worklog ${worklogid} was not found ` +
-                `inside Work Order ${workOrder.wonum || ''}.`
-            ), {
-                status: 404
-            }
-        );
-    }
-
-    return worklog;
+  return worklog;
 }
-
 
 /**
  * ============================================================
@@ -367,49 +294,51 @@ function findWorklog(
  * _QkVERk9SRC8xMzQ0/modifyworklog/0-116
  */
 function resolveMaximoUrl(env, value) {
-    if (!value) return null;
+  if (!value) return null;
+  try {
+    return new URL(value);
+  } catch (_) {
+    // Some Maximo configurations return a relative relationship URL.
+    // Resolve it against the configured API endpoint instead of assuming
+    // /maximo/api or /maxrest/api.
     try {
-        return new URL(value);
+      const base = String(env.endpoint || "").replace(/\/$/, "") + "/";
+      return new URL(String(value).replace(/^\//, ""), base);
     } catch (_) {
-        // Some Maximo configurations return a relative relationship URL.
-        // Resolve it against the configured API endpoint instead of assuming
-        // /maximo/api or /maxrest/api.
-        try {
-            const base = String(env.endpoint || '').replace(/\/$/, '') + '/';
-            return new URL(String(value).replace(/^\//, ''), base);
-        } catch (_) {
-            return null;
-        }
+      return null;
     }
+  }
 }
 
 function getWorklogUpdateUrl(env, workOrder, worklog) {
-    if (!worklog) {
-        throw Object.assign(new Error('Worklog is required.'), { status: 500 });
-    }
+  if (!worklog) {
+    throw Object.assign(new Error("Worklog is required."), { status: 500 });
+  }
 
-    // Preferred URL: child relationship localref. This commonly looks like:
-    //   .../mxapiwo/<key>/modifyworklog/<child-key>
-    // on both /maximo/api and /maxrest/api deployments.
-    const childUrl = resolveMaximoUrl(env, worklog.localref);
-    if (childUrl) {
-        childUrl.searchParams.set('lean', '1');
-        return { url: childUrl, mode: 'child' };
-    }
+  // Preferred URL: child relationship localref. This commonly looks like:
+  //   .../mxapiwo/<key>/modifyworklog/<child-key>
+  // on both /maximo/api and /maxrest/api deployments.
+  const childUrl = resolveMaximoUrl(env, worklog.localref);
+  if (childUrl) {
+    childUrl.searchParams.set("lean", "1");
+    return { url: childUrl, mode: "child" };
+  }
 
-    // Some Maximo environments expose only the parent WO href for the
-    // worklog relationship. In that case MERGE the nested worklog through
-    // the WO resource instead of constructing a server-specific path.
-    const parentUrl = resolveMaximoUrl(env, workOrder && workOrder.href);
-    if (parentUrl) {
-        parentUrl.searchParams.set('lean', '1');
-        return { url: parentUrl, mode: 'parent' };
-    }
+  // Some Maximo environments expose only the parent WO href for the
+  // worklog relationship. In that case MERGE the nested worklog through
+  // the WO resource instead of constructing a server-specific path.
+  const parentUrl = resolveMaximoUrl(env, workOrder && workOrder.href);
+  if (parentUrl) {
+    parentUrl.searchParams.set("lean", "1");
+    return { url: parentUrl, mode: "parent" };
+  }
 
-    throw Object.assign(
-        new Error(`No usable update URL was returned by Maximo for Worklog ${worklog.worklogid || ''}.`),
-        { status: 502 }
-    );
+  throw Object.assign(
+    new Error(
+      `No usable update URL was returned by Maximo for Worklog ${worklog.worklogid || ""}.`,
+    ),
+    { status: 502 },
+  );
 }
 
 /**
@@ -444,32 +373,40 @@ function getWorklogUpdateUrl(env, workOrder, worklog) {
  * because the update URL comes directly from Maximo.
  */
 async function updateWorklog(env, wonum, siteid, worklogid, input) {
-    if (worklogid === undefined || worklogid === null || String(worklogid).trim() === '') {
-        throw Object.assign(new Error(`Worklog ID is missing. Received value: ${worklogid}`), { status: 400 });
-    }
+  if (
+    worklogid === undefined ||
+    worklogid === null ||
+    String(worklogid).trim() === ""
+  ) {
+    throw Object.assign(
+      new Error(`Worklog ID is missing. Received value: ${worklogid}`),
+      { status: 400 },
+    );
+  }
 
-    // Do not force Number(worklogid). Maximo identifiers can differ between
-    // object structures/environments. Compare them as strings.
-    const id = String(worklogid).trim();
-    const workOrder = await getWorkOrderWithWorklogs(env, wonum, siteid);
-    const worklog = findWorklog(workOrder, id);
-    const target = getWorklogUpdateUrl(env, workOrder, worklog);
-    const normalized = normalize(input);
+  // Do not force Number(worklogid). Maximo identifiers can differ between
+  // object structures/environments. Compare them as strings.
+  const id = String(worklogid).trim();
+  const workOrder = await getWorkOrderWithWorklogs(env, wonum, siteid);
+  const worklog = findWorklog(workOrder, id);
+  const target = getWorklogUpdateUrl(env, workOrder, worklog);
+  const normalized = normalize(input);
 
-    const body = target.mode === 'child'
-        ? normalized
-        : { worklog: [{ worklogid: worklog.worklogid, ...normalized }] };
+  const body =
+    target.mode === "child"
+      ? normalized
+      : { worklog: [{ worklogid: worklog.worklogid, ...normalized }] };
 
-    const { data } = await maximoFetch(env, target.url, {
-        method: 'POST',
-        headers: {
-            'x-method-override': 'PATCH',
-            patchtype: 'MERGE'
-        },
-        body: JSON.stringify(body)
-    });
+  const { data } = await maximoFetch(env, target.url, {
+    method: "POST",
+    headers: {
+      "x-method-override": "PATCH",
+      patchtype: "MERGE",
+    },
+    body: JSON.stringify(body),
+  });
 
-    return data;
+  return data;
 }
 
 /**
@@ -477,136 +414,76 @@ async function updateWorklog(env, wonum, siteid, worklogid, input) {
  * API HANDLER
  * ============================================================
  */
-module.exports = async (
-    req,
-    res
-) => {
+module.exports = async (req, res) => {
+  const body = parseBody(req.body);
 
-    const body = parseBody(
-        req.body
-    );
+  const wonum = String(req.query.wonum || body.wonum || "").trim();
 
-    const wonum = String(
-        req.query.wonum ||
-        body.wonum ||
-        ''
-    ).trim();
+  const siteid = String(req.query.siteid || body.siteid || "BEDFORD").trim();
 
-    const siteid = String(
-        req.query.siteid ||
-        body.siteid ||
-        'BEDFORD'
-    ).trim();
+  try {
+    const env = await getEnvironment(req.query.env || body.env);
 
-    try {
+    /**
+     * GET
+     *
+     * List Worklogs.
+     */
+    if (req.method === "GET") {
+      const data = await listWorklogs(env, wonum, siteid);
 
-        const env =
-            await getEnvironment(
-                req.query.env ||
-                body.env
-            );
-
-
-        /**
-         * GET
-         *
-         * List Worklogs.
-         */
-        if (req.method === 'GET') {
-
-            const data =
-                await listWorklogs(
-                    env,
-                    wonum,
-                    siteid
-                );
-
-            return res.json({
-                data
-            });
-        }
-
-
-        /**
-         * Only POST is accepted for
-         * create/update from frontend.
-         */
-        if (req.method !== 'POST') {
-
-            return res
-                .status(405)
-                .json({
-                    error: 'Method not allowed'
-                });
-        }
-
-
-        const operation = String(
-                body.operation || 'create'
-            )
-            .trim()
-            .toLowerCase();
-
-
-        let data;
-
-
-        /**
-         * UPDATE
-         */
-        if (operation === 'update') {
-
-            if (!wonum) {
-                throw Object.assign(
-                    new Error(
-                        'Work Order number is required ' +
-                        'to update a Worklog.'
-                    ), {
-                        status: 400
-                    }
-                );
-            }
-
-            data = await updateWorklog(
-                env,
-                wonum,
-                siteid,
-                body.worklogid,
-                body
-            );
-
-        }
-
-        /**
-         * CREATE
-         */
-        else {
-
-            data = await createWorklog(
-                env,
-                wonum,
-                siteid,
-                body
-            );
-
-        }
-
-
-        return res.json({
-            message: 'Worklog saved successfully.',
-            data
-        });
-
-    } catch (error) {
-
-        sendError(
-            res,
-            error,
-            'Unable to process worklog.'
-        );
+      return res.json({
+        data,
+      });
     }
-};
 
+    /**
+     * Only POST is accepted for
+     * create/update from frontend.
+     */
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        error: "Method not allowed",
+      });
+    }
+
+    const operation = String(body.operation || "create")
+      .trim()
+      .toLowerCase();
+
+    let data;
+
+    /**
+     * UPDATE
+     */
+    if (operation === "update") {
+      if (!wonum) {
+        throw Object.assign(
+          new Error("Work Order number is required " + "to update a Worklog."),
+          {
+            status: 400,
+          },
+        );
+      }
+
+      data = await updateWorklog(env, wonum, siteid, body.worklogid, body);
+    }
+
+    /**
+     * CREATE
+     */
+    else {
+      data = await createWorklog(env, wonum, siteid, body);
+    }
+
+    return res.json({
+      message: "Worklog saved successfully.",
+      data,
+    });
+  } catch (error) {
+    sendError(res, error, "Unable to process worklog.");
+  }
+};
 
 /**
  * ============================================================
@@ -616,20 +493,14 @@ module.exports = async (
  * Keep exports available because other backend modules/tests
  * may import these functions.
  */
-module.exports.listWorklogs =
-    listWorklogs;
+module.exports.listWorklogs = listWorklogs;
 
-module.exports.createWorklog =
-    createWorklog;
+module.exports.createWorklog = createWorklog;
 
-module.exports.updateWorklog =
-    updateWorklog;
+module.exports.updateWorklog = updateWorklog;
 
-module.exports.getWorkOrderWithWorklogs =
-    getWorkOrderWithWorklogs;
+module.exports.getWorkOrderWithWorklogs = getWorkOrderWithWorklogs;
 
-module.exports.findWorklog =
-    findWorklog;
+module.exports.findWorklog = findWorklog;
 
-module.exports.getWorklogUpdateUrl =
-    getWorklogUpdateUrl;
+module.exports.getWorklogUpdateUrl = getWorklogUpdateUrl;

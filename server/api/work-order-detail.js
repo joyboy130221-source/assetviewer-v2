@@ -1,2 +1,30 @@
-const { escapeOslc, findSingle, sendError, getEnvironment } = require('../lib/maximo');
-module.exports=async(req,res)=>{if(req.method!=='GET')return res.status(405).json({error:'Method not allowed'});const wonum=String(req.query.wonum||'').trim(),siteid=String(req.query.siteid||'BEDFORD').trim();if(!wonum)return res.status(400).json({error:'wonum is required'});try{const env=await getEnvironment(req.query.env);const wo=await findSingle(env,'mxapiwo',`wonum="${escapeOslc(wonum)}" and siteid="${escapeOslc(siteid)}"`,'wonum,siteid,orgid,assetnum,location,description,wopriority,worktype,failurecode,reportedby,status,status_description,href,worklog_collectionref');if(!wo)return res.status(404).json({error:`Work order ${wonum} was not found in site ${siteid}.`});res.setHeader('Cache-Control','no-store');res.json({data:wo})}catch(e){sendError(res,e,'Unable to retrieve the work order.')}};
+const {
+  escapeOslc,
+  findSingle,
+  sendError,
+  getEnvironment,
+} = require("../lib/maximo");
+module.exports = async (req, res) => {
+  if (req.method !== "GET")
+    return res.status(405).json({ error: "Method not allowed" });
+  const wonum = String(req.query.wonum || "").trim(),
+    siteid = String(req.query.siteid || "BEDFORD").trim();
+  if (!wonum) return res.status(400).json({ error: "wonum is required" });
+  try {
+    const env = await getEnvironment(req.query.env);
+    const wo = await findSingle(
+      env,
+      "mxapiwo",
+      `wonum="${escapeOslc(wonum)}" and siteid="${escapeOslc(siteid)}"`,
+      "wonum,siteid,orgid,assetnum,location,description,wopriority,worktype,failurecode,reportedby,status,status_description,href,worklog_collectionref",
+    );
+    if (!wo)
+      return res.status(404).json({
+        error: `Work order ${wonum} was not found in site ${siteid}.`,
+      });
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ data: wo });
+  } catch (e) {
+    sendError(res, e, "Unable to retrieve the work order.");
+  }
+};
