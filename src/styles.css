@@ -148,3 +148,70 @@ h1{font-size:clamp(26px,3vw,36px);line-height:1.15;letter-spacing:-.025em}h2{fon
 .filter-panel{margin-bottom:20px;padding:18px;border:1px solid #dbe3ee;border-radius:12px;background:linear-gradient(180deg,#fbfdff,#f8fafc)}.filter-panel-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}.filter-panel-head>div{display:flex;align-items:center;gap:11px}.filter-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:9px;background:#eaf2ff;color:#1769e0}.log-filters{margin-bottom:0}.log-filters input,.log-filters select{min-height:40px;border:1px solid #cbd5e1;border-radius:9px;padding:8px 10px;background:#fff;font:inherit}.filter-search{position:relative}.filter-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#94a3b8;pointer-events:none}.filter-search input{padding-left:34px!important}.request-cell{width:340px;max-width:340px}.request-truncate{display:block;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#334155;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}.result-success{color:#166534;font-weight:650}.result-error{display:block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#991b1b}.empty-state{padding:28px;text-align:center;color:#64748b;font-size:13px}
 @media(max-width:900px){.card-toolbar{align-items:flex-start}.admin-topbar{align-items:flex-start}.request-cell{width:280px;max-width:280px}.request-truncate{max-width:280px}}
 @media(max-width:600px){.card-toolbar{flex-direction:column}.card-toolbar .primary-button{width:100%;justify-content:center}.admin-topbar{flex-direction:column}.admin-user-chip{text-align:left}.inline-actions{flex-wrap:wrap!important}}
+
+/* v4.3 enterprise data grids and work order UX */
+.admin-table-scroll {
+  max-height: min(62vh, 620px);
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+.admin-table-scroll .admin-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.admin-table-scroll .admin-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f8fafc;
+  box-shadow: inset 0 -1px 0 #dbe3ee;
+}
+.admin-table-scroll .admin-table tbody tr:hover td { background: #f8fbff; }
+
+.worklog-table-wrap {
+  overflow: auto;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #fff;
+}
+.worklog-table {
+  min-width: 960px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.worklog-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 11px 12px;
+  background: #f6f8fb;
+  color: #536176;
+  box-shadow: inset 0 -1px 0 #dbe3ee;
+}
+.worklog-table tbody tr { transition: background .15s ease; }
+.worklog-table tbody tr:hover { background: #fbfdff; }
+.worklog-table td { padding: 14px 12px; vertical-align: top; }
+.worklog-table textarea,
+.worklog-table select {
+  border-color: #d6dfeb;
+  background: #fbfdff;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.worklog-table textarea:hover,
+.worklog-table select:hover { border-color: #b8c6d8; background: #fff; }
+.worklog-meta { white-space: pre-line; padding-top: 4px; }
+.workorder-submit-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  background: linear-gradient(180deg, #fff, #fbfcfe);
+}
+.workorder-submit-card > p { margin: 0; color: #64748b; font-size: 13px; line-height: 1.55; }
+.workorder-footer-actions { display: flex; justify-content: flex-end; align-items: center; gap: 9px; }
+@media (max-width: 720px) {
+  .admin-table-scroll { max-height: 68vh; }
+  .workorder-submit-card { grid-template-columns: 1fr; }
+  .workorder-footer-actions { justify-content: flex-end; flex-wrap: wrap; }
+}

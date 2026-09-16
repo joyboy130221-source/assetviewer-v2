@@ -66,3 +66,11 @@ The React pages are intentionally separated from API services, types, utilities,
 - Consolidated table edit/delete actions into a single horizontal action group with icons.
 - Refreshed API Request Log filters, truncated long request URLs, and replaced View text with an icon action.
 - Reorganized navigation into Dashboards, Setup, and Monitoring groups.
+
+
+## v4.3 UI maintenance
+- Sticky headers for Maximo API Endpoint, API Request Log, Roles, and Users grids.
+- Confirmation copy no longer exposes the selected runtime environment on operational screens.
+- Work Order Update now preserves the asset number when navigating back to Asset Viewer.
+- Refined Worklog styling and right-aligned submission actions.
+- Added Prettier scripts for consistent source formatting. Run `npm install`, then `npm run format` before committing UI changes.
