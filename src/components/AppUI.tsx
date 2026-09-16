@@ -1,7 +1,37 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
-type ConfirmOptions={title?:string;message?:string;confirmText?:string;danger?:boolean};
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
+import { Toaster, toast as sonnerToast } from 'sonner';
+import { AlertTriangle, CheckCircle2, HelpCircle, LoaderCircle, X } from 'lucide-react';
+
+type ConfirmOptions={title?:string;message?:string;confirmText?:string;cancelText?:string;danger?:boolean};
 type UIContextType={confirm:(o:ConfirmOptions)=>Promise<boolean>;toast:(m:string,t?:'success'|'error')=>void};
 const C=createContext<UIContextType|null>(null);
-export function AppUIProvider({children}:{children:ReactNode}){const [dialog,setDialog]=useState<(ConfirmOptions&{resolve:(v:boolean)=>void})|null>(null);const [toasts,setToasts]=useState<{id:number;m:string;t:string}[]>([]);const confirm=(o:ConfirmOptions)=>new Promise<boolean>(resolve=>setDialog({...o,resolve}));const toast=(m:string,t='success')=>{const id=Date.now()+Math.random();setToasts(x=>[...x,{id,m,t}]);setTimeout(()=>setToasts(x=>x.filter(y=>y.id!==id)),4500)};const done=(v:boolean)=>{dialog?.resolve(v);setDialog(null)};return <C.Provider value={{confirm,toast}}>{children}{dialog&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&done(false)}><div className="modal-card"><div className="modal-icon">?</div><h2>{dialog.title||'Confirm action'}</h2><p>{dialog.message||'Are you sure?'}</p><div className="modal-actions"><button className="secondary-button" onClick={()=>done(false)}>Cancel</button><button className={dialog.danger?'primary-button danger-button':'primary-button'} onClick={()=>done(true)}>{dialog.confirmText||'Confirm'}</button></div></div></div>}<div className="toast-host">{toasts.map(x=><div key={x.id} className={`toast ${x.t}`}>{x.m}</div>)}</div></C.Provider>}
+
+export function AppUIProvider({children}:{children:ReactNode}){
+  const [dialog,setDialog]=useState<(ConfirmOptions&{resolve:(v:boolean)=>void})|null>(null);
+  const confirm=(o:ConfirmOptions)=>new Promise<boolean>(resolve=>setDialog({...o,resolve}));
+  const toast=(m:string,t:'success'|'error'='success')=>t==='error'?sonnerToast.error(m):sonnerToast.success(m);
+  const done=(v:boolean)=>{dialog?.resolve(v);setDialog(null)};
+  return <C.Provider value={{confirm,toast}}>
+    {children}
+    <Toaster position="top-right" richColors closeButton duration={4500}/>
+    <AlertDialog.Root open={!!dialog} onOpenChange={open=>{if(!open&&dialog)done(false)}}>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay className="dialog-overlay"/>
+        <AlertDialog.Content className="dialog-content">
+          <div className={`dialog-icon ${dialog?.danger?'danger':''}`}>{dialog?.danger?<AlertTriangle size={22}/>:<HelpCircle size={22}/>}</div>
+          <div className="dialog-copy">
+            <AlertDialog.Title className="dialog-title">{dialog?.title||'Confirm action'}</AlertDialog.Title>
+            <AlertDialog.Description className="dialog-description">{dialog?.message||'Are you sure you want to continue?'}</AlertDialog.Description>
+          </div>
+          <div className="dialog-actions">
+            <AlertDialog.Cancel asChild><button className="secondary-button"><X size={16}/>{dialog?.cancelText||'Cancel'}</button></AlertDialog.Cancel>
+            <AlertDialog.Action asChild><button className={dialog?.danger?'primary-button danger-button':'primary-button'} onClick={()=>done(true)}>{dialog?.danger?<AlertTriangle size={16}/>:<CheckCircle2 size={16}/>} {dialog?.confirmText||'Confirm'}</button></AlertDialog.Action>
+          </div>
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
+  </C.Provider>
+}
 export function useAppUI(){const v=useContext(C);if(!v)throw new Error('useAppUI must be inside AppUIProvider');return v}
-export function LoadingOverlay({show,text='Processing…'}:{show:boolean;text?:string}){return show?<div className="loading-overlay"><div className="loading-panel"><span className="spinner"/><span>{text}</span></div></div>:null}
+export function LoadingOverlay({show,text='Processing…'}:{show:boolean;text?:string}){return show?<div className="loading-overlay"><div className="loading-panel"><LoaderCircle className="spin-icon" size={21}/><span>{text}</span></div></div>:null}
