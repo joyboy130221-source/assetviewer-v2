@@ -71,7 +71,7 @@ The React pages are intentionally separated from API services, types, utilities,
 ## v4.3 UI maintenance
 - Sticky headers for Maximo API Endpoint, API Request Log, Roles, and Users grids.
 - Confirmation copy no longer exposes the selected runtime environment on operational screens.
-- Work Order Update now preserves the asset number when navigating back to Asset Viewer.
+- Work Order Update now preserves the asset number when navigating back to Integration Hub.
 - Refined Worklog styling and right-aligned submission actions.
 - Added Prettier scripts for consistent source formatting. Run `npm install`, then `npm run format` before committing UI changes.
 
