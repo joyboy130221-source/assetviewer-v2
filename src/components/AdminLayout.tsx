@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Users,
   Workflow,
+  History,
 } from "lucide-react";
 import { api } from "../services/api";
 import type { AdminUser } from "../types";
@@ -72,6 +73,12 @@ const integration: MenuItem[] = [
   },
 ];
 const monitoring: MenuItem[] = [
+  {
+    to: "/admin/workflow-executions",
+    label: "Workflow Executions",
+    permission: "workflowExecutions",
+    icon: <History size={17} />,
+  },
   {
     to: "/admin/api-logs",
     label: "API Request Log",

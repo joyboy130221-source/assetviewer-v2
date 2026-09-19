@@ -3758,3 +3758,243 @@ input[type="search"] {
     grid-column: auto;
   }
 }
+
+/* v8.5 — workflow history and portable form packages */
+.workflow-history-toolbar {
+  gap: 20px;
+  align-items: end;
+}
+.workflow-history-filters,
+.fb-import-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.workflow-history-filters input {
+  min-width: 260px;
+}
+.clickable-row {
+  cursor: pointer;
+}
+.clickable-row:hover {
+  background: rgba(15, 98, 254, 0.045);
+}
+.workflow-history-detail {
+  margin-top: 18px;
+}
+.workflow-history-steps {
+  display: grid;
+  gap: 10px;
+}
+.workflow-history-step {
+  border: 1px solid var(--border, #d9e0e7);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.workflow-history-step-head {
+  width: 100%;
+  border: 0;
+  background: #fff;
+  padding: 13px 15px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+}
+.workflow-history-payload {
+  padding: 0 16px 16px;
+  border-top: 1px solid #e5e9ef;
+  background: #fafbfc;
+}
+.workflow-history-payload pre {
+  overflow: auto;
+  max-height: 360px;
+  padding: 12px;
+  background: #111827;
+  color: #f8fafc;
+  border-radius: 7px;
+  font-size: 12px;
+}
+.workflow-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+.workflow-status.success {
+  background: #defbe6;
+  color: #0e6027;
+}
+.workflow-status.failed {
+  background: #fff1f1;
+  color: #a2191f;
+}
+.fb-import-button {
+  cursor: pointer;
+}
+@media (max-width: 760px) {
+  .workflow-history-filters,
+  .fb-import-actions {
+    width: 100%;
+  }
+  .workflow-history-filters input {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+/* RPA v0.1 + workflow history filter refinements */
+.app-combobox,
+.workflow-history-filters .app-combobox {
+  min-height: 40px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 8px 10px;
+  background: #fff;
+  color: #14213d;
+  font: inherit;
+}
+.workflow-history-filters select.app-combobox {
+  min-width: 150px;
+}
+.searchable-combobox .app-combobox {
+  min-width: 250px;
+}
+.tenant-label {
+  display: inline-flex;
+  margin-top: 5px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 650;
+}
+.fb-browser-action {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid #dbe4ef;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.fb-browser-action > div,
+.fb-browser-action > small {
+  grid-column: 1 / -1;
+}
+.fb-browser-action > div {
+  display: grid;
+  gap: 4px;
+}
+.fb-browser-action label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 650;
+}
+.fb-browser-action input,
+.fb-browser-action select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 9px 11px;
+  background: #fff;
+  font: inherit;
+}
+@media (max-width: 760px) {
+  .fb-browser-action {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Browser RPA editor refinements */
+.fb-browser-action-heading {
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.fb-browser-wide {
+  grid-column: 1 / -1;
+}
+.fb-browser-action .fb-optional {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+}
+.fb-browser-action .fb-browser-checkbox {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-self: end;
+  min-height: 42px;
+  gap: 9px;
+}
+.fb-browser-action .fb-browser-checkbox input {
+  width: 16px;
+  min-height: 16px;
+  margin: 0;
+}
+
+.rpa-test-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  background: #f8fafc;
+}
+.rpa-test-card {
+  width: min(100%, 680px);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgb(15 23 42 / 8%);
+}
+.rpa-test-card h1,
+.rpa-test-card p {
+  margin: 0;
+}
+.rpa-test-card > div {
+  display: grid;
+  gap: 8px;
+}
+.rpa-test-kicker {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.rpa-test-card label:not(.rpa-test-check) {
+  display: grid;
+  gap: 7px;
+  font-weight: 650;
+}
+.rpa-test-card input,
+.rpa-test-card select {
+  min-height: 42px;
+  border: 1px solid #cbd5e1;
+  border-radius: 9px;
+  padding: 9px 11px;
+  font: inherit;
+}
+.rpa-test-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.rpa-test-check input {
+  min-height: auto;
+}
+.rpa-test-result {
+  padding: 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  background: #f0fdf4;
+  font-weight: 650;
+}

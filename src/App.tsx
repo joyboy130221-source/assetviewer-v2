@@ -5,6 +5,7 @@ import CreateWorkOrderPage from "./pages/CreateWorkOrderPage";
 import LoginPage from "./pages/LoginPage";
 import UpdateWorkOrderPage from "./pages/UpdateWorkOrderPage";
 import ApiLogsPage from "./pages/admin/ApiLogsPage";
+import WorkflowExecutionsPage from "./pages/admin/WorkflowExecutionsPage";
 import EnvironmentsPage from "./pages/admin/EnvironmentsPage";
 import ExternalViewsPage from "./pages/admin/ExternalViewsPage";
 import RolesPage from "./pages/admin/RolesPage";
@@ -17,6 +18,7 @@ import FormDesignerPage from "./pages/integration/FormDesignerPage";
 import FormPreviewPage from "./pages/integration/FormPreviewPage";
 import SubmissionListPage from "./pages/integration/SubmissionListPage";
 import UserFormPage from "./pages/integration/UserFormPage";
+import RpaTestPage from "./pages/RpaTestPage";
 
 export default function App() {
   return (
@@ -45,6 +47,10 @@ export default function App() {
       <Route path="/admin/organizations" element={<OrganizationsPage />} />
       <Route path="/users.html" element={<UsersPage />} />
       <Route path="/admin/api-logs" element={<ApiLogsPage />} />
+      <Route
+        path="/admin/workflow-executions"
+        element={<WorkflowExecutionsPage />}
+      />
       <Route path="/api-logs.html" element={<ApiLogsPage />} />
       <Route
         path="/admin/integration/form-builder"
@@ -67,6 +73,7 @@ export default function App() {
         element={<SubmissionListPage />}
       />
       <Route path="/forms/:formId" element={<UserFormPage />} />
+      <Route path="/rpa-test" element={<RpaTestPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

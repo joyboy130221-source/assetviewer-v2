@@ -9,6 +9,7 @@ const KNOWN = [
   "organizations",
   "formBuilder",
   "authenticationProfiles",
+  "workflowExecutions",
 ];
 function perms(v) {
   const p = {};
@@ -31,6 +32,10 @@ module.exports = async (req, res) => {
           { key: "maximoEnvironments", label: "Maximo API Endpoint Page" },
           { key: "externalViews", label: "External View Page" },
           { key: "apiLogs", label: "API Request Log Page" },
+          {
+            key: "workflowExecutions",
+            label: "Workflow Execution History Page",
+          },
           { key: "organizations", label: "Organizations / Tenants Page" },
           { key: "formBuilder", label: "Form Builder Page" },
           {

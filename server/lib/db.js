@@ -127,6 +127,7 @@ async function ensureSchema() {
           organizations: true,
           formBuilder: true,
           authenticationProfiles: true,
+          workflowExecutions: true,
         }),
       ],
     );
@@ -137,6 +138,9 @@ async function ensureSchema() {
       id UUID PRIMARY KEY, code VARCHAR(80) UNIQUE NOT NULL, name VARCHAR(180) NOT NULL, description TEXT,
       active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);
+    await db.query(
+      `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL`,
+    );
     await db.query(`CREATE TABLE IF NOT EXISTS form_definitions (
       id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
       mode VARCHAR(30) NOT NULL DEFAULT 'empty', status VARCHAR(30) NOT NULL DEFAULT 'draft', fields JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -173,8 +177,37 @@ async function ensureSchema() {
     await db.query(
       `CREATE INDEX IF NOT EXISTS idx_form_action_logs_submission ON form_action_logs(submission_id, created_at DESC)`,
     );
+    await db.query(`CREATE TABLE IF NOT EXISTS workflow_executions (
+      id UUID PRIMARY KEY, submission_id UUID NOT NULL REFERENCES form_submissions(id) ON DELETE CASCADE,
+      form_id UUID NOT NULL REFERENCES form_definitions(id) ON DELETE CASCADE, organization_id UUID NOT NULL REFERENCES organizations(id),
+      status VARCHAR(20) NOT NULL, success BOOLEAN NOT NULL DEFAULT FALSE, duration_ms INTEGER NOT NULL DEFAULT 0,
+      started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), completed_at TIMESTAMPTZ
+    )`);
+    await db.query(`CREATE TABLE IF NOT EXISTS workflow_step_executions (
+      id UUID PRIMARY KEY, workflow_execution_id UUID NOT NULL REFERENCES workflow_executions(id) ON DELETE CASCADE,
+      step_key VARCHAR(180) NOT NULL, step_name VARCHAR(240) NOT NULL, sequence INTEGER NOT NULL,
+      success BOOLEAN NOT NULL DEFAULT FALSE, response_status INTEGER, duration_ms INTEGER NOT NULL DEFAULT 0,
+      request_method VARCHAR(50), request_url TEXT, request_headers JSONB NOT NULL DEFAULT '{}'::jsonb,
+      request_params JSONB NOT NULL DEFAULT '{}'::jsonb, request_body JSONB, response_body JSONB, error_message TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    // RPA browser actions are persisted as values such as BROWSER:OPEN_PAGE.
+    // Existing installations may still have the original VARCHAR(12) column,
+    // so widen it during startup as a backward-compatible schema migration.
     await db.query(
-      `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
+      `ALTER TABLE workflow_step_executions ALTER COLUMN request_method TYPE VARCHAR(50)`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_workflow_exec_created ON workflow_executions(started_at DESC)`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_workflow_exec_form ON workflow_executions(form_id, started_at DESC)`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_workflow_steps_execution ON workflow_step_executions(workflow_execution_id, sequence)`,
+    );
+    await db.query(
+      `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true, "workflowExecutions": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
     );
     const userCount = Number(
       (await db.query("SELECT COUNT(*) AS count FROM app_users")).rows[0].count,

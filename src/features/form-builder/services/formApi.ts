@@ -28,11 +28,34 @@ export const formApi = {
     api("/api/admin/forms", jsonInit("PUT", body)),
   deleteForm: (id: string) =>
     api("/api/admin/forms", jsonInit("DELETE", { id })),
+  promoteToExternalView: (body: {
+    name: string;
+    description?: string;
+    url: string;
+    organizationId?: string;
+  }) =>
+    api(
+      "/api/admin/external-views",
+      jsonInit("POST", { ...body, active: true }),
+    ),
   duplicateForm: async (id: string) =>
     (
       await api<{ id: string }>(
         "/api/admin/forms",
         jsonInit("POST", { duplicateOf: id }),
+      )
+    ).id,
+  exportForm: async (id: string) =>
+    (
+      await api<{ data: unknown }>(
+        `/api/admin/form-packages?id=${encodeURIComponent(id)}`,
+      )
+    ).data,
+  importForm: async (packageData: unknown, organizationId: string) =>
+    (
+      await api<{ id: string }>(
+        "/api/admin/form-packages",
+        jsonInit("POST", { package: packageData, organizationId }),
       )
     ).id,
   publicForm: async (id: string, queryString = "") =>

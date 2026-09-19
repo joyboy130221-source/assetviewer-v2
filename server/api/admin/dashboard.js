@@ -10,7 +10,10 @@ module.exports = async (req, res) => {
   try {
     const [views, environments] = await Promise.all([
       query(
-        "SELECT id,name,description,url,active FROM external_views WHERE active=TRUE ORDER BY name",
+        `SELECT ev.id,ev.name,ev.description,ev.url,ev.active,ev.organization_id,
+                o.name AS organization_name,o.code AS organization_code
+           FROM external_views ev LEFT JOIN organizations o ON o.id=ev.organization_id
+          WHERE ev.active=TRUE ORDER BY ev.name`,
       ),
       query(
         "SELECT id,env_name,description,active FROM maximo_environments WHERE active=TRUE ORDER BY env_name",

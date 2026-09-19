@@ -10,13 +10,19 @@ type ExternalView = {
   description?: string;
   url: string;
   active: boolean;
+  organization_id?: string | null;
+  organization_name?: string | null;
+  organization_code?: string | null;
 };
+
+type Organization = { id: string; code: string; name: string; active: boolean };
 
 export default function ExternalViewsPage() {
   const [data, setData] = useState<ExternalView[]>([]);
   const [edit, setEdit] = useState<ExternalView | null>(null);
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const ui = useAppUI();
 
   const load = () =>
@@ -26,12 +32,16 @@ export default function ExternalViewsPage() {
 
   useEffect(() => {
     load().catch((error) => ui.toast(error.message, "error"));
+    api<{ data: Organization[] }>("/api/admin/organizations")
+      .then((body) => setOrganizations(body.data.filter((org) => org.active)))
+      .catch((error) => ui.toast(error.message, "error"));
   }, []);
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const body: any = Object.fromEntries(new FormData(event.currentTarget));
     body.active = body.active === "true";
+    body.organizationId = body.organizationId || null;
     const editing = Boolean(body.id);
     if (
       !(await ui.confirm({
@@ -136,6 +146,20 @@ export default function ExternalViewsPage() {
                   <option value="false">No</option>
                 </select>
               </label>
+              <label>
+                Organization / Tenant
+                <select
+                  name="organizationId"
+                  defaultValue={edit?.organization_id || ""}
+                >
+                  <option value="">No tenant assigned</option>
+                  {organizations.map((organization) => (
+                    <option key={organization.id} value={organization.id}>
+                      {organization.code} — {organization.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label className="wide">
                 Description
                 <input
@@ -177,6 +201,7 @@ export default function ExternalViewsPage() {
                 <tr>
                   <th>Name</th>
                   <th>Description</th>
+                  <th>Tenant</th>
                   <th>URL</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -189,6 +214,7 @@ export default function ExternalViewsPage() {
                       <strong>{item.name}</strong>
                     </td>
                     <td>{item.description || "—"}</td>
+                    <td>{item.organization_name || "—"}</td>
                     <td className="endpoint">
                       <span className="external-url-cell">
                         <ExternalLink size={14} />

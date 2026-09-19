@@ -73,9 +73,9 @@ export default function FormBuilderWizardPage() {
             value={theme}
             onChange={(e) => setTheme(e.target.value as FormTheme)}
           >
-            <option value="current">Current BIB Theme</option>
-            <option value="sap">SAP Enterprise Theme</option>
-            <option value="maximo">IBM Maximo Theme</option>
+            <option value="current">Default</option>
+            <option value="sap">Classic ERP</option>
+            <option value="maximo">Carbon</option>
           </select>
           <small>The theme can also be changed later in Form Properties.</small>
         </label>

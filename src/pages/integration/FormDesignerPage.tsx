@@ -170,9 +170,9 @@ export default function FormDesignerPage() {
                 })
               }
             >
-              <option value="current">Current BIB Theme</option>
-              <option value="sap">SAP Enterprise Theme</option>
-              <option value="maximo">IBM Maximo Theme</option>
+              <option value="current">Default</option>
+              <option value="sap">Classic ERP</option>
+              <option value="maximo">Carbon</option>
             </select>
           </label>
           <label className="fb-required-row">

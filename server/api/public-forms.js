@@ -9,6 +9,7 @@ const {
   validateField,
   applyAuthProfile,
 } = require("../lib/form-engine");
+const { BrowserRpaSession } = require("../lib/browser-rpa");
 const {
   execute: executeIntegration,
   getPath,
@@ -152,15 +153,77 @@ module.exports = async (req, res) => {
     const workflowStartedAt = Date.now();
     const workflowSteps = [];
 
-    const redactHeaders = (headers = {}) =>
-      Object.fromEntries(
-        Object.entries(headers).map(([key, value]) => [
-          key,
-          /authorization|api[-_]?key|token|secret|password/i.test(key)
-            ? "[REDACTED]"
-            : value,
-        ]),
+    const persistWorkflowExecution = async (status) => {
+      const durationMs = Date.now() - workflowStartedAt;
+      await query(
+        `INSERT INTO workflow_executions(id,submission_id,form_id,organization_id,status,success,duration_ms,started_at,completed_at)
+         VALUES($1,$2,$3,$4,$5,$6,$7,TO_TIMESTAMP($8 / 1000.0),NOW())`,
+        [
+          workflowExecutionId,
+          sid,
+          form.id,
+          form.organization_id,
+          status,
+          status === "SUCCESS",
+          durationMs,
+          workflowStartedAt,
+        ],
       );
+      for (let index = 0; index < workflowSteps.length; index += 1) {
+        const step = workflowSteps[index];
+        await query(
+          `INSERT INTO workflow_step_executions(
+             id,workflow_execution_id,step_key,step_name,sequence,success,response_status,duration_ms,
+             request_method,request_url,request_headers,request_params,request_body,response_body,error_message
+           ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12::jsonb,$13::jsonb,$14::jsonb,$15)`,
+          [
+            crypto.randomUUID(),
+            workflowExecutionId,
+            step.key,
+            step.name,
+            index + 1,
+            step.success,
+            step.status,
+            step.durationMs,
+            step.request?.method || null,
+            step.request?.url || null,
+            JSON.stringify(sanitize(step.request?.headers || {})),
+            JSON.stringify(sanitize(step.request?.params || {})),
+            JSON.stringify(sanitize(step.request?.body ?? null)),
+            JSON.stringify(sanitize(step.response ?? null)),
+            step.error || null,
+          ],
+        );
+      }
+      return durationMs;
+    };
+
+    const sensitiveKey =
+      /authorization|api[-_]?key|x[-_]?api[-_]?key|token|secret|password|credential/i;
+    const sanitize = (value) => {
+      if (Array.isArray(value)) return value.map(sanitize);
+      if (value && typeof value === "object") {
+        return Object.fromEntries(
+          Object.entries(value).map(([key, item]) => [
+            key,
+            sensitiveKey.test(key) ? "[REDACTED]" : sanitize(item),
+          ]),
+        );
+      }
+      return value;
+    };
+    const sanitizeUrl = (rawUrl) => {
+      try {
+        const parsed = new URL(rawUrl);
+        for (const key of parsed.searchParams.keys()) {
+          if (sensitiveKey.test(key))
+            parsed.searchParams.set(key, "[REDACTED]");
+        }
+        return parsed.toString();
+      } catch {
+        return rawUrl;
+      }
+    };
 
     const runAction = async (rawAction, context, stepKey = null) => {
       let action = await applyAuthProfile(rawAction, query);
@@ -221,10 +284,10 @@ module.exports = async (req, res) => {
           form.id,
           form.organization_id,
           (action.method || "POST").toUpperCase(),
-          requestUrl,
-          JSON.stringify(redactHeaders(resolvedHeaders)),
-          JSON.stringify(resolvedParams),
-          JSON.stringify(resolvedBody),
+          sanitizeUrl(requestUrl),
+          JSON.stringify(sanitize(resolvedHeaders)),
+          JSON.stringify(sanitize(resolvedParams)),
+          JSON.stringify(sanitize(resolvedBody)),
           status,
           responseBody ? JSON.stringify(responseBody) : null,
           success,
@@ -242,10 +305,10 @@ module.exports = async (req, res) => {
         durationMs,
         request: {
           method: (action.method || "POST").toUpperCase(),
-          url: requestUrl,
-          headers: redactHeaders(resolvedHeaders),
-          params: resolvedParams,
-          body: resolvedBody,
+          url: sanitizeUrl(requestUrl),
+          headers: sanitize(resolvedHeaders),
+          params: sanitize(resolvedParams),
+          body: sanitize(resolvedBody),
         },
       };
     };
@@ -256,31 +319,87 @@ module.exports = async (req, res) => {
       Array.isArray(workflow.steps) &&
       workflow.steps.length
     ) {
-      for (const step of workflow.steps) {
-        if (!step?.action?.enabled || !step.action.url) continue;
-        const stepKey = step.key || step.id;
-        const stepContext = { ...templateContext, steps: workflowResults };
-        const result = await runAction(step.action, stepContext, stepKey);
-        const stepExecution = {
-          key: stepKey,
-          name: step.name || stepKey,
-          success: result.success,
-          status: result.status,
-          error: result.error,
-          durationMs: result.durationMs,
-          request: result.request,
-          response: result.response || {},
-        };
-        workflowResults[stepKey] = stepExecution;
-        workflowSteps.push(stepExecution);
-        actionResult = result;
-        if (!result.success) break;
+      const browserRpa = new BrowserRpaSession();
+      try {
+        for (const step of workflow.steps) {
+          const stepType = step?.type || "api";
+          if (
+            stepType === "api" &&
+            (!step?.action?.enabled || !step.action.url)
+          )
+            continue;
+          if (stepType === "browser" && !step?.browser?.action) continue;
+
+          const stepKey = step.key || step.id;
+          const stepContext = { ...templateContext, steps: workflowResults };
+          let result;
+          try {
+            result =
+              stepType === "browser"
+                ? await browserRpa.execute(step.browser, stepContext)
+                : await runAction(step.action, stepContext, stepKey);
+          } catch (executionError) {
+            const failureScreenshot =
+              stepType === "browser"
+                ? await browserRpa.captureFailureScreenshot()
+                : null;
+            result = {
+              success: false,
+              status: null,
+              error: executionError.message,
+              durationMs: 0,
+              request: {
+                method:
+                  stepType === "browser"
+                    ? `BROWSER:${String(step.browser?.action || "UNKNOWN").toUpperCase()}`
+                    : "API",
+                url: step.browser?.url || step.action?.url || "",
+                headers: {},
+                params: {
+                  selector: step.browser?.selector || null,
+                  frameSelector: step.browser?.frameSelector || null,
+                  match: step.browser?.match || "single",
+                },
+                body:
+                  step.browser?.value == null
+                    ? null
+                    : { value: "[REDACTED_IF_SENSITIVE]" },
+              },
+              response: failureScreenshot
+                ? {
+                    action: step.browser?.action || "unknown",
+                    failureScreenshot,
+                  }
+                : {},
+            };
+          }
+          const stepExecution = {
+            key: stepKey,
+            name: step.name || stepKey,
+            type: stepType,
+            success: result.success,
+            status: result.status,
+            error: result.error,
+            durationMs: result.durationMs,
+            request: result.request,
+            response: result.response || {},
+          };
+          workflowResults[stepKey] = stepExecution;
+          workflowSteps.push(stepExecution);
+          actionResult = result;
+          if (!result.success) break;
+        }
+      } finally {
+        await browserRpa.close();
       }
     } else if (form.submit_action?.enabled && form.submit_action.url) {
       actionResult = await runAction(form.submit_action, templateContext);
     }
 
     if (actionResult && !actionResult.success) {
+      const persistedDurationMs = workflow?.enabled
+        ? await persistWorkflowExecution("FAILED")
+        : Date.now() - workflowStartedAt;
       return res.status(502).json({
         id: sid,
         error: actionResult.error || "Integration workflow failed.",
@@ -290,11 +409,15 @@ module.exports = async (req, res) => {
           workflowExecutionId,
           status: "FAILED",
           success: false,
-          durationMs: Date.now() - workflowStartedAt,
+          durationMs: persistedDurationMs,
           steps: workflowSteps,
         },
       });
     }
+
+    const persistedWorkflowDurationMs = workflow?.enabled
+      ? await persistWorkflowExecution("SUCCESS")
+      : Date.now() - workflowStartedAt;
 
     const responseContext = {
       ...templateContext,
@@ -316,7 +439,7 @@ module.exports = async (req, res) => {
             workflowExecutionId,
             status: "SUCCESS",
             success: true,
-            durationMs: Date.now() - workflowStartedAt,
+            durationMs: persistedWorkflowDurationMs,
             steps: workflowSteps,
           }
         : null,

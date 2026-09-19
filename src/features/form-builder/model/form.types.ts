@@ -13,11 +13,48 @@ export type ApiAction = {
 };
 export type IntegrationSource = ApiAction;
 export type FormTheme = "current" | "sap" | "maximo";
+export type BrowserAction = {
+  action:
+    | "openPage"
+    | "click"
+    | "fill"
+    | "select"
+    | "waitFor"
+    | "delay"
+    | "readText"
+    | "readAttribute"
+    | "check"
+    | "uncheck"
+    | "uploadFile"
+    | "downloadFile"
+    | "screenshot"
+    | "pressKey"
+    | "hover"
+    | "scrollIntoView"
+    | "switchToLatestPage";
+  url?: string;
+  selector?: string;
+  value?: string;
+  timeoutMs?: number;
+  match?: "single" | "first" | "last" | "nth";
+  matchIndex?: number;
+  frameSelector?: string;
+  waitState?: "attached" | "detached" | "visible" | "hidden";
+  waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit";
+  attributeName?: string;
+  filePath?: string;
+  fileName?: string;
+  fullPage?: boolean;
+  key?: string;
+  delayMs?: number;
+};
 export type WorkflowStep = {
   id: string;
   key: string;
   name: string;
-  action: ApiAction;
+  type?: "api" | "browser";
+  action?: ApiAction;
+  browser?: BrowserAction;
 };
 export type WorkflowDefinition = {
   enabled: boolean;
