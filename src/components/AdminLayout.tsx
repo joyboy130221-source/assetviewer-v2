@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   Activity,
+  KeyRound,
+  Building2,
   ChevronDown,
   ExternalLink,
   Gauge,
@@ -9,6 +11,7 @@ import {
   ServerCog,
   ShieldCheck,
   Users,
+  Workflow,
 } from "lucide-react";
 import { api } from "../services/api";
 import type { AdminUser } from "../types";
@@ -23,6 +26,12 @@ type MenuItem = {
 };
 
 const setup: MenuItem[] = [
+  {
+    to: "/admin/organizations",
+    label: "Organizations / Tenants",
+    permission: "organizations",
+    icon: <Building2 size={17} />,
+  },
   {
     to: "/admin/maximo-environments",
     label: "Maximo API Endpoint",
@@ -46,6 +55,20 @@ const setup: MenuItem[] = [
     label: "Users",
     permission: "users",
     icon: <Users size={17} />,
+  },
+];
+const integration: MenuItem[] = [
+  {
+    to: "/admin/authentication-profiles",
+    label: "Authentication Profiles",
+    permission: "authenticationProfiles",
+    icon: <KeyRound size={17} />,
+  },
+  {
+    to: "/admin/integration/form-builder",
+    label: "Form Builder Wizards",
+    permission: "formBuilder",
+    icon: <Workflow size={17} />,
   },
 ];
 const monitoring: MenuItem[] = [
@@ -72,6 +95,9 @@ export function AdminLayout({
 }) {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [denied, setDenied] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<
+    Record<string, boolean>
+  >({});
   const navigate = useNavigate();
   const location = useLocation();
   const ui = useAppUI();
@@ -124,20 +150,34 @@ export function AdminLayout({
       navigate("/login");
     }
   };
-  const group = (label: string, items: MenuItem[]) => (
-    <div className="nav-group">
-      <div className="nav-group-title">
-        <span>{label}</span>
-        <ChevronDown size={14} />
+  const group = (label: string, items: MenuItem[]) => {
+    const collapsed = Boolean(collapsedGroups[label]);
+    return (
+      <div className={`nav-group ${collapsed ? "collapsed" : ""}`}>
+        <button
+          type="button"
+          className="nav-group-title"
+          aria-expanded={!collapsed}
+          onClick={() =>
+            setCollapsedGroups((current) => ({
+              ...current,
+              [label]: !current[label],
+            }))
+          }
+        >
+          <span>{label}</span>
+          <ChevronDown className="nav-group-chevron" size={14} />
+        </button>
+        {!collapsed &&
+          items.filter(allowed).map((item) => (
+            <NavLink key={item.to} to={item.to} end={item.end}>
+              <span className="nav-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
       </div>
-      {items.filter(allowed).map((item) => (
-        <NavLink key={item.to} to={item.to} end={item.end}>
-          <span className="nav-icon">{item.icon}</span>
-          <span>{item.label}</span>
-        </NavLink>
-      ))}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="admin-shell">
@@ -158,6 +198,7 @@ export function AdminLayout({
             <span>Dashboards</span>
           </NavLink>
           {group("Setup", setup)}
+          {group("Integration", integration)}
           {group("Monitoring", monitoring)}
         </nav>
         <button onClick={logout} className="sidebar-signout">

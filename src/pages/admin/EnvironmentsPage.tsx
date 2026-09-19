@@ -153,7 +153,7 @@ export default function EnvironmentsPage() {
               </label>
               <div className="wide inline-actions">
                 <button className="primary-button">
-                  {edit ? "Update Endpoint" : "Create Endpoint"}
+                  {edit ? "Update" : "Save"}
                 </button>
                 <button
                   type="button"

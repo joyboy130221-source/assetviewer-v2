@@ -155,7 +155,7 @@ export default function ExternalViewsPage() {
               </label>
               <div className="wide inline-actions">
                 <button className="primary-button">
-                  {edit ? "Update View" : "Create View"}
+                  {edit ? "Update" : "Save"}
                 </button>
                 <button
                   type="button"

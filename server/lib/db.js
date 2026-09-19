@@ -88,6 +88,11 @@ async function ensureSchema() {
       id BIGSERIAL PRIMARY KEY, env_name VARCHAR(80) UNIQUE NOT NULL, description TEXT, endpoint TEXT NOT NULL, api_key TEXT NOT NULL,
       active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);
+    await db.query(`CREATE TABLE IF NOT EXISTS authentication_profiles (
+      id BIGSERIAL PRIMARY KEY, name VARCHAR(120) UNIQUE NOT NULL, description TEXT, auth_type VARCHAR(30) NOT NULL,
+      header_name VARCHAR(120), username VARCHAR(180), secret_value TEXT NOT NULL, active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
     await db.query(`CREATE TABLE IF NOT EXISTS external_views (
       id BIGSERIAL PRIMARY KEY, name VARCHAR(120) UNIQUE NOT NULL, description TEXT, url TEXT NOT NULL, active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -119,11 +124,57 @@ async function ensureSchema() {
           maximoEnvironments: true,
           externalViews: true,
           apiLogs: true,
+          organizations: true,
+          formBuilder: true,
+          authenticationProfiles: true,
         }),
       ],
     );
     await db.query(
       `UPDATE app_roles SET permissions = permissions || '{"externalViews": true}'::jsonb, updated_at=NOW() WHERE name='administrator' AND NOT (permissions ? 'externalViews')`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS organizations (
+      id UUID PRIMARY KEY, code VARCHAR(80) UNIQUE NOT NULL, name VARCHAR(180) NOT NULL, description TEXT,
+      active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await db.query(`CREATE TABLE IF NOT EXISTS form_definitions (
+      id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
+      mode VARCHAR(30) NOT NULL DEFAULT 'empty', status VARCHAR(30) NOT NULL DEFAULT 'draft', fields JSONB NOT NULL DEFAULT '[]'::jsonb,
+      submit_action JSONB, created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), published_at TIMESTAMPTZ
+    )`);
+    await db.query(
+      `ALTER TABLE form_definitions ADD COLUMN IF NOT EXISTS source_action JSONB`,
+    );
+    await db.query(
+      `ALTER TABLE form_definitions ADD COLUMN IF NOT EXISTS settings JSONB NOT NULL DEFAULT '{}'::jsonb`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_forms_org ON form_definitions(organization_id, updated_at DESC)`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS form_submissions (
+      id UUID PRIMARY KEY, form_id UUID NOT NULL REFERENCES form_definitions(id) ON DELETE CASCADE,
+      organization_id UUID NOT NULL REFERENCES organizations(id), values JSONB NOT NULL DEFAULT '{}'::jsonb,
+      query_context JSONB NOT NULL DEFAULT '{}'::jsonb, submitted_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await db.query(
+      `ALTER TABLE form_submissions ADD COLUMN IF NOT EXISTS query_context JSONB NOT NULL DEFAULT '{}'::jsonb`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_submissions_form ON form_submissions(form_id, submitted_at DESC)`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS form_action_logs (
+      id UUID PRIMARY KEY, submission_id UUID NOT NULL REFERENCES form_submissions(id) ON DELETE CASCADE,
+      form_id UUID NOT NULL REFERENCES form_definitions(id) ON DELETE CASCADE, organization_id UUID NOT NULL REFERENCES organizations(id),
+      request_method VARCHAR(12) NOT NULL, request_url TEXT NOT NULL, request_headers JSONB NOT NULL DEFAULT '{}'::jsonb,
+      request_params JSONB NOT NULL DEFAULT '{}'::jsonb, request_body JSONB, response_status INTEGER, response_body JSONB,
+      success BOOLEAN NOT NULL DEFAULT FALSE, duration_ms INTEGER, error_message TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_form_action_logs_submission ON form_action_logs(submission_id, created_at DESC)`,
+    );
+    await db.query(
+      `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
     );
     const userCount = Number(
       (await db.query("SELECT COUNT(*) AS count FROM app_users")).rows[0].count,

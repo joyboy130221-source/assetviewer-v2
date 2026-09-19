@@ -18,8 +18,14 @@ const routes = Object.freeze({
   "admin/environments": require("../server/api/admin/environments"),
   "admin/external-views": require("../server/api/admin/external-views"),
   "admin/roles": require("../server/api/admin/roles"),
+  "admin/authentication-profiles": require("../server/api/admin/authentication-profiles"),
   "admin/users": require("../server/api/admin/users"),
   "admin/api-logs": require("../server/api/admin/api-logs"),
+  "admin/organizations": require("../server/api/admin/organizations"),
+  "admin/forms": require("../server/api/admin/forms"),
+  "admin/form-integration-test": require("../server/api/admin/form-integration-test"),
+  "admin/form-submissions": require("../server/api/admin/form-submissions"),
+  "public-forms": require("../server/api/public-forms"),
 });
 
 function normalizeRoute(value) {

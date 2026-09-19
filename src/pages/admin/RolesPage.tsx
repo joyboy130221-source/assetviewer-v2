@@ -29,7 +29,7 @@ export default function RolesPage() {
     const editing = !!b.id;
     if (
       !(await ui.confirm({
-        title: editing ? "Update role?" : "Create role?",
+        title: editing ? "Update Role?" : "Save Role?",
         message: `Save role “${b.name}” and its page permissions?`,
         confirmText: editing ? "Update" : "Create",
       }))
@@ -141,7 +141,7 @@ export default function RolesPage() {
               </div>
               <div className="wide inline-actions">
                 <button className="primary-button">
-                  {edit ? "Update Role" : "Create Role"}
+                  {edit ? "Update" : "Save"}
                 </button>
                 <button
                   type="button"

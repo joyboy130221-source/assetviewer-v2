@@ -29,7 +29,7 @@ export default function UsersPage() {
     }
     if (
       !(await ui.confirm({
-        title: editing ? "Update user?" : "Create user?",
+        title: editing ? "Update User?" : "Save User?",
         message: `Save user “${b.name}” with the selected role?`,
         confirmText: editing ? "Update" : "Create",
       }))
@@ -156,7 +156,7 @@ export default function UsersPage() {
               </label>
               <div className="wide inline-actions">
                 <button className="primary-button">
-                  {edit ? "Update User" : "Create User"}
+                  {edit ? "Update" : "Save"}
                 </button>
                 <button
                   type="button"

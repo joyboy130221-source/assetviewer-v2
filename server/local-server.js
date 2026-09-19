@@ -10,20 +10,26 @@ const environmentsHandler = require("./api/admin/environments");
 const externalViewsHandler = require("./api/admin/external-views");
 const rolesHandler = require("./api/admin/roles");
 const apiLogsHandler = require("./api/admin/api-logs");
+const organizationsHandler = require("./api/admin/organizations");
+const formsHandler = require("./api/admin/forms");
+const formIntegrationTestHandler = require("./api/admin/form-integration-test");
+const formSubmissionsHandler = require("./api/admin/form-submissions");
+const authenticationProfilesHandler = require("./api/admin/authentication-profiles");
+const publicFormsHandler = require("./api/public-forms");
 
 console.log(
   "DATABASE_URL:",
-  process.env.DATABASE_URL ? "configured" : "missing"
+  process.env.DATABASE_URL ? "configured" : "missing",
 );
 
 console.log(
   "SESSION_SECRET:",
-  process.env.SESSION_SECRET ? "configured" : "missing"
+  process.env.SESSION_SECRET ? "configured" : "missing",
 );
 
 console.log(
   "CREDENTIAL_ENCRYPTION_KEY:",
-  process.env.CREDENTIAL_ENCRYPTION_KEY ? "configured" : "missing"
+  process.env.CREDENTIAL_ENCRYPTION_KEY ? "configured" : "missing",
 );
 
 const app = express();
@@ -38,9 +44,7 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/db-health", async (req, res) => {
   try {
-    const result = await query(
-      "SELECT NOW() AS database_time"
-    );
+    const result = await query("SELECT NOW() AS database_time");
 
     res.json({
       status: "ok",
@@ -66,7 +70,6 @@ app.post("/api/auth/login", loginHandler);
 app.get("/api/auth/me", meHandler);
 app.post("/api/auth/logout", logoutHandler);
 
-
 // ----------------------------------------------------
 // Dashboard
 // ----------------------------------------------------
@@ -78,7 +81,12 @@ app.all("/api/admin/environments", environmentsHandler);
 app.all("/api/admin/external-views", externalViewsHandler);
 app.all("/api/admin/roles", rolesHandler);
 app.all("/api/admin/api-logs", apiLogsHandler);
-
+app.all("/api/admin/organizations", organizationsHandler);
+app.all("/api/admin/forms", formsHandler);
+app.all("/api/admin/form-integration-test", formIntegrationTestHandler);
+app.all("/api/admin/form-submissions", formSubmissionsHandler);
+app.all("/api/public-forms", publicFormsHandler);
+app.all("/api/admin/authentication-profiles", authenticationProfilesHandler);
 
 // ----------------------------------------------------
 // Start Server
