@@ -21,6 +21,9 @@ import UserFormPage from "./pages/integration/UserFormPage";
 import RpaTestPage from "./pages/RpaTestPage";
 import MessagingPage from "./pages/admin/MessagingPage";
 import ServiceBusLogsPage from "./pages/admin/ServiceBusLogsPage";
+import AnalyticsListPage from "./pages/integration/AnalyticsListPage";
+import AnalyticsBuilderPage from "./pages/integration/AnalyticsBuilderPage";
+import PublicAnalyticsPage from "./pages/integration/PublicAnalyticsPage";
 
 export default function App() {
   return (
@@ -77,6 +80,19 @@ export default function App() {
       />
       <Route path="/forms/:formId" element={<UserFormPage />} />
       <Route path="/admin/integration/messaging" element={<MessagingPage />} />
+      <Route
+        path="/admin/integration/analytics"
+        element={<AnalyticsListPage />}
+      />
+      <Route
+        path="/admin/integration/analytics/new"
+        element={<AnalyticsBuilderPage />}
+      />
+      <Route
+        path="/admin/integration/analytics/:analyticsId/design"
+        element={<AnalyticsBuilderPage />}
+      />
+      <Route path="/analytics/:analyticsId" element={<PublicAnalyticsPage />} />
       <Route path="/rpa-test" element={<RpaTestPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

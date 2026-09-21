@@ -179,6 +179,15 @@ async function ensureSchema() {
     await db.query(
       `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL`,
     );
+    await db.query(`CREATE TABLE IF NOT EXISTS analytics_definitions (
+      id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
+      status VARCHAR(30) NOT NULL DEFAULT 'draft', definition JSONB NOT NULL DEFAULT '{}'::jsonb,
+      created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), published_at TIMESTAMPTZ
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_analytics_org ON analytics_definitions(organization_id, updated_at DESC)`,
+    );
     await db.query(`CREATE TABLE IF NOT EXISTS form_definitions (
       id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
       mode VARCHAR(30) NOT NULL DEFAULT 'empty', status VARCHAR(30) NOT NULL DEFAULT 'draft', fields JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -245,7 +254,7 @@ async function ensureSchema() {
       `CREATE INDEX IF NOT EXISTS idx_workflow_steps_execution ON workflow_step_executions(workflow_execution_id, sequence)`,
     );
     await db.query(
-      `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true, "workflowExecutions": true, "messaging": true, "messageBusLogs": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
+      `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true, "workflowExecutions": true, "messaging": true, "messageBusLogs": true, "analyticsBuilder": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
     );
     const userCount = Number(
       (await db.query("SELECT COUNT(*) AS count FROM app_users")).rows[0].count,

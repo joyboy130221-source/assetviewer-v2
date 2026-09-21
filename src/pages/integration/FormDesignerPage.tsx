@@ -166,13 +166,16 @@ export default function FormDesignerPage() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  theme: e.target.value as "current" | "sap" | "maximo",
+                  theme: e.target.value as
+                    "current" | "sap" | "maximo" | "horizon" | "operations",
                 })
               }
             >
               <option value="current">Default</option>
               <option value="sap">Classic ERP</option>
               <option value="maximo">Carbon</option>
+              <option value="horizon">Horizon</option>
+              <option value="operations">Operations</option>
             </select>
           </label>
           <label className="fb-required-row">

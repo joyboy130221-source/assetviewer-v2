@@ -12,6 +12,7 @@ const KNOWN = [
   "workflowExecutions",
   "messaging",
   "messageBusLogs",
+  "analyticsBuilder",
 ];
 function perms(v) {
   const p = {};
@@ -40,6 +41,7 @@ module.exports = async (req, res) => {
           },
           { key: "organizations", label: "Organizations / Tenants Page" },
           { key: "formBuilder", label: "Form Builder Page" },
+          { key: "analyticsBuilder", label: "Analytics Builder Page" },
           { key: "messaging", label: "Service Bus Messaging Page" },
           { key: "messageBusLogs", label: "Service Bus Logs Page" },
           {

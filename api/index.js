@@ -26,10 +26,13 @@ const routes = Object.freeze({
   "admin/message-bus-logs": require("../server/api/admin/message-bus-logs"),
   "admin/organizations": require("../server/api/admin/organizations"),
   "admin/forms": require("../server/api/admin/forms"),
+  "admin/analytics": require("../server/api/admin/analytics"),
+  "admin/analytics-execute": require("../server/api/admin/analytics-execute"),
   "admin/form-packages": require("../server/api/admin/form-packages"),
   "admin/form-integration-test": require("../server/api/admin/form-integration-test"),
   "admin/form-submissions": require("../server/api/admin/form-submissions"),
   "public-forms": require("../server/api/public-forms"),
+  "public-analytics": require("../server/api/public-analytics"),
 });
 
 function normalizeRoute(value) {

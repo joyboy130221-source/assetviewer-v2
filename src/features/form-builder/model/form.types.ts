@@ -12,7 +12,7 @@ export type ApiAction = {
   authProfileId?: string;
 };
 export type IntegrationSource = ApiAction;
-export type FormTheme = "current" | "sap" | "maximo";
+export type FormTheme = "current" | "sap" | "maximo" | "horizon" | "operations";
 export type BrowserAction = {
   action:
     | "openPage"

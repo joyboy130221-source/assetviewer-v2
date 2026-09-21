@@ -14,6 +14,7 @@ import {
   Workflow,
   History,
   MessageSquareMore,
+  BarChart3,
 } from "lucide-react";
 import { api } from "../services/api";
 import type { AdminUser } from "../types";
@@ -71,6 +72,12 @@ const integration: MenuItem[] = [
     label: "Form Builder Wizards",
     permission: "formBuilder",
     icon: <Workflow size={17} />,
+  },
+  {
+    to: "/admin/integration/analytics",
+    label: "Analytics Builder",
+    permission: "analyticsBuilder",
+    icon: <BarChart3 size={17} />,
   },
   {
     to: "/admin/integration/messaging",

@@ -75,6 +75,8 @@ export default function FormBuilderWizardPage() {
             <option value="current">Default</option>
             <option value="sap">Classic ERP</option>
             <option value="maximo">Carbon</option>
+            <option value="horizon">Horizon</option>
+            <option value="operations">Operations</option>
           </select>
           <small>The theme can also be changed later in Form Properties.</small>
         </label>

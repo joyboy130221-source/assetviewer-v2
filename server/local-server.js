@@ -20,6 +20,9 @@ const workflowExecutionsHandler = require("./api/admin/workflow-executions");
 const messageBusHandler = require("./api/admin/message-bus");
 const messageBusLogsHandler = require("./api/admin/message-bus-logs");
 const publicFormsHandler = require("./api/public-forms");
+const analyticsHandler = require("./api/admin/analytics");
+const analyticsExecuteHandler = require("./api/admin/analytics-execute");
+const publicAnalyticsHandler = require("./api/public-analytics");
 
 console.log(
   "DATABASE_URL:",
@@ -90,10 +93,13 @@ app.all("/api/admin/message-bus", messageBusHandler);
 app.all("/api/admin/message-bus-logs", messageBusLogsHandler);
 app.all("/api/admin/organizations", organizationsHandler);
 app.all("/api/admin/forms", formsHandler);
+app.all("/api/admin/analytics", analyticsHandler);
+app.all("/api/admin/analytics-execute", analyticsExecuteHandler);
 app.all("/api/admin/form-packages", formPackagesHandler);
 app.all("/api/admin/form-integration-test", formIntegrationTestHandler);
 app.all("/api/admin/form-submissions", formSubmissionsHandler);
 app.all("/api/public-forms", publicFormsHandler);
+app.all("/api/public-analytics", publicAnalyticsHandler);
 app.all("/api/admin/authentication-profiles", authenticationProfilesHandler);
 
 // ----------------------------------------------------
