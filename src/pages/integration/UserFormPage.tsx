@@ -73,9 +73,7 @@ export default function UserFormPage() {
     );
   if (!form)
     return (
-      <main
-        className={`public-form-shell form-theme-${form?.theme || "current"}`}
-      >
+      <main className="public-form-shell form-theme-current">
         <section className="state-card">Loading form…</section>
       </main>
     );
