@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { api, jsonInit } from "../services/api";
 import { LoadingOverlay, useAppUI } from "../components/AppUI";
+import { productMessaging } from "../config/productMessaging";
 
 export default function LoginPage() {
   const [msg, setMsg] = useState(""),
@@ -48,13 +49,11 @@ export default function LoginPage() {
             </div>
             <div className="login-brand-copy">
               <span className="login-kicker">INTEGRATION HUB</span>
-              <h2>
-                Secure administration for your connected asset environment.
-              </h2>
-              <p>
-                Manage environments, views, access roles, users and integration
-                activity from one controlled workspace.
+              <h2>{productMessaging.login.headline}</h2>
+              <p className="login-capability-tagline">
+                {productMessaging.login.capabilityTagline}
               </p>
+              <p>{productMessaging.login.description}</p>
             </div>
             <div className="login-security">
               <LockKeyhole size={17} />
