@@ -170,9 +170,9 @@ export default function FormDesignerPage() {
                 })
               }
             >
-              <option value="current">Current BIB Theme</option>
-              <option value="sap">SAP Enterprise Theme</option>
-              <option value="maximo">IBM Maximo Theme</option>
+              <option value="current">Default</option>
+              <option value="sap">Classic ERP</option>
+              <option value="maximo">Carbon</option>
             </select>
           </label>
           <label className="fb-required-row">
@@ -270,6 +270,38 @@ export default function FormDesignerPage() {
             />
             <small>
               Supports form values, response fields and template functions.
+            </small>
+          </label>
+        </div>
+      </section>
+      <section className="fb-form-settings">
+        <div className="fb-form-settings-head">
+          <div>
+            <strong>Failure Response</strong>
+            <small>
+              Generic message returned when any workflow step fails.
+            </small>
+          </div>
+        </div>
+        <div className="fb-form-settings-grid">
+          <label className="fb-failure-response-field">
+            Failure Message / Template
+            <textarea
+              rows={5}
+              value={form.failureResponse || ""}
+              placeholder={
+                "{{failedStep.name}} failed.\nReason: {{failedStep.response.deadLetterReason}}\nDescription: {{failedStep.response.deadLetterDescription}}"
+              }
+              onChange={(e) =>
+                setForm({ ...form, failureResponse: e.target.value })
+              }
+            />
+            <small>
+              Supports form values, {"{{workflow.error}}"},{" "}
+              {"{{failedStep.name}}"}, {"{{failedStep.error}}"},{" "}
+              {"{{failedStep.response.*}}"}, and{" "}
+              {"{{steps.stepKey.response.*}}"}. Sensitive values remain
+              redacted.
             </small>
           </label>
         </div>

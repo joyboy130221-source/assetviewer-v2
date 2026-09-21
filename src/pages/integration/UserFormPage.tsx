@@ -45,6 +45,7 @@ export default function UserFormPage() {
   const [done, setDone] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [failureResponse, setFailureResponse] = useState("");
   const [workflowExecution, setWorkflowExecution] = useState<any>(null);
   useEffect(() => {
     formApi
@@ -59,7 +60,7 @@ export default function UserFormPage() {
       })
       .catch((e) => setError(e.message));
   }, [formId]);
-  if (error)
+  if (error && !done)
     return (
       <main
         className={`public-form-shell form-theme-${form?.theme || "current"}`}
@@ -109,6 +110,7 @@ export default function UserFormPage() {
     } catch (e: any) {
       if (e?.body?.workflowExecution) {
         setWorkflowExecution(e.body.workflowExecution);
+        setFailureResponse(e.body.failureResponse || "");
         setError(e.message);
         setDone(true);
       } else {
@@ -144,7 +146,8 @@ export default function UserFormPage() {
             </h1>
             <p>
               {workflowFailed
-                ? error ||
+                ? failureResponse ||
+                  error ||
                   "The submission was received, but an integration step failed."
                 : successMessage ||
                   (workflowExecution
@@ -191,7 +194,21 @@ export default function UserFormPage() {
 
               <div className="fb-workflow-result-steps">
                 {workflowExecution.steps.map((step: any, index: number) => {
-                  const stepFailed = step.error || Number(step.status) >= 400;
+                  const isBrowserStep =
+                    step.type === "browser" ||
+                    String(step.request?.method || "").startsWith("BROWSER:");
+                  const httpStatus = Number(step.status);
+                  const stepFailed =
+                    step.success === false ||
+                    Boolean(step.error) ||
+                    (!isBrowserStep &&
+                      Number.isFinite(httpStatus) &&
+                      httpStatus >= 400);
+                  const stepStatusLabel = isBrowserStep
+                    ? stepFailed
+                      ? "FAILED"
+                      : "SUCCESS"
+                    : (step.status ?? (stepFailed ? "ERROR" : "SUCCESS"));
                   return (
                     <details
                       key={`${step.key}-${index}`}
@@ -210,7 +227,7 @@ export default function UserFormPage() {
                           </span>
                         </span>
                         <span className="fb-workflow-step-metrics">
-                          <b>{step.status || "ERROR"}</b>
+                          <b>{stepStatusLabel}</b>
                           <span>{step.durationMs} ms</span>
                           <span className="fb-workflow-expand-hint">
                             Details
@@ -223,7 +240,9 @@ export default function UserFormPage() {
                           <pre>{JSON.stringify(step.request, null, 2)}</pre>
                         </section>
                         <section>
-                          <h3>API Response</h3>
+                          <h3>
+                            {isBrowserStep ? "Browser Result" : "API Response"}
+                          </h3>
                           <pre>{JSON.stringify(step.response, null, 2)}</pre>
                         </section>
                         {step.error && (

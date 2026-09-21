@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   Users,
   Workflow,
+  History,
+  MessageSquareMore,
 } from "lucide-react";
 import { api } from "../services/api";
 import type { AdminUser } from "../types";
@@ -70,13 +72,31 @@ const integration: MenuItem[] = [
     permission: "formBuilder",
     icon: <Workflow size={17} />,
   },
+  {
+    to: "/admin/integration/messaging",
+    label: "Service Bus Messaging",
+    permission: "messaging",
+    icon: <MessageSquareMore size={17} />,
+  },
 ];
 const monitoring: MenuItem[] = [
+  {
+    to: "/admin/workflow-executions",
+    label: "Workflow Executions",
+    permission: "workflowExecutions",
+    icon: <History size={17} />,
+  },
   {
     to: "/admin/api-logs",
     label: "API Request Log",
     permission: "apiLogs",
     icon: <Activity size={17} />,
+  },
+  {
+    to: "/admin/service-bus-logs",
+    label: "Service Bus Logs",
+    permission: "messageBusLogs",
+    icon: <MessageSquareMore size={17} />,
   },
 ];
 

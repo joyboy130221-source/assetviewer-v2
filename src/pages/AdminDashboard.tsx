@@ -10,6 +10,8 @@ type ExternalView = {
   description?: string;
   url: string;
   active: boolean;
+  organization_name?: string | null;
+  organization_code?: string | null;
 };
 type Environment = {
   id: number;
@@ -56,6 +58,9 @@ function LaunchCard({ view, environments }: LaunchCardProps) {
         <div>
           <h3>{view.name}</h3>
           <p>{view.description || "Registered external application view."}</p>
+          <small className="tenant-label">
+            Tenant: {view.organization_name || "Shared / not assigned"}
+          </small>
         </div>
       </div>
       <div className="external-view-fields">

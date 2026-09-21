@@ -85,6 +85,12 @@ export function ApiActionPanel({
         ?.template;
       const editor = activeEditor.current;
       if (!template || !editor) return;
+      if (
+        (document.activeElement as HTMLElement | null)?.closest?.(
+          ".fb-browser-action",
+        )
+      )
+        return;
 
       const insertAt = (value: string) => {
         const start = Math.min(editor.start, value.length);

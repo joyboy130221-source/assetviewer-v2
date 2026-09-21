@@ -12,9 +12,13 @@ const rolesHandler = require("./api/admin/roles");
 const apiLogsHandler = require("./api/admin/api-logs");
 const organizationsHandler = require("./api/admin/organizations");
 const formsHandler = require("./api/admin/forms");
+const formPackagesHandler = require("./api/admin/form-packages");
 const formIntegrationTestHandler = require("./api/admin/form-integration-test");
 const formSubmissionsHandler = require("./api/admin/form-submissions");
 const authenticationProfilesHandler = require("./api/admin/authentication-profiles");
+const workflowExecutionsHandler = require("./api/admin/workflow-executions");
+const messageBusHandler = require("./api/admin/message-bus");
+const messageBusLogsHandler = require("./api/admin/message-bus-logs");
 const publicFormsHandler = require("./api/public-forms");
 
 console.log(
@@ -81,8 +85,12 @@ app.all("/api/admin/environments", environmentsHandler);
 app.all("/api/admin/external-views", externalViewsHandler);
 app.all("/api/admin/roles", rolesHandler);
 app.all("/api/admin/api-logs", apiLogsHandler);
+app.all("/api/admin/workflow-executions", workflowExecutionsHandler);
+app.all("/api/admin/message-bus", messageBusHandler);
+app.all("/api/admin/message-bus-logs", messageBusLogsHandler);
 app.all("/api/admin/organizations", organizationsHandler);
 app.all("/api/admin/forms", formsHandler);
+app.all("/api/admin/form-packages", formPackagesHandler);
 app.all("/api/admin/form-integration-test", formIntegrationTestHandler);
 app.all("/api/admin/form-submissions", formSubmissionsHandler);
 app.all("/api/public-forms", publicFormsHandler);

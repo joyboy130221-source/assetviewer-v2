@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "../../components/AdminLayout";
 import { useAppUI } from "../../components/AppUI";
 import { formApi } from "../../features/form-builder/services/formApi";
+import { TenantCombobox } from "../../features/form-builder/components/TenantCombobox";
 import type {
   FormTheme,
   Organization,
@@ -58,14 +59,12 @@ export default function FormBuilderWizardPage() {
       <section className="data-card fb-wizard-tenant">
         <label>
           Organization / Tenant
-          <select value={org} onChange={(e) => setOrg(e.target.value)}>
-            <option value="">Select organization</option>
-            {orgs.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.code} — {o.name}
-              </option>
-            ))}
-          </select>
+          <TenantCombobox
+            organizations={orgs}
+            value={org}
+            onChange={setOrg}
+            placeholder="Select organization"
+          />
         </label>
         <label className="fb-theme-picker">
           Form Theme
@@ -73,9 +72,9 @@ export default function FormBuilderWizardPage() {
             value={theme}
             onChange={(e) => setTheme(e.target.value as FormTheme)}
           >
-            <option value="current">Current BIB Theme</option>
-            <option value="sap">SAP Enterprise Theme</option>
-            <option value="maximo">IBM Maximo Theme</option>
+            <option value="current">Default</option>
+            <option value="sap">Classic ERP</option>
+            <option value="maximo">Carbon</option>
           </select>
           <small>The theme can also be changed later in Form Properties.</small>
         </label>
