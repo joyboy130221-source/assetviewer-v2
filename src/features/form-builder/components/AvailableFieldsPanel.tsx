@@ -28,12 +28,21 @@ export function AvailableFieldsPanel({ fields }: AvailableFieldsPanelProps) {
       <div>
         <strong>Available Fields</strong>
         <span>
-          Available for integrated data retrieval and submission templates.
-          Click a field to insert it at the last active API editor cursor (and
-          copy it to the clipboard).
+          Available for API, Service Bus, RPA and form templates. The system
+          token {"{{uuid}}"} generates a UUID once per form request/execution.
+          Click a token to insert it at the last active template editor cursor
+          (and copy it to the clipboard).
         </span>
       </div>
       <div className="fb-field-tokens">
+        <button
+          type="button"
+          title="Insert {{uuid}} (generated once per form request/execution)"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={() => insertTemplate("uuid")}
+        >
+          {"{{uuid}}"}
+        </button>
         {fields.map((field) => (
           <button
             key={field.id}

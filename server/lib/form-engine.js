@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const { decryptSecret } = require("./db");
 
 function getValue(context, path) {
@@ -34,7 +35,16 @@ function evaluateExpression(expression, context) {
   return value;
 }
 
+function ensureSystemTemplates(context) {
+  const target = context && typeof context === "object" ? context : {};
+  if (!Object.prototype.hasOwnProperty.call(target, "uuid")) {
+    target.uuid = crypto.randomUUID();
+  }
+  return target;
+}
+
 function render(value, context) {
+  context = ensureSystemTemplates(context);
   if (typeof value === "string")
     return value.replace(/{{\s*([^{}]+?)\s*}}/g, (_, expr) =>
       String(evaluateExpression(expr, context)),
@@ -148,4 +158,5 @@ module.exports = {
   fieldState,
   validateField,
   applyAuthProfile,
+  ensureSystemTemplates,
 };
