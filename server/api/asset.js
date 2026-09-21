@@ -7,7 +7,6 @@ const {
   sendError,
   getEnvironment,
 } = require("../lib/maximo");
-const SITE_ID = "BEDFORD";
 const OBJECT_STRUCTURE = "mxasset";
 const PROTECTED_FIELDS = new Set([
   "href",
@@ -57,7 +56,9 @@ module.exports = async function handler(request, response) {
     return response.status(400).json({ error: "assetId is required" });
   if (assetId.length > 100)
     return response.status(400).json({ error: "assetId is too long" });
-  const where = `siteid="${escapeOslc(SITE_ID)}" and assetnum="${escapeOslc(assetId)}"`;
+  // Asset Viewer intentionally searches by asset number only.
+  // Do not constrain the request to a hardcoded Maximo site.
+  const where = `assetnum="${escapeOslc(assetId)}"`;
 
   try {
     const env = await getEnvironment(envName);
@@ -96,7 +97,7 @@ module.exports = async function handler(request, response) {
     if (!asset)
       return response
         .status(404)
-        .json({ error: `Asset ${assetId} was not found in site ${SITE_ID}` });
+        .json({ error: `Asset ${assetId} was not found` });
     if (!asset.href)
       return response
         .status(502)
