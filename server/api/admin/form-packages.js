@@ -32,7 +32,9 @@ module.exports = async (req, res) => {
       const row = (await formRepository.findForms(id)).rows[0];
       if (!row) return res.status(404).json({ error: "Form not found." });
       const profiles = (
-        await query("SELECT id,name FROM authentication_profiles")
+        await query(
+          "SELECT id,name FROM authentication_profiles WHERE deleted_at IS NULL",
+        )
       ).rows;
       const byId = Object.fromEntries(
         profiles.map((p) => [String(p.id), p.name]),
@@ -70,7 +72,7 @@ module.exports = async (req, res) => {
           .json({ error: "Target organization is required." });
       const profiles = (
         await query(
-          "SELECT id,name FROM authentication_profiles WHERE active=TRUE",
+          "SELECT id,name FROM authentication_profiles WHERE active=TRUE AND deleted_at IS NULL",
         )
       ).rows;
       const byName = Object.fromEntries(

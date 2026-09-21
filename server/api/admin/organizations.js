@@ -8,7 +8,11 @@ module.exports = async (req, res) => {
     const b = req.body || {};
     if (req.method === "GET")
       return res.json({
-        data: (await query(`SELECT * FROM organizations ORDER BY name`)).rows,
+        data: (
+          await query(
+            `SELECT * FROM organizations WHERE deleted_at IS NULL ORDER BY name`,
+          )
+        ).rows,
       });
     if (req.method === "POST") {
       if (!b.code?.trim() || !b.name?.trim())
@@ -30,7 +34,7 @@ module.exports = async (req, res) => {
     }
     if (req.method === "PUT") {
       await query(
-        `UPDATE organizations SET code=$1,name=$2,description=$3,active=$4,updated_at=NOW() WHERE id=$5`,
+        `UPDATE organizations SET code=$1,name=$2,description=$3,active=$4,updated_at=NOW() WHERE id=$5 AND deleted_at IS NULL`,
         [
           b.code.trim().toUpperCase(),
           b.name.trim(),
@@ -42,7 +46,30 @@ module.exports = async (req, res) => {
       return res.json({ message: "Organization updated." });
     }
     if (req.method === "DELETE") {
-      await query(`DELETE FROM organizations WHERE id=$1`, [b.id]);
+      const dependencies = await query(
+        `SELECT
+           (SELECT COUNT(*) FROM form_definitions WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS forms,
+           (SELECT COUNT(*) FROM analytics_definitions WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS analytics,
+           (SELECT COUNT(*) FROM external_views WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS external_views`,
+        [b.id],
+      );
+      const d = dependencies.rows[0];
+      const activeDependencies =
+        Number(d.forms) + Number(d.analytics) + Number(d.external_views);
+      if (activeDependencies > 0)
+        return res.status(409).json({
+          error:
+            "Organization cannot be deleted while it has active configuration records.",
+          dependencies: {
+            forms: Number(d.forms),
+            analytics: Number(d.analytics),
+            externalViews: Number(d.external_views),
+          },
+        });
+      await query(
+        `UPDATE organizations SET deleted_at=NOW(),deleted_by=$2,active=FALSE,updated_at=NOW() WHERE id=$1::uuid AND deleted_at IS NULL`,
+        [b.id, user.id],
+      );
       return res.json({ message: "Organization deleted." });
     }
     return res.status(405).json({ error: "Method not allowed" });

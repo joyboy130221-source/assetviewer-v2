@@ -133,6 +133,23 @@ async function ensureSchema() {
       id BIGSERIAL PRIMARY KEY, name VARCHAR(120) UNIQUE NOT NULL, description TEXT, url TEXT NOT NULL, active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);
+    // Configuration/master records use a shared soft-delete lifecycle.
+    // These additive migrations are backward compatible: existing rows remain visible because deleted_at defaults to NULL.
+    for (const table of [
+      "app_roles",
+      "app_users",
+      "maximo_environments",
+      "message_bus_connections",
+      "authentication_profiles",
+      "external_views",
+    ]) {
+      await db.query(
+        `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`,
+      );
+      await db.query(
+        `ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL`,
+      );
+    }
     await db.query(`CREATE TABLE IF NOT EXISTS api_request_logs (
       id BIGSERIAL PRIMARY KEY, environment_id BIGINT REFERENCES maximo_environments(id) ON DELETE SET NULL,
       environment_name VARCHAR(80), request_method VARCHAR(12) NOT NULL, request_url TEXT NOT NULL,
@@ -177,6 +194,12 @@ async function ensureSchema() {
       active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )`);
     await db.query(
+      `ALTER TABLE organizations ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`,
+    );
+    await db.query(
+      `ALTER TABLE organizations ADD COLUMN IF NOT EXISTS deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL`,
+    );
+    await db.query(
       `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL`,
     );
     await db.query(`CREATE TABLE IF NOT EXISTS analytics_definitions (
@@ -185,6 +208,12 @@ async function ensureSchema() {
       created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), published_at TIMESTAMPTZ
     )`);
+    await db.query(
+      `ALTER TABLE analytics_definitions ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`,
+    );
+    await db.query(
+      `ALTER TABLE analytics_definitions ADD COLUMN IF NOT EXISTS deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL`,
+    );
     await db.query(
       `CREATE INDEX IF NOT EXISTS idx_analytics_org ON analytics_definitions(organization_id, updated_at DESC)`,
     );
@@ -199,6 +228,21 @@ async function ensureSchema() {
     );
     await db.query(
       `ALTER TABLE form_definitions ADD COLUMN IF NOT EXISTS settings JSONB NOT NULL DEFAULT '{}'::jsonb`,
+    );
+    await db.query(
+      `ALTER TABLE form_definitions ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ`,
+    );
+    await db.query(
+      `ALTER TABLE form_definitions ADD COLUMN IF NOT EXISTS deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_forms_not_deleted ON form_definitions(organization_id, updated_at DESC) WHERE deleted_at IS NULL`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_analytics_not_deleted ON analytics_definitions(organization_id, updated_at DESC) WHERE deleted_at IS NULL`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_org_not_deleted ON organizations(name) WHERE deleted_at IS NULL`,
     );
     await db.query(
       `CREATE INDEX IF NOT EXISTS idx_forms_org ON form_definitions(organization_id, updated_at DESC)`,
@@ -257,12 +301,16 @@ async function ensureSchema() {
       `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true, "workflowExecutions": true, "messaging": true, "messageBusLogs": true, "analyticsBuilder": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
     );
     const userCount = Number(
-      (await db.query("SELECT COUNT(*) AS count FROM app_users")).rows[0].count,
+      (
+        await db.query(
+          "SELECT COUNT(*) AS count FROM app_users WHERE deleted_at IS NULL",
+        )
+      ).rows[0].count,
     );
     if (userCount === 0) {
       const role = (
         await db.query(
-          `SELECT id FROM app_roles WHERE name='administrator' LIMIT 1`,
+          `SELECT id FROM app_roles WHERE name='administrator' AND deleted_at IS NULL LIMIT 1`,
         )
       ).rows[0];
       await db.query(

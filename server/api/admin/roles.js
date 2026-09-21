@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const r = await query(
-        "SELECT id,name,description,active,permissions,created_at,updated_at FROM app_roles ORDER BY name",
+        "SELECT id,name,description,active,permissions,created_at,updated_at FROM app_roles WHERE deleted_at IS NULL ORDER BY name",
       );
       return res.json({
         data: r.rows,
@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
     }
     if (req.method === "PUT") {
       await query(
-        `UPDATE app_roles SET name=$1,description=$2,active=$3,permissions=$4::jsonb,updated_at=NOW() WHERE id=$5`,
+        `UPDATE app_roles SET name=$1,description=$2,active=$3,permissions=$4::jsonb,updated_at=NOW() WHERE id=$5 AND deleted_at IS NULL`,
         [
           b.name.trim(),
           b.description || "",
@@ -84,7 +84,19 @@ module.exports = async (req, res) => {
         return res.status(400).json({
           error: "You cannot delete the role used by your current session.",
         });
-      await query("DELETE FROM app_roles WHERE id=$1", [b.id]);
+      const assigned = await query(
+        "SELECT COUNT(*)::int AS count FROM app_users WHERE role_id=$1 AND deleted_at IS NULL",
+        [b.id],
+      );
+      if (assigned.rows[0].count > 0)
+        return res.status(409).json({
+          error:
+            "This role is assigned to one or more active users. Reassign those users before deleting the role.",
+        });
+      await query(
+        "UPDATE app_roles SET deleted_at=NOW(),deleted_by=$2,active=FALSE,updated_at=NOW() WHERE id=$1 AND deleted_at IS NULL",
+        [b.id, user.id],
+      );
       return res.json({ message: "Role deleted successfully." });
     }
     res.status(405).json({ error: "Method not allowed" });

@@ -166,7 +166,7 @@ module.exports = async (req, res) => {
       if (!body.id) {
         return res.status(400).json({ error: "id is required" });
       }
-      await formRepository.deleteForm(body.id);
+      await formRepository.deleteForm(body.id, user.id);
       return res.json({ message: "Form deleted." });
     }
 

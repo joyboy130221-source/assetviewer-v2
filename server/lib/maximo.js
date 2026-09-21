@@ -51,7 +51,7 @@ async function getEnvironment(envName) {
       status: 400,
     });
   const result = await query(
-    `SELECT id,env_name,description,endpoint,api_key FROM maximo_environments WHERE env_name=$1 AND active=TRUE`,
+    `SELECT id,env_name,description,endpoint,api_key FROM maximo_environments WHERE env_name=$1 AND active=TRUE AND deleted_at IS NULL`,
     [name],
   );
   if (!result.rows[0])

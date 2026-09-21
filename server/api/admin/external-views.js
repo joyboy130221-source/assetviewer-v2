@@ -12,8 +12,8 @@ module.exports = async (req, res) => {
         `SELECT ev.id,ev.name,ev.description,ev.url,ev.active,ev.organization_id,
                 o.name AS organization_name,o.code AS organization_code,ev.created_at,ev.updated_at
            FROM external_views ev
-           LEFT JOIN organizations o ON o.id=ev.organization_id
-          ${activeOnly ? "WHERE ev.active=TRUE" : ""}
+           LEFT JOIN organizations o ON o.id=ev.organization_id AND o.deleted_at IS NULL
+          ${activeOnly ? "WHERE ev.active=TRUE AND ev.deleted_at IS NULL" : "WHERE ev.deleted_at IS NULL"}
           ORDER BY ev.name`,
       );
       return res.json({ data: result.rows });
@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
     }
     if (req.method === "PUT") {
       await query(
-        `UPDATE external_views SET name=$1,description=$2,url=$3,active=$4,organization_id=$5::uuid,updated_at=NOW() WHERE id=$6`,
+        `UPDATE external_views SET name=$1,description=$2,url=$3,active=$4,organization_id=$5::uuid,updated_at=NOW() WHERE id=$6 AND deleted_at IS NULL`,
         [
           body.name?.trim(),
           body.description || "",
@@ -48,7 +48,10 @@ module.exports = async (req, res) => {
       return res.json({ message: "External view updated." });
     }
     if (req.method === "DELETE") {
-      await query("DELETE FROM external_views WHERE id=$1", [body.id]);
+      await query(
+        "UPDATE external_views SET deleted_at=NOW(),deleted_by=$2,updated_at=NOW() WHERE id=$1 AND deleted_at IS NULL",
+        [body.id, user.id],
+      );
       return res.json({ message: "External view deleted." });
     }
     return res.status(405).json({ error: "Method not allowed" });

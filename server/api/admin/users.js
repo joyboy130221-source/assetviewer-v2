@@ -7,9 +7,11 @@ module.exports = async (req, res) => {
     if (req.method === "GET") {
       const [u, r] = await Promise.all([
         query(
-          `SELECT u.id,u.username,u.name,u.email,u.active,u.role_id,r.name role_name,u.created_at,u.updated_at FROM app_users u JOIN app_roles r ON r.id=u.role_id ORDER BY u.name`,
+          `SELECT u.id,u.username,u.name,u.email,u.active,u.role_id,r.name role_name,u.created_at,u.updated_at FROM app_users u JOIN app_roles r ON r.id=u.role_id WHERE u.deleted_at IS NULL AND r.deleted_at IS NULL ORDER BY u.name`,
         ),
-        query(`SELECT id,name FROM app_roles WHERE active=TRUE ORDER BY name`),
+        query(
+          `SELECT id,name FROM app_roles WHERE active=TRUE AND deleted_at IS NULL ORDER BY name`,
+        ),
       ]);
       return res.json({ data: u.rows, roles: r.rows });
     }
@@ -50,7 +52,7 @@ module.exports = async (req, res) => {
         sql += `,password_hash=$7`;
         p.push(hashPassword(b.password));
       }
-      sql += ` WHERE id=$6`;
+      sql += ` WHERE id=$6 AND deleted_at IS NULL`;
       await query(sql, p);
       return res.json({ message: "User updated successfully." });
     }
@@ -59,7 +61,10 @@ module.exports = async (req, res) => {
         return res
           .status(400)
           .json({ error: "You cannot delete your current user." });
-      await query("DELETE FROM app_users WHERE id=$1", [b.id]);
+      await query(
+        "UPDATE app_users SET deleted_at=NOW(),deleted_by=$2,active=FALSE,updated_at=NOW() WHERE id=$1 AND deleted_at IS NULL",
+        [b.id, me.id],
+      );
       return res.json({ message: "User deleted successfully." });
     }
     res.status(405).json({ error: "Method not allowed" });

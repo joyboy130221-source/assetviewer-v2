@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const r = await query(
-        `SELECT id,env_name,description,endpoint,active,created_at,updated_at,api_key FROM maximo_environments ORDER BY env_name`,
+        `SELECT id,env_name,description,endpoint,active,created_at,updated_at,api_key FROM maximo_environments WHERE deleted_at IS NULL ORDER BY env_name`,
       );
       return res.json({
         data: r.rows.map((x) => {
@@ -51,12 +51,15 @@ module.exports = async (req, res) => {
         sql += `,api_key=$6`;
         params.push(encryptSecret(b.api_key.trim()));
       }
-      sql += ` WHERE id=$5`;
+      sql += ` WHERE id=$5 AND deleted_at IS NULL`;
       await query(sql, params);
       return res.json({ message: "Maximo environment updated successfully." });
     }
     if (req.method === "DELETE") {
-      await query("DELETE FROM maximo_environments WHERE id=$1", [b.id]);
+      await query(
+        "UPDATE maximo_environments SET deleted_at=NOW(),deleted_by=$2,updated_at=NOW() WHERE id=$1 AND deleted_at IS NULL",
+        [b.id, user.id],
+      );
       return res.json({ message: "Maximo environment deleted successfully." });
     }
     return res.status(405).json({ error: "Method not allowed" });

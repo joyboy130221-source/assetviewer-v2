@@ -114,7 +114,7 @@ module.exports = async (req, res) => {
       return res.json({ message: "Analytics definition saved." });
     }
     if (req.method === "DELETE") {
-      await repo.remove(b.id);
+      await repo.remove(b.id, user.id);
       return res.json({ message: "Analytics definition deleted." });
     }
     return res.status(405).json({ error: "Method not allowed" });

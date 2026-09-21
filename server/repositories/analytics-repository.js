@@ -2,11 +2,12 @@ const { query } = require("../lib/db");
 
 const base = `SELECT a.*, o.name AS organization_name
   FROM analytics_definitions a
-  JOIN organizations o ON o.id = a.organization_id`;
+  JOIN organizations o ON o.id = a.organization_id
+ WHERE a.deleted_at IS NULL AND o.deleted_at IS NULL`;
 
 async function find(id) {
   return query(
-    `${base}${id ? " WHERE a.id = $1::uuid" : ""} ORDER BY a.updated_at DESC`,
+    `${base}${id ? " AND a.id = $1::uuid" : ""} ORDER BY a.updated_at DESC`,
     id ? [id] : [],
   );
 }
@@ -43,7 +44,7 @@ async function update(d) {
             ELSE published_at
           END,
           updated_at = NOW()
-      WHERE id = $6::uuid`,
+      WHERE id = $6::uuid AND deleted_at IS NULL`,
     [
       d.organizationId,
       d.name,
@@ -55,8 +56,13 @@ async function update(d) {
   );
 }
 
-async function remove(id) {
-  return query(`DELETE FROM analytics_definitions WHERE id = $1::uuid`, [id]);
+async function remove(id, deletedBy) {
+  return query(
+    `UPDATE analytics_definitions
+        SET deleted_at = NOW(), deleted_by = $2::bigint, updated_at = NOW()
+      WHERE id = $1::uuid AND deleted_at IS NULL`,
+    [id, deletedBy],
+  );
 }
 
 module.exports = { find, create, update, remove };

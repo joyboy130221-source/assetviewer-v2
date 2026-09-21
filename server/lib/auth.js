@@ -47,7 +47,7 @@ async function currentUser(req) {
   const id = tokenUserId(req);
   if (!id) return null;
   const r = await query(
-    `SELECT u.id,u.username,u.name,u.email,u.active,r.id role_id,r.name role_name,r.permissions FROM app_users u JOIN app_roles r ON r.id=u.role_id WHERE u.id=$1 AND u.active=TRUE AND r.active=TRUE`,
+    `SELECT u.id,u.username,u.name,u.email,u.active,r.id role_id,r.name role_name,r.permissions FROM app_users u JOIN app_roles r ON r.id=u.role_id WHERE u.id=$1 AND u.active=TRUE AND r.active=TRUE AND u.deleted_at IS NULL AND r.deleted_at IS NULL`,
     [id],
   );
   return r.rows[0] || null;

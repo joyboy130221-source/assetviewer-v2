@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     await ensureSchema();
     const { login, password } = req.body || {};
     const r = await query(
-      `SELECT u.*,r.name role_name,r.active role_active,r.permissions FROM app_users u JOIN app_roles r ON r.id=u.role_id WHERE lower(u.username)=lower($1) OR lower(u.email)=lower($1) LIMIT 1`,
+      `SELECT u.*,r.name role_name,r.active role_active,r.permissions FROM app_users u JOIN app_roles r ON r.id=u.role_id WHERE (lower(u.username)=lower($1) OR lower(u.email)=lower($1)) AND u.deleted_at IS NULL AND r.deleted_at IS NULL LIMIT 1`,
       [String(login || "").trim()],
     );
     const u = r.rows[0];

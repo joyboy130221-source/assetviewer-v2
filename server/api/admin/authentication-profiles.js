@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
   try {
     if (req.method === "GET") {
       const r = await query(
-        "SELECT id,name,description,auth_type,header_name,username,active,created_at,updated_at FROM authentication_profiles ORDER BY name",
+        "SELECT id,name,description,auth_type,header_name,username,active,created_at,updated_at FROM authentication_profiles WHERE deleted_at IS NULL ORDER BY name",
       );
       return res.json({ data: r.rows });
     }
@@ -41,18 +41,21 @@ module.exports = async (req, res) => {
         b.id,
       ];
       await query(
-        "UPDATE authentication_profiles SET name=$1,description=$2,auth_type=$3,header_name=$4,username=$5,active=$6,updated_at=NOW() WHERE id=$7",
+        "UPDATE authentication_profiles SET name=$1,description=$2,auth_type=$3,header_name=$4,username=$5,active=$6,updated_at=NOW() WHERE id=$7 AND deleted_at IS NULL",
         params,
       );
       if (b.secret)
         await query(
-          "UPDATE authentication_profiles SET secret_value=$1,updated_at=NOW() WHERE id=$2",
+          "UPDATE authentication_profiles SET secret_value=$1,updated_at=NOW() WHERE id=$2 AND deleted_at IS NULL",
           [encryptSecret(b.secret), b.id],
         );
       return res.json({ message: "Authentication profile updated." });
     }
     if (req.method === "DELETE") {
-      await query("DELETE FROM authentication_profiles WHERE id=$1", [b.id]);
+      await query(
+        "UPDATE authentication_profiles SET deleted_at=NOW(),deleted_by=$2,updated_at=NOW() WHERE id=$1 AND deleted_at IS NULL",
+        [b.id, user.id],
+      );
       return res.json({ message: "Authentication profile deleted." });
     }
     return res.status(405).json({ error: "Method not allowed" });

@@ -5,7 +5,7 @@ const { writeMessageBusLog } = require("../../lib/message-bus-log");
 
 async function getConnection(id) {
   const result = await query(
-    "SELECT * FROM message_bus_connections WHERE id=$1 AND active=TRUE LIMIT 1",
+    "SELECT * FROM message_bus_connections WHERE id=$1 AND active=TRUE AND deleted_at IS NULL LIMIT 1",
     [id],
   );
   if (!result.rows[0])
@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
     if (op === "connections") {
       if (req.method === "GET") {
         const result = await query(
-          "SELECT * FROM message_bus_connections ORDER BY name",
+          "SELECT * FROM message_bus_connections WHERE deleted_at IS NULL ORDER BY name",
         );
         return res.json({ data: result.rows.map(publicConnection) });
       }
@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
       }
       if (req.method === "PUT") {
         const existing = await query(
-          "SELECT connection_string FROM message_bus_connections WHERE id=$1",
+          "SELECT connection_string FROM message_bus_connections WHERE id=$1 AND deleted_at IS NULL",
           [body.id],
         );
         if (!existing.rows[0])
@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
           ? encryptSecret(body.connectionString)
           : existing.rows[0].connection_string;
         await query(
-          `UPDATE message_bus_connections SET name=$1,description=$2,connection_string=$3,active=$4,updated_at=NOW() WHERE id=$5`,
+          `UPDATE message_bus_connections SET name=$1,description=$2,connection_string=$3,active=$4,updated_at=NOW() WHERE id=$5 AND deleted_at IS NULL`,
           [
             body.name.trim(),
             body.description || "",
@@ -79,9 +79,10 @@ module.exports = async (req, res) => {
         });
       }
       if (req.method === "DELETE") {
-        await query("DELETE FROM message_bus_connections WHERE id=$1", [
-          body.id,
-        ]);
+        await query(
+          "UPDATE message_bus_connections SET deleted_at=NOW(),deleted_by=$2,active=FALSE,updated_at=NOW() WHERE id=$1 AND deleted_at IS NULL",
+          [body.id, user.id],
+        );
         return res.json({
           message: "Messaging connection deleted successfully.",
         });

@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
     const id = req.query.id;
     if (!id) return res.status(400).json({ error: "Form id is required." });
     const r = await query(
-      `SELECT f.*,o.name organization_name FROM form_definitions f JOIN organizations o ON o.id=f.organization_id WHERE f.id=$1 AND f.status='published' AND o.active=TRUE`,
+      `SELECT f.*,o.name organization_name FROM form_definitions f JOIN organizations o ON o.id=f.organization_id WHERE f.id=$1 AND f.status='published' AND f.deleted_at IS NULL AND o.active=TRUE AND o.deleted_at IS NULL`,
       [id],
     );
     const form = r.rows[0];
@@ -322,7 +322,7 @@ module.exports = async (req, res) => {
       const operation = messageAction.operation || "send";
       try {
         const connectionResult = await query(
-          "SELECT id,name,connection_string FROM message_bus_connections WHERE id=$1 AND active=TRUE LIMIT 1",
+          "SELECT id,name,connection_string FROM message_bus_connections WHERE id=$1 AND active=TRUE AND deleted_at IS NULL LIMIT 1",
           [messageAction.connectionId],
         );
         const connection = connectionResult.rows[0];

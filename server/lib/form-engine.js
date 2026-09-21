@@ -136,7 +136,7 @@ async function applyAuthProfile(action, query) {
   if (!action?.authProfileId)
     return { ...action, headers: { ...(action?.headers || {}) } };
   const r = await query(
-    "SELECT * FROM authentication_profiles WHERE id=$1 AND active=TRUE",
+    "SELECT * FROM authentication_profiles WHERE id=$1 AND active=TRUE AND deleted_at IS NULL",
     [action.authProfileId],
   );
   const p = r.rows[0];

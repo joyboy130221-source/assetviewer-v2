@@ -5,7 +5,8 @@ async function findForms(id) {
     `SELECT f.*, o.name AS organization_name
        FROM form_definitions f
        JOIN organizations o ON o.id = f.organization_id
-      ${id ? "WHERE f.id = $1::uuid" : ""}
+      WHERE f.deleted_at IS NULL AND o.deleted_at IS NULL
+      ${id ? "AND f.id = $1::uuid" : ""}
       ORDER BY f.updated_at DESC`,
     id ? [id] : [],
   );
@@ -54,7 +55,7 @@ async function updateForm(form) {
                 THEN COALESCE(published_at, NOW())
               ELSE published_at
             END
-      WHERE id = $10::uuid`,
+      WHERE id = $10::uuid AND deleted_at IS NULL`,
     [
       form.organizationId,
       form.name,
@@ -70,8 +71,13 @@ async function updateForm(form) {
   );
 }
 
-async function deleteForm(id) {
-  return query(`DELETE FROM form_definitions WHERE id = $1::uuid`, [id]);
+async function deleteForm(id, deletedBy) {
+  return query(
+    `UPDATE form_definitions
+        SET deleted_at = NOW(), deleted_by = $2::bigint, updated_at = NOW()
+      WHERE id = $1::uuid AND deleted_at IS NULL`,
+    [id, deletedBy],
+  );
 }
 
 module.exports = { findForms, createForm, updateForm, deleteForm };
