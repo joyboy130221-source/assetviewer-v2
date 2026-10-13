@@ -4,6 +4,9 @@ import type {
   MessageBusAction,
   WorkflowStepType,
 } from "../../../shared/workflow/workflowStep.types";
+
+/** Reuse the shared workflow action type across API Watcher components. */
+export type WatcherActionType = WorkflowStepType;
 export type KeyValue = { key: string; value: string };
 export type BodyFormat = "json" | "xml" | "text";
 export type RestAction = {
