@@ -16,6 +16,21 @@ async function getConnection(id) {
   return result.rows[0];
 }
 
+/** Optional tenant ownership: blank = shared by every organization. */
+async function resolveOrganizationId(value) {
+  const id = String(value || "").trim();
+  if (!id) return null;
+  const org = await query(
+    "SELECT id FROM organizations WHERE id::text=$1 AND active=TRUE AND deleted_at IS NULL",
+    [id],
+  );
+  if (!org.rowCount)
+    throw Object.assign(new Error("Organization is unavailable."), {
+      status: 400,
+    });
+  return org.rows[0].id;
+}
+
 function publicConnection(row) {
   const { connection_string, ...safe } = row;
   return { ...safe, credentialConfigured: Boolean(connection_string) };
@@ -29,9 +44,15 @@ module.exports = async (req, res) => {
     if (op === "connections") {
       if (req.method === "GET") {
         const result = await query(
-          "SELECT * FROM message_bus_connections WHERE deleted_at IS NULL ORDER BY name",
+          "SELECT c.*,o.name organization_name FROM message_bus_connections c LEFT JOIN organizations o ON o.id=c.organization_id WHERE c.deleted_at IS NULL ORDER BY c.name",
         );
-        return res.json({ data: result.rows.map(publicConnection) });
+        const organizations = await query(
+          "SELECT id,name,active FROM organizations WHERE deleted_at IS NULL ORDER BY name",
+        );
+        return res.json({
+          data: result.rows.map(publicConnection),
+          organizations: organizations.rows,
+        });
       }
       const body = req.body || {};
       if (req.method === "POST") {
@@ -40,12 +61,13 @@ module.exports = async (req, res) => {
             .status(400)
             .json({ error: "Name and Connection String are required." });
         await query(
-          `INSERT INTO message_bus_connections(name,description,provider,connection_string,active) VALUES($1,$2,'azureServiceBus',$3,$4)`,
+          `INSERT INTO message_bus_connections(name,description,provider,connection_string,active,organization_id) VALUES($1,$2,'azureServiceBus',$3,$4,$5)`,
           [
             body.name.trim(),
             body.description || "",
             encryptSecret(body.connectionString),
             body.active !== false,
+            await resolveOrganizationId(body.organizationId),
           ],
         );
         return res.json({
@@ -65,13 +87,14 @@ module.exports = async (req, res) => {
           ? encryptSecret(body.connectionString)
           : existing.rows[0].connection_string;
         await query(
-          `UPDATE message_bus_connections SET name=$1,description=$2,connection_string=$3,active=$4,updated_at=NOW() WHERE id=$5 AND deleted_at IS NULL`,
+          `UPDATE message_bus_connections SET name=$1,description=$2,connection_string=$3,active=$4,organization_id=$6,updated_at=NOW() WHERE id=$5 AND deleted_at IS NULL`,
           [
             body.name.trim(),
             body.description || "",
             secret,
             body.active !== false,
             body.id,
+            await resolveOrganizationId(body.organizationId),
           ],
         );
         return res.json({

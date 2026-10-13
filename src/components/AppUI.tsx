@@ -18,16 +18,22 @@ type ConfirmOptions = {
 };
 type UIContextType = {
   confirm: (o: ConfirmOptions) => Promise<boolean>;
+  alert: (o: Omit<ConfirmOptions, "cancelText">) => Promise<void>;
   toast: (m: string, t?: "success" | "error") => void;
 };
 const C = createContext<UIContextType | null>(null);
 
 export function AppUIProvider({ children }: { children: ReactNode }) {
   const [dialog, setDialog] = useState<
-    (ConfirmOptions & { resolve: (v: boolean) => void }) | null
+    | (ConfirmOptions & { resolve: (v: boolean) => void; alertOnly?: boolean })
+    | null
   >(null);
   const confirm = (o: ConfirmOptions) =>
     new Promise<boolean>((resolve) => setDialog({ ...o, resolve }));
+  const alert = (o: Omit<ConfirmOptions, "cancelText">) =>
+    new Promise<void>((resolve) =>
+      setDialog({ ...o, alertOnly: true, resolve: () => resolve() }),
+    );
   const toast = (m: string, t: "success" | "error" = "success") =>
     t === "error" ? sonnerToast.error(m) : sonnerToast.success(m);
   const done = (v: boolean) => {
@@ -35,7 +41,7 @@ export function AppUIProvider({ children }: { children: ReactNode }) {
     setDialog(null);
   };
   return (
-    <C.Provider value={{ confirm, toast }}>
+    <C.Provider value={{ confirm, alert, toast }}>
       {children}
       <Toaster position="top-right" richColors closeButton duration={4500} />
       <AlertDialog.Root
@@ -63,12 +69,14 @@ export function AppUIProvider({ children }: { children: ReactNode }) {
               </AlertDialog.Description>
             </div>
             <div className="dialog-actions">
-              <AlertDialog.Cancel asChild>
-                <button className="secondary-button">
-                  <X size={16} />
-                  {dialog?.cancelText || "Cancel"}
-                </button>
-              </AlertDialog.Cancel>
+              {!dialog?.alertOnly && (
+                <AlertDialog.Cancel asChild>
+                  <button className="secondary-button">
+                    <X size={16} />
+                    {dialog?.cancelText || "Cancel"}
+                  </button>
+                </AlertDialog.Cancel>
+              )}
               <AlertDialog.Action asChild>
                 <button
                   className={
@@ -83,7 +91,8 @@ export function AppUIProvider({ children }: { children: ReactNode }) {
                   ) : (
                     <CheckCircle2 size={16} />
                   )}{" "}
-                  {dialog?.confirmText || "Confirm"}
+                  {dialog?.confirmText ||
+                    (dialog?.alertOnly ? "OK" : "Confirm")}
                 </button>
               </AlertDialog.Action>
             </div>

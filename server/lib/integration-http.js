@@ -1,59 +1,53 @@
-const dns = require("dns").promises;
-const net = require("net");
-const privateIp = (ip) =>
-  ip === "::1" ||
-  ip.startsWith("127.") ||
-  ip.startsWith("10.") ||
-  ip.startsWith("192.168.") ||
-  /^172\.(1[6-9]|2\d|3[01])\./.test(ip) ||
-  ip.startsWith("169.254.") ||
-  ip.startsWith("fc") ||
-  ip.startsWith("fd") ||
-  ip.startsWith("fe80:");
+const { getPath: resolveObjectPath } = require("./object-path");
+const { assertUrlAllowed } = require("./network-policy");
+const { appendQueryParameters } = require("./query-params");
+/** Outbound URL check shared with Browser RPA (server/lib/network-policy.js). */
 async function safeUrl(raw) {
-  const u = new URL(raw);
-  if (!["http:", "https:"].includes(u.protocol))
-    throw new Error("Only HTTP/HTTPS URLs are allowed.");
-  if (["localhost", "0.0.0.0"].includes(u.hostname))
-    throw new Error("Private/local URLs are not allowed.");
-  const ips = net.isIP(u.hostname)
-    ? [{ address: u.hostname }]
-    : await dns.lookup(u.hostname, { all: true });
-  if (ips.some((x) => privateIp(x.address)))
-    throw new Error("Private/local URLs are not allowed.");
-  return u;
+  return assertUrlAllowed(raw);
 }
 async function execute(action) {
   const u = await safeUrl(action.url);
-  Object.entries(action.params || {}).forEach(([k, v]) =>
-    u.searchParams.set(k, String(v)),
-  );
+  appendQueryParameters(u, action.params);
   const headers = { ...(action.headers || {}) };
   const method = (action.method || "GET").toUpperCase();
   let body;
-  if (
-    !["GET", "HEAD"].includes(method) &&
-    action.body &&
-    Object.keys(action.body).length
-  ) {
-    headers["Content-Type"] = headers["Content-Type"] || "application/json";
-    body = JSON.stringify(action.body);
+  if (!["GET", "HEAD"].includes(method) && action.body != null) {
+    const format =
+      action.bodyFormat || (typeof action.body === "string" ? "text" : "json");
+    if (typeof action.body === "string") {
+      body = action.body;
+      if (!headers["Content-Type"])
+        headers["Content-Type"] =
+          format === "xml"
+            ? "application/xml"
+            : format === "json"
+              ? "application/json"
+              : format === "form"
+                ? "application/x-www-form-urlencoded"
+                : "text/plain";
+    } else if (Object.keys(action.body || {}).length) {
+      headers["Content-Type"] = headers["Content-Type"] || "application/json";
+      body = JSON.stringify(action.body);
+    }
   }
   const response = await fetch(u, {
     method,
     headers,
     body,
     redirect: "error",
-    signal: AbortSignal.timeout(15000),
+    signal: AbortSignal.timeout(
+      Math.max(1000, Math.min(120000, Number(action.timeoutMs) || 15000)),
+    ),
   });
   const text = await response.text();
+  const contentType = response.headers.get("content-type") || "";
   let data;
   try {
     data = JSON.parse(text);
   } catch {
     data = { text: text.slice(0, 10000) };
   }
-  return { ok: response.ok, status: response.status, data };
+  return { ok: response.ok, status: response.status, data, text, contentType };
 }
 function flatten(value, prefix = "", out = []) {
   if (Array.isArray(value)) {
@@ -67,8 +61,11 @@ function flatten(value, prefix = "", out = []) {
   return out;
 }
 function getPath(value, path) {
-  return path
+  const explicit = resolveObjectPath(value, path);
+  if (explicit !== undefined) return explicit;
+  return String(path || "")
     .split(".")
+    .filter(Boolean)
     .reduce((v, k) => (Array.isArray(v) ? v[0]?.[k] : v?.[k]), value);
 }
 module.exports = { execute, flatten, getPath };

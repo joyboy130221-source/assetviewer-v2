@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import type { ApiAction, FormField } from "../model/form.types";
+import {
+  compactQueryParameters,
+  normalizeQueryParameters,
+  type QueryParameters,
+} from "../../../shared/http/queryParams";
 import { api } from "../../../services/api";
 import { formApi } from "../services/formApi";
 
@@ -9,18 +14,22 @@ const DEFAULT_ACTION: ApiAction = {
   method: "POST",
   url: "",
   headers: {},
-  params: {},
+  params: [],
   body: {},
 };
 
 type KeyValueRow = { id: string; key: string; value: string };
 
-const toRows = (value: Record<string, string>): KeyValueRow[] => {
-  const rows = Object.entries(value || {}).map(([key, rowValue]) => ({
-    id: crypto.randomUUID(),
-    key,
-    value: rowValue,
-  }));
+const toRows = (
+  value: Record<string, string> | QueryParameters,
+): KeyValueRow[] => {
+  const rows = normalizeQueryParameters(value as QueryParameters).map(
+    ({ key, value: rowValue }) => ({
+      id: crypto.randomUUID(),
+      key,
+      value: rowValue,
+    }),
+  );
   return rows.length ? rows : [{ id: crypto.randomUUID(), key: "", value: "" }];
 };
 
@@ -133,7 +142,15 @@ export function ApiActionPanel({
   const updateRows = (kind: "headers" | "params", rows: KeyValueRow[]) => {
     if (kind === "headers") setHeaders(rows);
     else setParams(rows);
-    onChange({ ...current, [kind]: fromRows(rows) });
+    onChange({
+      ...current,
+      [kind]:
+        kind === "params"
+          ? compactQueryParameters(
+              rows.map(({ key, value }) => ({ key, value })),
+            )
+          : fromRows(rows),
+    });
   };
 
   const updateBody = (text: string) => {

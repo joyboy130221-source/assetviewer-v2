@@ -3,6 +3,8 @@ export interface AdminUser {
   name: string;
   role: string;
   permissions?: Record<string, boolean>;
+  /** Set when the password must be changed before using the console. */
+  mustChangePassword?: boolean;
 }
 export interface WorkOrder extends JsonRecord {
   wonum?: string;

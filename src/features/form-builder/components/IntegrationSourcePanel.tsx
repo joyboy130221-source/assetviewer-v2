@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { Check, Loader2, Plus, Trash2 } from "lucide-react";
 import type { ApiAction, FormField } from "../model/form.types";
+import {
+  compactQueryParameters,
+  normalizeQueryParameters,
+  type QueryParameters,
+} from "../../../shared/http/queryParams";
 import { api } from "../../../services/api";
 import { formApi } from "../services/formApi";
 
@@ -21,16 +26,20 @@ const EMPTY_ACTION: ApiAction = {
   method: "GET",
   url: "",
   headers: {},
-  params: {},
+  params: [],
   body: {},
 };
 
-const toRows = (value: Record<string, string>): KeyValueRow[] => {
-  const rows = Object.entries(value || {}).map(([key, rowValue]) => ({
-    id: crypto.randomUUID(),
-    key,
-    value: rowValue,
-  }));
+const toRows = (
+  value: Record<string, string> | QueryParameters,
+): KeyValueRow[] => {
+  const rows = normalizeQueryParameters(value as QueryParameters).map(
+    ({ key, value: rowValue }) => ({
+      id: crypto.randomUUID(),
+      key,
+      value: rowValue,
+    }),
+  );
 
   return rows.length ? rows : [{ id: crypto.randomUUID(), key: "", value: "" }];
 };
@@ -86,7 +95,15 @@ export function IntegrationSourcePanel({
       setParams(nextRows);
     }
 
-    onChange({ ...current, [kind]: fromRows(nextRows) });
+    onChange({
+      ...current,
+      [kind]:
+        kind === "params"
+          ? compactQueryParameters(
+              nextRows.map(({ key, value }) => ({ key, value })),
+            )
+          : fromRows(nextRows),
+    });
   };
 
   const renderRows = (kind: "headers" | "params", rows: KeyValueRow[]) => (

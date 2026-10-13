@@ -3,10 +3,18 @@ import { Link, useSearchParams } from "react-router-dom";
 import { api, jsonInit } from "../services/api";
 import { pad, toMaximoDateTime } from "../utils/format";
 import { LoadingOverlay, useAppUI } from "../components/AppUI";
-const nowValue = () => {
+const nowValue = (): string => {
   const n = new Date();
-  return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+
+  return (
+    `${n.getFullYear()}-` +
+    `${pad(n.getMonth() + 1)}-` +
+    `${pad(n.getDate())}T` +
+    `${pad(n.getHours())}:` +
+    `${pad(n.getMinutes())}`
+  );
 };
+
 export default function CreateWorkOrderPage() {
   const [sp] = useSearchParams(),
     env = (sp.get("env") || "").trim(),

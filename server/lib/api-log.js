@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { query } = require("./db");
+const { getRequestContext } = require("../http/request-context");
 
 const SENSITIVE =
   /^(authorization|proxy-authorization|cookie|set-cookie|apikey|api-key|x-api-key|password|token|access_token|refresh_token|client_secret)$/i;
@@ -52,12 +53,17 @@ function bodyValue(raw) {
   }
 }
 async function recordApiLog(entry) {
+  // Who triggered the call (session user / External View key / anonymous),
+  // taken from the request context set by server/http/pipeline.js.
+  const context = getRequestContext();
+  const principal = context?.principal || null;
   try {
     await query(
       `INSERT INTO api_request_logs(
       environment_id,environment_name,request_method,request_url,request_headers,request_params,request_body,
-      response_status,response_headers,response_body,success,duration_ms,error_message
-    ) VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7::jsonb,$8,$9::jsonb,$10::jsonb,$11,$12,$13)`,
+      response_status,response_headers,response_body,success,duration_ms,error_message,
+      auth_method,user_id,external_view_id,client_ip,request_id
+    ) VALUES($1,$2,$3,$4,$5::jsonb,$6::jsonb,$7::jsonb,$8,$9::jsonb,$10::jsonb,$11,$12,$13,$14,$15,$16,$17,$18)`,
       [
         entry.environmentId || null,
         entry.environmentName || null,
@@ -72,6 +78,11 @@ async function recordApiLog(entry) {
         Boolean(entry.success),
         entry.durationMs ?? null,
         entry.errorMessage || null,
+        principal?.method || null,
+        principal?.userId || null,
+        principal?.externalViewId || null,
+        context?.clientIp ? String(context.clientIp).slice(0, 64) : null,
+        context?.requestId || null,
       ],
     );
   } catch (e) {

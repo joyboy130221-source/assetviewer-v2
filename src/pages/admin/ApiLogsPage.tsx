@@ -4,6 +4,24 @@ import { AdminLayout } from "../../components/AdminLayout";
 import { useAppUI } from "../../components/AppUI";
 import { api } from "../../services/api";
 const pretty = (v: any) => JSON.stringify(v ?? null, null, 2);
+/** Who triggered the logged Maximo call (recorded since security Phase 1). */
+function callerLabel(log: {
+  auth_method?: string | null;
+  user_id?: number | null;
+  external_view_id?: number | null;
+}): string {
+  switch (log.auth_method) {
+    case "session":
+      return `User #${log.user_id ?? "?"}`;
+    case "embed-key":
+      return `External View #${log.external_view_id ?? "?"}`;
+    case "none":
+      return "Unauthenticated";
+    default:
+      return "—";
+  }
+}
+
 export default function ApiLogsPage() {
   const [logs, setLogs] = useState<any[]>([]),
     [envs, setEnvs] = useState<string[]>([]),
@@ -134,6 +152,7 @@ export default function ApiLogsPage() {
               <tr>
                 <th>Time</th>
                 <th>Environment</th>
+                <th>Caller</th>
                 <th>Method</th>
                 <th>Request</th>
                 <th>Status</th>
@@ -153,6 +172,13 @@ export default function ApiLogsPage() {
                   <tr key={x.id}>
                     <td>{new Date(x.created_at).toLocaleString()}</td>
                     <td>{x.environment_name || "—"}</td>
+                    <td>
+                      <span
+                        className={`auth-chip auth-${x.auth_method || "unknown"}`}
+                      >
+                        {callerLabel(x)}
+                      </span>
+                    </td>
                     <td>
                       <span className="method-badge">{x.request_method}</span>
                     </td>
@@ -229,6 +255,9 @@ export default function ApiLogsPage() {
             <div className="log-meta">
               {[
                 ["Environment", detail.environment_name],
+                ["Caller", callerLabel(detail)],
+                ["Client IP", detail.client_ip],
+                ["Request ID", detail.request_id],
                 ["Status", detail.response_status ?? "No response"],
                 [
                   "Duration",

@@ -1,3 +1,8 @@
+import type { QueryParameters } from "../../../shared/http/queryParams";
+import type {
+  BrowserAction,
+  MessageBusAction,
+} from "../../../shared/workflow/workflowStep.types";
 export type FieldType =
   "text" | "date" | "number" | "textarea" | "checkbox" | "radio" | "combobox";
 export type FormStatus = "draft" | "published";
@@ -7,63 +12,17 @@ export type ApiAction = {
   method: "POST" | "PUT" | "PATCH" | "DELETE" | "GET";
   url: string;
   headers: Record<string, string>;
-  params: Record<string, string>;
+  params: QueryParameters;
   body: Record<string, unknown>;
   authProfileId?: string;
 };
 export type IntegrationSource = ApiAction;
 export type FormTheme = "current" | "sap" | "maximo" | "horizon" | "operations";
-export type BrowserAction = {
-  action:
-    | "openPage"
-    | "click"
-    | "fill"
-    | "select"
-    | "waitFor"
-    | "delay"
-    | "readText"
-    | "readAttribute"
-    | "check"
-    | "uncheck"
-    | "uploadFile"
-    | "downloadFile"
-    | "screenshot"
-    | "pressKey"
-    | "hover"
-    | "scrollIntoView"
-    | "switchToLatestPage";
-  url?: string;
-  selector?: string;
-  value?: string;
-  timeoutMs?: number;
-  match?: "single" | "first" | "last" | "nth";
-  matchIndex?: number;
-  frameSelector?: string;
-  waitState?: "attached" | "detached" | "visible" | "hidden";
-  waitUntil?: "load" | "domcontentloaded" | "networkidle" | "commit";
-  attributeName?: string;
-  filePath?: string;
-  fileName?: string;
-  fullPage?: boolean;
-  key?: string;
-  delayMs?: number;
-};
-export type MessageBusAction = {
-  operation?: "send" | "dlqCheck";
-  connectionId?: string;
-  destinationType: "queue" | "topic";
-  destination: string;
-  body: string;
-  messageFormat?: "json" | "xml" | "text";
-  contentType?: string;
-  messageId?: string;
-  correlationId?: string;
-  applicationProperties?: string;
-  subscription?: string;
-  initialWaitSeconds?: number;
-  checkIntervalSeconds?: number;
-  monitoringWindowSeconds?: number;
-};
+// Browser RPA / Message Bus step models are shared with API Watcher chains.
+export type {
+  BrowserAction,
+  MessageBusAction,
+} from "../../../shared/workflow/workflowStep.types";
 export type WorkflowStep = {
   id: string;
   key: string;

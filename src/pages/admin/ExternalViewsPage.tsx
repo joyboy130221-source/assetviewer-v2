@@ -1,8 +1,18 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ExternalLink, Pencil, Plus, Trash2, X } from "lucide-react";
+import {
+  ExternalLink,
+  KeyRound,
+  Pencil,
+  Plus,
+  ShieldOff,
+  Trash2,
+  X,
+} from "lucide-react";
 import { AdminLayout } from "../../components/AdminLayout";
 import { LoadingOverlay, useAppUI } from "../../components/AppUI";
 import { api, jsonInit } from "../../services/api";
+import { externalViewAccessApi } from "../../features/external-views/services/externalViewAccessApi";
+import { GeneratedLinkBanner } from "../../features/external-views/components/GeneratedLinkBanner";
 
 type ExternalView = {
   id: number;
@@ -13,6 +23,11 @@ type ExternalView = {
   organization_id?: string | null;
   organization_name?: string | null;
   organization_code?: string | null;
+  access_key_configured?: boolean;
+  access_key_prefix?: string | null;
+  access_key_created_at?: string | null;
+  /** Maximo environments the key is limited to (from `env=` in the URL). */
+  access_key_environments?: string[];
 };
 
 type Organization = { id: string; code: string; name: string; active: boolean };
@@ -23,6 +38,10 @@ export default function ExternalViewsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const [generated, setGenerated] = useState<{
+    name: string;
+    link: string;
+  } | null>(null);
   const ui = useAppUI();
 
   const load = () =>
@@ -88,6 +107,55 @@ export default function ExternalViewsPage() {
       );
       await load();
       ui.toast(response.message);
+    } catch (error: any) {
+      ui.toast(error.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateKey = async (item: ExternalView) => {
+    if (
+      !(await ui.confirm({
+        title: item.access_key_configured
+          ? "Replace access key?"
+          : "Generate access key?",
+        message: item.access_key_configured
+          ? `The current secure link for “${item.name}” will stop working immediately. Update BIC/BECS with the new link.`
+          : `Create a secure link for “${item.name}” that BIC/BECS can use when External View authentication is enforced.`,
+        confirmText: item.access_key_configured ? "Replace Key" : "Generate",
+        danger: Boolean(item.access_key_configured),
+      }))
+    )
+      return;
+    setLoading(true);
+    try {
+      const result = await externalViewAccessApi.generate(item.id);
+      setGenerated({ name: item.name, link: result.link });
+      await load();
+      ui.toast("Access key generated.");
+    } catch (error: any) {
+      ui.toast(error.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const revokeKey = async (item: ExternalView) => {
+    if (
+      !(await ui.confirm({
+        title: "Revoke access key?",
+        message: `Secure links for “${item.name}” will stop working when External View authentication is enforced.`,
+        confirmText: "Revoke",
+        danger: true,
+      }))
+    )
+      return;
+    setLoading(true);
+    try {
+      const result = await externalViewAccessApi.revoke(item.id);
+      await load();
+      ui.toast(result.message);
     } catch (error: any) {
       ui.toast(error.message, "error");
     } finally {
@@ -195,6 +263,13 @@ export default function ExternalViewsPage() {
               </div>
             </form>
           )}
+          {generated && (
+            <GeneratedLinkBanner
+              viewName={generated.name}
+              link={generated.link}
+              onClose={() => setGenerated(null)}
+            />
+          )}
           <div className="table-wrap admin-table-scroll">
             <table className="admin-table">
               <thead>
@@ -203,6 +278,7 @@ export default function ExternalViewsPage() {
                   <th>Description</th>
                   <th>Tenant</th>
                   <th>URL</th>
+                  <th>Access Key</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -220,6 +296,22 @@ export default function ExternalViewsPage() {
                         <ExternalLink size={14} />
                         {item.url}
                       </span>
+                    </td>
+                    <td>
+                      {item.access_key_configured ? (
+                        <span className="ev-key-status configured">
+                          Configured <code>{item.access_key_prefix}…</code>
+                          <small>
+                            {item.access_key_environments?.length
+                              ? `Env: ${item.access_key_environments.join(", ")}`
+                              : "All environments"}
+                          </small>
+                        </span>
+                      ) : (
+                        <span className="ev-key-status missing">
+                          Not configured
+                        </span>
+                      )}
                     </td>
                     <td>
                       <span
@@ -243,6 +335,26 @@ export default function ExternalViewsPage() {
                         >
                           <Pencil size={16} />
                         </button>
+                        <button
+                          className="icon-button table-action"
+                          title={
+                            item.access_key_configured
+                              ? "Replace access key (new secure link)"
+                              : "Generate access key (secure link)"
+                          }
+                          onClick={() => generateKey(item)}
+                        >
+                          <KeyRound size={16} />
+                        </button>
+                        {item.access_key_configured && (
+                          <button
+                            className="icon-button table-action"
+                            title="Revoke access key"
+                            onClick={() => revokeKey(item)}
+                          >
+                            <ShieldOff size={16} />
+                          </button>
+                        )}
                         <button
                           className="icon-button table-action danger"
                           title="Delete external view"

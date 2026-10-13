@@ -1,3 +1,4 @@
+import type { QueryParameters } from "../../../shared/http/queryParams";
 export type AnalyticsStatus = "draft" | "published";
 export type VisualizationType = "kpi" | "bar" | "line" | "pie" | "table";
 export type AggregationType = "count" | "sum" | "avg" | "min" | "max";
@@ -16,7 +17,7 @@ export type AnalyticsApiAction = {
   method: "GET";
   url: string;
   headers: Record<string, string>;
-  params: Record<string, string>;
+  params: QueryParameters;
   authProfileId?: string;
 };
 export type AnalyticsFilter = {

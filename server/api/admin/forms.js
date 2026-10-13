@@ -1,6 +1,23 @@
 const crypto = require("crypto");
 const { requireAuth } = require("../../lib/auth");
 const formRepository = require("../../repositories/form-repository");
+const { validatedQueryParameters } = require("../../lib/query-params");
+
+const normalizeApiAction = (action) =>
+  action
+    ? { ...action, params: validatedQueryParameters(action.params) }
+    : action;
+const normalizeWorkflow = (workflow) =>
+  !workflow
+    ? workflow
+    : {
+        ...workflow,
+        steps: (workflow.steps || []).map((step) =>
+          step?.type === "api" || !step?.type
+            ? { ...step, action: normalizeApiAction(step.action) }
+            : step,
+        ),
+      };
 
 const mapForm = (row) => ({
   id: row.id,
@@ -101,8 +118,8 @@ module.exports = async (req, res) => {
           mode: body.mode || "empty",
           status: body.status || "draft",
           fields: body.fields || [],
-          submitAction: body.submitAction || null,
-          sourceAction: body.sourceAction || null,
+          submitAction: normalizeApiAction(body.submitAction) || null,
+          sourceAction: normalizeApiAction(body.sourceAction) || null,
           settings: {
             queryParams: body.queryParams || [],
             showSubmitButton: body.showSubmitButton !== false,
@@ -111,7 +128,7 @@ module.exports = async (req, res) => {
             responseAction: body.responseAction || null,
             failureResponse: body.failureResponse || "",
             theme: body.theme || "current",
-            workflow: body.workflow || null,
+            workflow: normalizeWorkflow(body.workflow) || null,
           },
         },
         user.id,
@@ -145,8 +162,8 @@ module.exports = async (req, res) => {
         mode: body.mode || "empty",
         status: body.status || "draft",
         fields: body.fields || [],
-        submitAction: body.submitAction || null,
-        sourceAction: body.sourceAction || null,
+        submitAction: normalizeApiAction(body.submitAction) || null,
+        sourceAction: normalizeApiAction(body.sourceAction) || null,
         settings: {
           queryParams: body.queryParams || [],
           showSubmitButton: body.showSubmitButton !== false,
@@ -155,7 +172,7 @@ module.exports = async (req, res) => {
           responseAction: body.responseAction || null,
           failureResponse: body.failureResponse || "",
           theme: body.theme || "current",
-          workflow: body.workflow || null,
+          workflow: normalizeWorkflow(body.workflow) || null,
         },
       });
 

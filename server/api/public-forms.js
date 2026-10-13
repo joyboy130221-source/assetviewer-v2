@@ -1,9 +1,9 @@
-const crypto = require("crypto"),
-  dns = require("dns").promises,
-  net = require("net");
-const { query, decryptSecret } = require("../lib/db");
-const serviceBus = require("../lib/service-bus");
-const { writeMessageBusLog } = require("../lib/message-bus-log");
+const crypto = require("crypto");
+const { assertUrlAllowed } = require("../lib/network-policy");
+const { query } = require("../lib/db");
+const {
+  createMessageBusStepRunner,
+} = require("../lib/workflow/message-bus-step");
 const {
   render,
   ruleMatches,
@@ -16,29 +16,9 @@ const {
   execute: executeIntegration,
   getPath,
 } = require("../lib/integration-http");
-const privateIp = (ip) =>
-  ip === "::1" ||
-  ip.startsWith("127.") ||
-  ip.startsWith("10.") ||
-  ip.startsWith("192.168.") ||
-  /^172\.(1[6-9]|2\d|3[01])\./.test(ip) ||
-  ip.startsWith("169.254.") ||
-  ip.startsWith("fc") ||
-  ip.startsWith("fd") ||
-  ip.startsWith("fe80:");
-async function safeUrl(raw) {
-  const u = new URL(raw);
-  if (!["http:", "https:"].includes(u.protocol))
-    throw new Error("Only HTTP/HTTPS action URLs are allowed.");
-  if (["localhost", "0.0.0.0"].includes(u.hostname))
-    throw new Error("Private/local action URLs are not allowed.");
-  const ips = net.isIP(u.hostname)
-    ? [{ address: u.hostname }]
-    : await dns.lookup(u.hostname, { all: true });
-  if (ips.some((x) => privateIp(x.address)))
-    throw new Error("Private/local action URLs are not allowed.");
-  return u;
-}
+const { appendQueryParameters } = require("../lib/query-params");
+/** Shared outbound policy (server/lib/network-policy.js). */
+const safeUrl = (raw) => assertUrlAllowed(raw);
 const getQueryContext = (req, allowed = []) => {
   const context = {};
   for (const name of allowed) {
@@ -72,6 +52,7 @@ module.exports = async (req, res) => {
           const sourceAction = await applyAuthProfile(
             render(form.source_action, queryContext),
             query,
+            { organizationId: form.organization_id },
           );
           const sourceResult = await executeIntegration(sourceAction);
           if (!sourceResult.ok)
@@ -229,7 +210,9 @@ module.exports = async (req, res) => {
     };
 
     const runAction = async (rawAction, context, stepKey = null) => {
-      let action = await applyAuthProfile(rawAction, query);
+      let action = await applyAuthProfile(rawAction, query, {
+        organizationId: form.organization_id,
+      });
       const started = Date.now();
       const logId = crypto.randomUUID();
       let status = null;
@@ -238,15 +221,13 @@ module.exports = async (req, res) => {
       let success = false;
       let requestUrl = action.url;
       let resolvedHeaders = {};
-      let resolvedParams = {};
+      let resolvedParams = [];
       let resolvedBody = {};
 
       try {
         const url = await safeUrl(render(action.url, context));
         resolvedParams = render(action.params || {}, context);
-        Object.entries(resolvedParams).forEach(([key, value]) =>
-          url.searchParams.set(key, String(value)),
-        );
+        appendQueryParameters(url, resolvedParams);
         requestUrl = url.toString();
         const headers = render(action.headers || {}, context);
         resolvedHeaders = headers;
@@ -316,235 +297,15 @@ module.exports = async (req, res) => {
       };
     };
 
-    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    const runMessageAction = async (messageAction, context) => {
-      const started = Date.now();
-      const operation = messageAction.operation || "send";
-      try {
-        const connectionResult = await query(
-          "SELECT id,name,connection_string FROM message_bus_connections WHERE id=$1 AND active=TRUE AND deleted_at IS NULL LIMIT 1",
-          [messageAction.connectionId],
-        );
-        const connection = connectionResult.rows[0];
-        if (!connection)
-          throw new Error("Messaging connection not found or inactive.");
-        const destination = render(messageAction.destination || "", context);
-        if (operation === "dlqCheck") {
-          const destinationType = messageAction.destinationType || "queue";
-          const subscription =
-            render(messageAction.subscription || "", context) || undefined;
-          const messageId = render(messageAction.messageId || "", context);
-          if (!destination)
-            throw new Error("DLQ Check destination is required.");
-          if (!messageId) throw new Error("DLQ Check Message ID is required.");
-          const initialWaitSeconds = Math.min(
-            Math.max(Number(messageAction.initialWaitSeconds ?? 5), 0),
-            300,
-          );
-          const checkIntervalSeconds = Math.min(
-            Math.max(Number(messageAction.checkIntervalSeconds ?? 5), 1),
-            300,
-          );
-          const monitoringWindowSeconds = Math.min(
-            Math.max(Number(messageAction.monitoringWindowSeconds ?? 30), 1),
-            600,
-          );
-          const secret = decryptSecret(connection.connection_string);
-          if (initialWaitSeconds) await sleep(initialWaitSeconds * 1000);
-          const deadline = Date.now() + monitoringWindowSeconds * 1000;
-          let checks = 0;
-          while (true) {
-            checks += 1;
-            const check = await serviceBus.checkDeadLetterByMessageId(
-              secret,
-              destinationType,
-              destination,
-              subscription,
-              messageId,
-              100,
-            );
-            if (check.found) {
-              const dead = check.message || {};
-              return {
-                success: false,
-                status: null,
-                durationMs: Date.now() - started,
-                error:
-                  `Message ${messageId} was found in the Dead Letter Queue${dead.subscription ? ` (${dead.subscription})` : ""}. ${dead.deadLetterReason || ""} ${dead.deadLetterErrorDescription || ""}`.trim(),
-                request: {
-                  method: "MESSAGE:DLQ_CHECK",
-                  url: destination,
-                  headers: {},
-                  params: {
-                    connection: connection.name,
-                    destinationType,
-                    subscription: subscription || null,
-                    messageId,
-                    initialWaitSeconds,
-                    checkIntervalSeconds,
-                    monitoringWindowSeconds,
-                  },
-                  body: null,
-                },
-                response: {
-                  status: "DEAD_LETTER",
-                  messageId,
-                  checks,
-                  subscription: dead.subscription || subscription || null,
-                  deadLetterReason: dead.deadLetterReason || null,
-                  deadLetterDescription:
-                    dead.deadLetterErrorDescription || null,
-                  message: dead,
-                },
-              };
-            }
-            if (Date.now() >= deadline) break;
-            await sleep(
-              Math.min(
-                checkIntervalSeconds * 1000,
-                Math.max(deadline - Date.now(), 0),
-              ),
-            );
-          }
-          return {
-            success: true,
-            status: null,
-            error: null,
-            durationMs: Date.now() - started,
-            request: {
-              method: "MESSAGE:DLQ_CHECK",
-              url: destination,
-              headers: {},
-              params: {
-                connection: connection.name,
-                destinationType,
-                subscription: subscription || null,
-                messageId,
-                initialWaitSeconds,
-                checkIntervalSeconds,
-                monitoringWindowSeconds,
-              },
-              body: null,
-            },
-            response: {
-              status: "NOT_FOUND_IN_DLQ",
-              messageId,
-              checks,
-              monitoringWindowSeconds,
-              subscription: subscription || null,
-            },
-          };
-        }
-        const body = render(messageAction.body || "", context);
-        const propertiesText = render(
-          messageAction.applicationProperties || "{}",
-          context,
-        );
-        let applicationProperties = {};
-        try {
-          applicationProperties = propertiesText
-            ? JSON.parse(propertiesText)
-            : {};
-        } catch {
-          throw new Error(
-            "Message application properties must resolve to valid JSON.",
-          );
-        }
-        const messageFormat =
-          messageAction.messageFormat ||
-          (String(messageAction.contentType || "").includes("xml")
-            ? "xml"
-            : String(messageAction.contentType || "").includes("text/plain")
-              ? "text"
-              : "json");
-        const contentType = render(
-          messageAction.contentType || "application/json",
-          context,
-        );
-        const messageId =
-          render(messageAction.messageId || "", context) || undefined;
-        const correlationId =
-          render(messageAction.correlationId || "", context) || undefined;
-        const result = await serviceBus.sendMessage(
-          decryptSecret(connection.connection_string),
-          messageAction.destinationType || "queue",
-          destination,
-          {
-            body,
-            messageFormat,
-            contentType,
-            messageId,
-            correlationId,
-            applicationProperties,
-          },
-        );
-        const durationMs = Date.now() - started;
-        await writeMessageBusLog({
-          source: "WORKFLOW",
-          connectionId: connection.id,
-          connectionName: connection.name,
-          destinationType: messageAction.destinationType || "queue",
-          destination,
-          messageId: result.messageId || messageId,
-          correlationId: result.correlationId || correlationId,
-          messageFormat,
-          contentType,
-          applicationProperties,
-          messageBody: body,
-          success: true,
-          durationMs,
-          workflowExecutionId,
-        }).catch(() => {});
-        return {
-          success: true,
-          status: null,
-          error: null,
-          durationMs,
-          request: {
-            method: "MESSAGE:SEND",
-            url: destination,
-            headers: {},
-            params: {
-              connection: connection.name,
-              destinationType: messageAction.destinationType || "queue",
-            },
-            body: { body, applicationProperties },
-          },
-          response: result,
-        };
-      } catch (error) {
-        await writeMessageBusLog({
-          source: "WORKFLOW",
-          destinationType: messageAction.destinationType || "queue",
-          destination: render(messageAction.destination || "", context),
-          messageFormat: messageAction.messageFormat || null,
-          contentType: render(
-            messageAction.contentType || "application/json",
-            context,
-          ),
-          messageBody: render(messageAction.body || "", context),
-          success: false,
-          durationMs: Date.now() - started,
-          errorMessage: error.message,
-          workflowExecutionId,
-        }).catch(() => {});
-        return {
-          success: false,
-          status: null,
-          error: error.message,
-          durationMs: Date.now() - started,
-          request: {
-            method:
-              operation === "dlqCheck" ? "MESSAGE:DLQ_CHECK" : "MESSAGE:SEND",
-            url: messageAction.destination || "",
-            headers: {},
-            params: {},
-            body: null,
-          },
-          response: {},
-        };
-      }
-    };
+    // Message Bus steps share one runner (and one Service Bus connection
+    // cache) per submission. See server/lib/workflow/message-bus-step.js.
+    const messageBusRunner = createMessageBusStepRunner({
+      organizationId: form.organization_id,
+      executionId: workflowExecutionId,
+      logSource: "WORKFLOW",
+    });
+    const runMessageAction = (messageAction, context) =>
+      messageBusRunner.run(messageAction, context);
 
     const workflow = settings.workflow;
     if (
@@ -639,6 +400,7 @@ module.exports = async (req, res) => {
         }
       } finally {
         await browserRpa.close();
+        await messageBusRunner.close();
       }
     } else if (form.submit_action?.enabled && form.submit_action.url) {
       actionResult = await runAction(form.submit_action, templateContext);

@@ -90,7 +90,8 @@ export const formApi = {
             method: string;
             url: string;
             headers: Record<string, unknown>;
-            params: Record<string, unknown>;
+            params:
+              Array<{ key: string; value: string }> | Record<string, unknown>;
             body: unknown;
           };
           response: unknown;

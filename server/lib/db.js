@@ -14,13 +14,53 @@ function getPool() {
   if (!pool)
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl:
-        process.env.NODE_ENV === "production"
-          ? { rejectUnauthorized: false }
-          : undefined,
-      max: 5,
+      ssl: databaseSslOptions(),
+      max: envInt("DATABASE_POOL_MAX", 5, 1, 100),
+      idleTimeoutMillis: envInt("DATABASE_POOL_IDLE_MS", 10000, 1000, 600000),
+      connectionTimeoutMillis: envInt(
+        "DATABASE_CONNECT_TIMEOUT_MS",
+        10000,
+        1000,
+        120000,
+      ),
     });
   return pool;
+}
+function envInt(name, fallback, min, max) {
+  const n = Number(process.env[name]);
+  if (
+    process.env[name] == null ||
+    process.env[name] === "" ||
+    !Number.isFinite(n)
+  )
+    return fallback;
+  return Math.min(Math.max(Math.trunc(n), min), max);
+}
+/**
+ * DATABASE_SSL_MODE:
+ *   auto        (default) legacy behaviour: TLS without certificate
+ *               verification when NODE_ENV=production, otherwise as given by
+ *               the connection string.
+ *   disable     no TLS (local development only).
+ *   require     TLS, certificate not verified.
+ *   verify-full TLS with certificate + hostname verification (recommended).
+ *               Uses the system CA store, or DATABASE_SSL_CA (PEM text or a
+ *               path to a PEM file) for private CAs.
+ */
+function databaseSslOptions() {
+  const mode = String(process.env.DATABASE_SSL_MODE || "auto").toLowerCase();
+  if (mode === "disable") return false;
+  if (mode === "require") return { rejectUnauthorized: false };
+  if (mode === "verify-full") {
+    const caSetting = String(process.env.DATABASE_SSL_CA || "").trim();
+    let ca;
+    if (caSetting.includes("-----BEGIN")) ca = caSetting;
+    else if (caSetting) ca = require("fs").readFileSync(caSetting, "utf8");
+    return ca ? { rejectUnauthorized: true, ca } : { rejectUnauthorized: true };
+  }
+  return process.env.NODE_ENV === "production"
+    ? { rejectUnauthorized: false }
+    : undefined;
 }
 function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
   const hash = crypto.scryptSync(password, salt, 64).toString("hex");
@@ -69,6 +109,41 @@ function decryptSecret(value) {
     decipher.update(Buffer.from(data, "base64url")),
     decipher.final(),
   ]).toString("utf8");
+}
+
+/**
+ * Creates the first administrator on an empty database.
+ * The password comes from INITIAL_ADMIN_PASSWORD; when it is not set a random
+ * one is generated and printed once to the server log. Either way the
+ * administrator must change it at first sign-in.
+ */
+async function seedInitialAdministrator(db) {
+  const { getSecurityConfig } = require("../config/security-config");
+  const { auth } = getSecurityConfig();
+  const role = (
+    await db.query(
+      `SELECT id FROM app_roles WHERE name='administrator' AND deleted_at IS NULL LIMIT 1`,
+    )
+  ).rows[0];
+  if (!role) return;
+  const generated = !auth.initialAdminPassword;
+  const password =
+    auth.initialAdminPassword || crypto.randomBytes(18).toString("base64url");
+  const inserted = await db.query(
+    `INSERT INTO app_users(username,name,email,password_hash,active,role_id,must_change_password)
+     VALUES($1,$2,$3,$4,TRUE,$5,TRUE) ON CONFLICT(username) DO NOTHING RETURNING id`,
+    [
+      auth.initialAdminUsername,
+      "Administrator",
+      auth.initialAdminEmail,
+      hashPassword(password),
+      role.id,
+    ],
+  );
+  if (inserted.rowCount && generated)
+    console.warn(
+      `\n[security] Initial administrator created.\n  Username: ${auth.initialAdminUsername}\n  Temporary password: ${password}\n  It must be changed at first sign-in. Set INITIAL_ADMIN_PASSWORD to choose it yourself.\n`,
+    );
 }
 
 async function ensureSchema() {
@@ -199,6 +274,48 @@ async function ensureSchema() {
     await db.query(
       `ALTER TABLE organizations ADD COLUMN IF NOT EXISTS deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL`,
     );
+    // Managed bearer/OAuth token lifecycle. Columns are additive so existing credential profiles remain compatible.
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_url TEXT`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_method VARCHAR(10) NOT NULL DEFAULT 'POST'`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_client_auth VARCHAR(20) NOT NULL DEFAULT 'body'`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_grant_type VARCHAR(120) NOT NULL DEFAULT 'client_credentials'`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_scope TEXT`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_audience TEXT`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_response_path VARCHAR(255) NOT NULL DEFAULT 'access_token'`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_expiry_response_path VARCHAR(255) NOT NULL DEFAULT 'expires_in'`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_refresh_before_seconds INTEGER NOT NULL DEFAULT 60`,
+    );
+    await db.query(
+      `ALTER TABLE authentication_profiles ADD COLUMN IF NOT EXISTS token_timeout_ms INTEGER NOT NULL DEFAULT 15000`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS authentication_token_cache (
+      cache_key VARCHAR(180) PRIMARY KEY, profile_id BIGINT NOT NULL REFERENCES authentication_profiles(id) ON DELETE CASCADE,
+      organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE, access_token_value TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_auth_token_cache_expiry ON authentication_token_cache(expires_at)`,
+    );
     await db.query(
       `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL`,
     );
@@ -300,6 +417,100 @@ async function ensureSchema() {
     await db.query(
       `UPDATE app_roles SET permissions = permissions || '{"organizations": true, "formBuilder": true, "authenticationProfiles": true, "workflowExecutions": true, "messaging": true, "messageBusLogs": true, "analyticsBuilder": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
     );
+    // API Watcher V1: tenant-aware configuration, durable checkpoints, record correlation and execution history.
+    await db.query(`CREATE TABLE IF NOT EXISTS api_watchers (
+      id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
+      active BOOLEAN NOT NULL DEFAULT FALSE, definition JSONB NOT NULL DEFAULT '{}'::jsonb, created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL,
+      last_run_at TIMESTAMPTZ, next_run_at TIMESTAMPTZ, last_status VARCHAR(30), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), deleted_at TIMESTAMPTZ, deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL
+    )`);
+    await db.query(
+      `CREATE UNIQUE INDEX IF NOT EXISTS uq_api_watchers_org_name_active ON api_watchers(organization_id,name) WHERE deleted_at IS NULL`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_api_watchers_due ON api_watchers(next_run_at) WHERE active=TRUE AND deleted_at IS NULL`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS api_watcher_checkpoints (
+      watcher_id UUID PRIMARY KEY REFERENCES api_watchers(id) ON DELETE CASCADE, checkpoint_at TIMESTAMPTZ, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await db.query(`CREATE TABLE IF NOT EXISTS api_watcher_record_state (
+      id BIGSERIAL PRIMARY KEY, watcher_id UUID NOT NULL REFERENCES api_watchers(id) ON DELETE CASCADE,
+      organization_id UUID NOT NULL REFERENCES organizations(id), source_record_id TEXT NOT NULL, source_last_updated_on TIMESTAMPTZ NOT NULL,
+      target_record_id TEXT, status VARCHAR(30) NOT NULL DEFAULT 'SUCCESS', last_error TEXT, last_processed_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(watcher_id,source_record_id)
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_api_watcher_state_org ON api_watcher_record_state(organization_id,watcher_id)`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS api_watcher_executions (
+      id UUID PRIMARY KEY, watcher_id UUID NOT NULL REFERENCES api_watchers(id) ON DELETE CASCADE, organization_id UUID NOT NULL REFERENCES organizations(id),
+      status VARCHAR(30) NOT NULL, success BOOLEAN NOT NULL DEFAULT FALSE, duration_ms INTEGER NOT NULL DEFAULT 0,
+      records_received INTEGER NOT NULL DEFAULT 0, new_records INTEGER NOT NULL DEFAULT 0, modified_records INTEGER NOT NULL DEFAULT 0,
+      ignored_records INTEGER NOT NULL DEFAULT 0, failed_records INTEGER NOT NULL DEFAULT 0, error_message TEXT,
+      started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), completed_at TIMESTAMPTZ
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_api_watcher_exec ON api_watcher_executions(watcher_id,started_at DESC)`,
+    );
+    await db.query(`CREATE TABLE IF NOT EXISTS api_watcher_step_logs (
+      id BIGSERIAL PRIMARY KEY, execution_id UUID NOT NULL REFERENCES api_watcher_executions(id) ON DELETE CASCADE,
+      watcher_id UUID NOT NULL REFERENCES api_watchers(id) ON DELETE CASCADE, organization_id UUID NOT NULL REFERENCES organizations(id),
+      source_record_id TEXT, event_type VARCHAR(30), step_type VARCHAR(30) NOT NULL, step_key VARCHAR(120), step_name VARCHAR(180), sequence INTEGER NOT NULL DEFAULT 0,
+      status VARCHAR(30) NOT NULL, success BOOLEAN NOT NULL DEFAULT FALSE, duration_ms INTEGER NOT NULL DEFAULT 0,
+      request_method VARCHAR(20), request_url TEXT, request_headers JSONB NOT NULL DEFAULT '{}'::jsonb, request_params JSONB NOT NULL DEFAULT '{}'::jsonb,
+      request_body TEXT, request_content_type VARCHAR(180), response_status INTEGER, response_body TEXT, response_content_type VARCHAR(180), error_message TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_api_watcher_step_exec ON api_watcher_step_logs(execution_id,source_record_id,sequence,id)`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_api_watcher_step_watch ON api_watcher_step_logs(watcher_id,created_at DESC)`,
+    );
+    await db.query(
+      `UPDATE app_roles SET permissions=permissions || '{"apiWatchers": true}'::jsonb, updated_at=NOW() WHERE name='administrator'`,
+    );
+    // API Watcher v2 chains: Browser RPA and Message Bus steps (additive, backward compatible).
+    // BROWSER:SWITCHTOLATESTPAGE style methods exceed the original 20 characters.
+    await db.query(
+      `DO $$ BEGIN
+        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='api_watcher_step_logs' AND column_name='request_method' AND character_maximum_length < 60) THEN
+          ALTER TABLE api_watcher_step_logs ALTER COLUMN request_method TYPE VARCHAR(60);
+        END IF;
+      END $$`,
+    );
+    await db.query(
+      `ALTER TABLE api_watcher_step_logs ADD COLUMN IF NOT EXISTS action_type VARCHAR(20) NOT NULL DEFAULT 'api'`,
+    );
+    // Optional tenant ownership for Service Bus connections. NULL = shared by all organizations.
+    await db.query(
+      `ALTER TABLE message_bus_connections ADD COLUMN IF NOT EXISTS organization_id UUID REFERENCES organizations(id) ON DELETE SET NULL`,
+    );
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_message_bus_connections_org ON message_bus_connections(organization_id) WHERE deleted_at IS NULL`,
+    );
+    // Security hardening (Phase 1) — additive, backward compatible.
+    for (const statement of [
+      `ALTER TABLE app_users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT FALSE`,
+      `ALTER TABLE app_users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`,
+      `ALTER TABLE app_users ADD COLUMN IF NOT EXISTS failed_login_count INTEGER NOT NULL DEFAULT 0`,
+      `ALTER TABLE app_users ADD COLUMN IF NOT EXISTS locked_until TIMESTAMPTZ`,
+      `ALTER TABLE app_users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ`,
+      `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS access_key_hash VARCHAR(64)`,
+      `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS access_key_prefix VARCHAR(16)`,
+      `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS access_key_created_at TIMESTAMPTZ`,
+      `ALTER TABLE external_views ADD COLUMN IF NOT EXISTS access_key_created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL`,
+      `ALTER TABLE api_request_logs ADD COLUMN IF NOT EXISTS auth_method VARCHAR(20)`,
+      `ALTER TABLE api_request_logs ADD COLUMN IF NOT EXISTS user_id BIGINT`,
+      `ALTER TABLE api_request_logs ADD COLUMN IF NOT EXISTS external_view_id BIGINT`,
+      `ALTER TABLE api_request_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(64)`,
+      `ALTER TABLE api_request_logs ADD COLUMN IF NOT EXISTS request_id VARCHAR(100)`,
+      `CREATE TABLE IF NOT EXISTS rate_limit_buckets (
+        bucket_key VARCHAR(255) NOT NULL, window_start BIGINT NOT NULL, hits INTEGER NOT NULL DEFAULT 0,
+        expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(bucket_key, window_start))`,
+      `CREATE INDEX IF NOT EXISTS idx_rate_limit_expires ON rate_limit_buckets(expires_at)`,
+    ])
+      await db.query(statement);
     const userCount = Number(
       (
         await db.query(
@@ -307,23 +518,7 @@ async function ensureSchema() {
         )
       ).rows[0].count,
     );
-    if (userCount === 0) {
-      const role = (
-        await db.query(
-          `SELECT id FROM app_roles WHERE name='administrator' AND deleted_at IS NULL LIMIT 1`,
-        )
-      ).rows[0];
-      await db.query(
-        `INSERT INTO app_users(username,name,email,password_hash,active,role_id) VALUES($1,$2,$3,$4,TRUE,$5) ON CONFLICT(username) DO NOTHING`,
-        [
-          "admin",
-          "Administrator",
-          "admin@local.invalid",
-          hashPassword("Gomake1t!@#123"),
-          role.id,
-        ],
-      );
-    }
+    if (userCount === 0) await seedInitialAdministrator(db);
   })().catch((err) => {
     initialized = null;
     throw err;

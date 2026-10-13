@@ -50,12 +50,16 @@ module.exports = async (req, res) => {
         `SELECT
            (SELECT COUNT(*) FROM form_definitions WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS forms,
            (SELECT COUNT(*) FROM analytics_definitions WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS analytics,
-           (SELECT COUNT(*) FROM external_views WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS external_views`,
+           (SELECT COUNT(*) FROM external_views WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS external_views,
+           (SELECT COUNT(*) FROM api_watchers WHERE organization_id=$1::uuid AND deleted_at IS NULL) AS api_watchers`,
         [b.id],
       );
       const d = dependencies.rows[0];
       const activeDependencies =
-        Number(d.forms) + Number(d.analytics) + Number(d.external_views);
+        Number(d.forms) +
+        Number(d.analytics) +
+        Number(d.external_views) +
+        Number(d.api_watchers);
       if (activeDependencies > 0)
         return res.status(409).json({
           error:
@@ -64,6 +68,7 @@ module.exports = async (req, res) => {
             forms: Number(d.forms),
             analytics: Number(d.analytics),
             externalViews: Number(d.external_views),
+            apiWatchers: Number(d.api_watchers),
           },
         });
       await query(

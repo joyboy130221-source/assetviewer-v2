@@ -1,7 +1,8 @@
 const { requireAuth } = require("../../lib/auth");
 const { query } = require("../../lib/db");
-const { execute, flatten } = require("../../lib/integration-http");
-const { render, applyAuthProfile } = require("../../lib/form-engine");
+const { flatten } = require("../../lib/integration-http");
+const { executeAuthenticated } = require("../../lib/authenticated-http");
+const { render } = require("../../lib/form-engine");
 const redact = (headers) =>
   Object.fromEntries(
     Object.entries(headers || {}).map(
@@ -23,9 +24,12 @@ module.exports = async (req, res) => {
     let action = render(req.body?.action || {}, context);
     if (!action.url)
       return res.status(400).json({ error: "Endpoint URL is required." });
-    action = await applyAuthProfile(action, query);
     const started = Date.now();
-    const result = await execute(action);
+    const executed = await executeAuthenticated(action, query, {
+      organizationId: req.body?.organizationId || context.organizationId,
+    });
+    action = executed.action;
+    const result = executed.response;
     const durationMs = Date.now() - started;
     const debug = {
       method: (action.method || "GET").toUpperCase(),

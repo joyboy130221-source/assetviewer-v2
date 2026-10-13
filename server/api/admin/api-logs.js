@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
     }
     const limit = Math.min(Math.max(Number(q.limit) || 100, 1), 200);
     values.push(limit);
-    const sql = `SELECT id,environment_name,request_method,request_url,request_headers,request_params,request_body,response_status,response_headers,response_body,success,duration_ms,error_message,created_at FROM api_request_logs ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY created_at DESC LIMIT $${values.length}`;
+    const sql = `SELECT id,environment_name,request_method,request_url,request_headers,request_params,request_body,response_status,response_headers,response_body,success,duration_ms,error_message,created_at,auth_method,user_id,external_view_id,client_ip,request_id FROM api_request_logs ${where.length ? "WHERE " + where.join(" AND ") : ""} ORDER BY created_at DESC LIMIT $${values.length}`;
     const [logs, envs] = await Promise.all([
       query(sql, values),
       query(

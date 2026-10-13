@@ -15,8 +15,10 @@ import {
   History,
   MessageSquareMore,
   BarChart3,
+  Radar,
 } from "lucide-react";
 import { api } from "../services/api";
+import { authApi } from "../features/auth/services/authApi";
 import type { AdminUser } from "../types";
 import { useAppUI } from "./AppUI";
 
@@ -86,7 +88,21 @@ const integration: MenuItem[] = [
     icon: <MessageSquareMore size={17} />,
   },
 ];
+const automation: MenuItem[] = [
+  {
+    to: "/admin/automation/api-watchers",
+    label: "API Watchers",
+    permission: "apiWatchers",
+    icon: <Radar size={17} />,
+  },
+];
 const monitoring: MenuItem[] = [
+  {
+    to: "/admin/monitoring/api-watchers",
+    label: "API Watcher Monitoring",
+    permission: "apiWatchers",
+    icon: <Radar size={17} />,
+  },
   {
     to: "/admin/workflow-executions",
     label: "Workflow Executions",
@@ -132,6 +148,12 @@ export function AdminLayout({
   useEffect(() => {
     api<{ user: AdminUser }>("/api/auth/me", { cache: "no-store" })
       .then((body) => {
+        if (body.user.mustChangePassword) {
+          navigate(
+            `/login?changePassword=1&next=${encodeURIComponent(location.pathname + location.search)}`,
+          );
+          return;
+        }
         if (permission && !body.user.permissions?.[permission]) setDenied(true);
         else setUser(body.user);
       })
@@ -173,7 +195,7 @@ export function AdminLayout({
         confirmText: "Sign Out",
       })
     ) {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await authApi.logout().catch(() => undefined);
       navigate("/login");
     }
   };
@@ -226,6 +248,7 @@ export function AdminLayout({
           </NavLink>
           {group("Setup", setup)}
           {group("Integration", integration)}
+          {group("Automation", automation)}
           {group("Monitoring", monitoring)}
         </nav>
         <button onClick={logout} className="sidebar-signout">

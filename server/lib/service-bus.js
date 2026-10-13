@@ -123,15 +123,70 @@ async function listEntities(connectionString) {
   return { queues, topics };
 }
 
+/**
+ * Reuses AMQP connections and senders for the lifetime of one execution
+ * (for example one API Watcher run that publishes a message per record).
+ * Opening a ServiceBusClient is the expensive part of a send, so reusing it
+ * removes one connection handshake per message. Always call close().
+ */
+function createClientCache() {
+  const clients = new Map();
+  const senders = new Map();
+  let closed = false;
+  const assertOpen = () => {
+    if (closed) throw new Error("Service Bus client cache is closed.");
+  };
+  return {
+    client(connectionString) {
+      assertOpen();
+      let client = clients.get(connectionString);
+      if (!client) {
+        const { ServiceBusClient } = loadSdk();
+        client = new ServiceBusClient(connectionString);
+        clients.set(connectionString, client);
+      }
+      return client;
+    },
+    sender(connectionString, destination) {
+      assertOpen();
+      const key = `${connectionString}\u0000${destination}`;
+      let sender = senders.get(key);
+      if (!sender) {
+        sender = this.client(connectionString).createSender(destination);
+        senders.set(key, sender);
+      }
+      return sender;
+    },
+    async close() {
+      closed = true;
+      await Promise.all(
+        [...senders.values()].map((x) => x.close().catch(() => {})),
+      );
+      await Promise.all(
+        [...clients.values()].map((x) => x.close().catch(() => {})),
+      );
+      senders.clear();
+      clients.clear();
+    },
+  };
+}
+
 async function sendMessage(
   connectionString,
   destinationType,
   destination,
   message,
+  options = {},
 ) {
-  const { ServiceBusClient } = loadSdk();
-  const client = new ServiceBusClient(connectionString);
-  const sender = client.createSender(destination);
+  const cache = options.clientCache || null;
+  let client = null;
+  let sender;
+  if (cache) sender = cache.sender(connectionString, destination);
+  else {
+    const { ServiceBusClient } = loadSdk();
+    client = new ServiceBusClient(connectionString);
+    sender = client.createSender(destination);
+  }
   try {
     const payload = {
       body: normalizeMessageBody(
@@ -153,8 +208,11 @@ async function sendMessage(
       correlationId: payload.correlationId || null,
     };
   } finally {
-    await sender.close().catch(() => {});
-    await client.close().catch(() => {});
+    // Cached senders are owned (and closed) by the cache.
+    if (!cache) {
+      await sender.close().catch(() => {});
+      await client.close().catch(() => {});
+    }
   }
 }
 
@@ -218,9 +276,15 @@ async function peekDeadLetters(
   destination,
   subscriptionName,
   maxCount = 50,
+  options = {},
 ) {
-  const { ServiceBusClient } = loadSdk();
-  const client = new ServiceBusClient(connectionString);
+  const cache = options.clientCache || null;
+  let client;
+  if (cache) client = cache.client(connectionString);
+  else {
+    const { ServiceBusClient } = loadSdk();
+    client = new ServiceBusClient(connectionString);
+  }
   const count = Math.min(Math.max(Number(maxCount) || 50, 1), 100);
   const receivers = [];
   try {
@@ -253,7 +317,7 @@ async function peekDeadLetters(
     return out;
   } finally {
     await Promise.all(receivers.map((x) => x.receiver.close().catch(() => {})));
-    await client.close().catch(() => {});
+    if (!cache) await client.close().catch(() => {});
   }
 }
 
@@ -319,6 +383,7 @@ async function checkDeadLetterByMessageId(
   subscriptionName,
   messageId,
   maxCount = 100,
+  options = {},
 ) {
   const messages = await peekDeadLetters(
     connectionString,
@@ -326,6 +391,7 @@ async function checkDeadLetterByMessageId(
     destination,
     subscriptionName,
     maxCount,
+    options,
   );
   const target = String(messageId || "");
   return {
@@ -336,6 +402,7 @@ async function checkDeadLetterByMessageId(
 }
 
 module.exports = {
+  createClientCache,
   testConnection,
   listEntities,
   listSubscriptions,

@@ -1,36 +1,82 @@
 const crypto = require("crypto");
 const { decryptSecret } = require("./db");
+const { getManagedToken, invalidateManagedToken } = require("./token-manager");
+const { getPath } = require("./object-path");
 
 function getValue(context, path) {
-  return String(path || "")
-    .split(".")
-    .reduce((value, key) => value?.[key], context);
+  return getPath(context, path);
 }
 
+function splitArguments(text) {
+  const args = [];
+  let current = "",
+    quote = null,
+    depth = 0;
+  for (const ch of String(text || "")) {
+    if (quote) {
+      current += ch;
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === "'" || ch === '"') {
+      quote = ch;
+      current += ch;
+      continue;
+    }
+    if (ch === "(") depth += 1;
+    if (ch === ")") depth -= 1;
+    if (ch === "," && depth === 0) {
+      args.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+  if (current.trim() || args.length) args.push(current.trim());
+  return args;
+}
+function literalOrExpression(value, context) {
+  const text = String(value || "").trim();
+  if (
+    (text.startsWith('"') && text.endsWith('"')) ||
+    (text.startsWith("'") && text.endsWith("'"))
+  )
+    return text.slice(1, -1);
+  if (/^-?\d+(\.\d+)?$/.test(text)) return Number(text);
+  return evaluateExpression(text, context);
+}
 function evaluateExpression(expression, context) {
   const text = String(expression || "").trim();
-  const fn = text.match(/^(uppercase|lowercase|default|date|now)\((.*)\)$/i);
+  const fn = text.match(/^([a-zA-Z][\w]*)\((.*)\)$/s);
   if (!fn) return getValue(context, text) ?? "";
   const name = fn[1].toLowerCase();
-  const args = fn[2]
-    .split(",")
-    .map((x) => x.trim().replace(/^['"]|['"]$/g, ""));
+  const args = splitArguments(fn[2]);
   if (name === "now") return new Date().toISOString();
-  const value = getValue(context, args[0]) ?? args[0] ?? "";
-  if (name === "uppercase") return String(value).toUpperCase();
-  if (name === "lowercase") return String(value).toLowerCase();
+  const value = args.length ? literalOrExpression(args[0], context) : "";
+  if (name === "uppercase") return String(value ?? "").toUpperCase();
+  if (name === "lowercase") return String(value ?? "").toLowerCase();
+  if (name === "trim") return String(value ?? "").trim();
+  if (name === "truncate") {
+    const max = Math.max(
+      0,
+      Math.floor(Number(literalOrExpression(args[1] || "0", context)) || 0),
+    );
+    return max ? String(value ?? "").slice(0, max) : "";
+  }
   if (name === "default")
-    return value === "" || value == null ? args[1] || "" : value;
+    return value === "" || value == null
+      ? literalOrExpression(args[1] || "''", context)
+      : value;
   if (name === "date") {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return value;
     const yyyy = d.getFullYear(),
       mm = String(d.getMonth() + 1).padStart(2, "0"),
       dd = String(d.getDate()).padStart(2, "0");
-    return (args[1] || "yyyy-MM-dd")
-      .replace("yyyy", yyyy)
-      .replace("MM", mm)
-      .replace("dd", dd);
+    const format = String(
+      literalOrExpression(args[1] || "'yyyy-MM-dd'", context),
+    );
+    return format.replace("yyyy", yyyy).replace("MM", mm).replace("dd", dd);
   }
   return value;
 }
@@ -132,24 +178,62 @@ function validateField(field, value, requiredOverride) {
   return null;
 }
 
-async function applyAuthProfile(action, query) {
-  if (!action?.authProfileId)
-    return { ...action, headers: { ...(action?.headers || {}) } };
+async function loadAuthProfile(profileId, query, options = {}) {
   const r = await query(
     "SELECT * FROM authentication_profiles WHERE id=$1 AND active=TRUE AND deleted_at IS NULL",
-    [action.authProfileId],
+    [profileId],
   );
-  const p = r.rows[0];
-  if (!p) throw new Error("Authentication profile is unavailable.");
+  const profile = r.rows[0];
+  if (!profile) throw new Error("Authentication profile is unavailable.");
+  if (
+    profile.organization_id &&
+    options.organizationId &&
+    String(profile.organization_id) !== String(options.organizationId)
+  ) {
+    throw Object.assign(
+      new Error(
+        "Authentication profile is not available for this organization.",
+      ),
+      { status: 403 },
+    );
+  }
+  return profile;
+}
+async function applyAuthProfile(action, query, options = {}) {
+  if (!action?.authProfileId)
+    return { ...action, headers: { ...(action?.headers || {}) } };
+  const p = await loadAuthProfile(action.authProfileId, query, options);
   const headers = { ...(action.headers || {}) };
   const secret = decryptSecret(p.secret_value);
   if (p.auth_type === "apiKey") headers[p.header_name || "apikey"] = secret;
   else if (p.auth_type === "bearer") headers.Authorization = `Bearer ${secret}`;
+  else if (p.auth_type === "managedBearer")
+    headers.Authorization = `Bearer ${await getManagedToken(p, query, options)}`;
   else if (p.auth_type === "basic")
     headers.Authorization = `Basic ${Buffer.from(`${p.username || ""}:${secret}`).toString("base64")}`;
   else if (p.auth_type === "customHeader")
     headers[p.header_name || "Authorization"] = secret;
-  return { ...action, headers };
+  return {
+    ...action,
+    headers,
+    __authProfileType: p.auth_type,
+    __authOrganizationId: options.organizationId || p.organization_id || null,
+  };
+}
+async function refreshManagedAuth(action, query, options = {}) {
+  if (!action?.authProfileId) return action;
+  const p = await loadAuthProfile(action.authProfileId, query, options);
+  if (p.auth_type !== "managedBearer") return action;
+  const organizationId = options.organizationId || p.organization_id || null;
+  await invalidateManagedToken(p.id, query, organizationId);
+  const headers = { ...(action.headers || {}) };
+  headers.Authorization = `Bearer ${await getManagedToken(p, query, { ...options, organizationId, forceRefresh: true })}`;
+  return {
+    ...action,
+    headers,
+    __authProfileType: p.auth_type,
+    __authOrganizationId: organizationId,
+  };
 }
 
 module.exports = {
@@ -158,5 +242,6 @@ module.exports = {
   fieldState,
   validateField,
   applyAuthProfile,
+  refreshManagedAuth,
   ensureSystemTemplates,
 };

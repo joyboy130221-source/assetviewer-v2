@@ -1,19 +1,46 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { LockOpen, Pencil, Plus, Trash2, X } from "lucide-react";
 import { AdminLayout } from "../../components/AdminLayout";
 import { LoadingOverlay, useAppUI } from "../../components/AppUI";
 import { api, jsonInit } from "../../services/api";
+type UserRow = {
+  id: number;
+  username: string;
+  name: string;
+  email?: string | null;
+  active: boolean;
+  role_id: number;
+  role_name: string;
+  must_change_password?: boolean;
+  locked_until?: string | null;
+  last_login_at?: string | null;
+};
+type RoleOption = { id: number; name: string };
+type PasswordPolicy = { minLength: number; minCharacterClasses: number };
+type UsersResponse = {
+  data: UserRow[];
+  roles: RoleOption[];
+  passwordPolicy?: PasswordPolicy;
+};
+
+const isLocked = (user: UserRow) =>
+  Boolean(
+    user.locked_until && new Date(user.locked_until).getTime() > Date.now(),
+  );
+
 export default function UsersPage() {
-  const [data, setData] = useState<any[]>([]),
-    [roles, setRoles] = useState<any[]>([]),
-    [edit, setEdit] = useState<any>(null),
+  const [data, setData] = useState<UserRow[]>([]),
+    [roles, setRoles] = useState<RoleOption[]>([]),
+    [policy, setPolicy] = useState<PasswordPolicy | null>(null),
+    [edit, setEdit] = useState<UserRow | null>(null),
     [formOpen, setFormOpen] = useState(false),
     [loading, setLoading] = useState(false),
     ui = useAppUI();
   const load = () =>
-    api<any>("/api/admin/users").then((b) => {
+    api<UsersResponse>("/api/admin/users").then((b) => {
       setData(b.data);
       setRoles(b.roles);
+      setPolicy(b.passwordPolicy || null);
     });
   useEffect(() => {
     load().catch((e) => ui.toast(e.message, "error"));
@@ -22,6 +49,7 @@ export default function UsersPage() {
     e.preventDefault();
     const b: any = Object.fromEntries(new FormData(e.currentTarget));
     b.active = b.active === "true";
+    b.mustChangePassword = b.mustChangePassword !== "false";
     const editing = !!b.id;
     if (!editing && !b.password) {
       ui.toast("Password is required for a new user.", "error");
@@ -51,7 +79,22 @@ export default function UsersPage() {
       setLoading(false);
     }
   };
-  const del = async (x: any) => {
+  const unlock = async (x: UserRow) => {
+    setLoading(true);
+    try {
+      const r = await api<{ message: string }>(
+        "/api/admin/users?action=unlock",
+        jsonInit("POST", { id: x.id }),
+      );
+      await load();
+      ui.toast(r.message);
+    } catch (e: any) {
+      ui.toast(e.message, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const del = async (x: UserRow) => {
     if (
       await ui.confirm({
         title: "Delete user?",
@@ -124,10 +167,25 @@ export default function UsersPage() {
                 <input
                   name="password"
                   type="password"
+                  autoComplete="new-password"
                   placeholder={
                     edit ? "Leave blank to keep current" : "Required for new"
                   }
                 />
+                {policy && (
+                  <small>
+                    Min. {policy.minLength} characters,{" "}
+                    {policy.minCharacterClasses} of: lowercase, uppercase,
+                    number, symbol.
+                  </small>
+                )}
+              </label>
+              <label>
+                Change password at next sign-in
+                <select name="mustChangePassword" defaultValue="true">
+                  <option value="true">Yes (temporary password)</option>
+                  <option value="false">No</option>
+                </select>
               </label>
               <label>
                 Role
@@ -199,6 +257,14 @@ export default function UsersPage() {
                       >
                         {x.active ? "Active" : "Inactive"}
                       </span>
+                      {isLocked(x) && (
+                        <span className="badge-inactive user-flag">Locked</span>
+                      )}
+                      {x.must_change_password && (
+                        <span className="badge-pending user-flag">
+                          Password change required
+                        </span>
+                      )}
                     </td>
                     <td>
                       <div className="inline-actions">
@@ -214,6 +280,16 @@ export default function UsersPage() {
                         >
                           <Pencil size={16} />
                         </button>
+                        {isLocked(x) && (
+                          <button
+                            className="icon-button table-action"
+                            title="Unlock account"
+                            aria-label="Unlock account"
+                            onClick={() => unlock(x)}
+                          >
+                            <LockOpen size={16} />
+                          </button>
+                        )}
                         <button
                           className="icon-button table-action danger"
                           title="Delete user"

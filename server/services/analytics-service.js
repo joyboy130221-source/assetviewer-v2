@@ -1,5 +1,6 @@
-const { execute, getPath } = require("../lib/integration-http");
-const { render, applyAuthProfile } = require("../lib/form-engine");
+const { getPath } = require("../lib/integration-http");
+const { executeAuthenticated } = require("../lib/authenticated-http");
+const { render } = require("../lib/form-engine");
 const { query } = require("../lib/db");
 
 const { fieldsOf, resolveRecords } = require("./analytics-records");
@@ -65,8 +66,11 @@ async function run(definition, context = {}) {
     throw Object.assign(new Error("Data source URL is required."), {
       status: 400,
     });
-  action = await applyAuthProfile(action, query);
-  const response = await execute(action);
+  const executed = await executeAuthenticated(action, query, {
+    organizationId: definition.organizationId || context.organizationId,
+  });
+  action = executed.action;
+  const response = executed.response;
   if (!response.ok)
     throw Object.assign(
       new Error(`Source API returned HTTP ${response.status}.`),

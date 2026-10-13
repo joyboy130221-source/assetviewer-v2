@@ -19,6 +19,9 @@ type Connection = {
   id: number;
   name: string;
   description?: string;
+  /** Owning organization; null = shared by all organizations. */
+  organization_id?: string | null;
+  organization_name?: string | null;
   provider: string;
   active: boolean;
   credentialConfigured: boolean;
@@ -46,8 +49,11 @@ type ApplicationProperty = {
   value: string;
 };
 
+type OrganizationOption = { id: string; name: string; active: boolean };
+
 export default function MessagingPage() {
   const [connections, setConnections] = useState<Connection[]>([]);
+  const [organizations, setOrganizations] = useState<OrganizationOption[]>([]);
   const [edit, setEdit] = useState<Connection | null>(null);
   const [open, setOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -72,10 +78,12 @@ export default function MessagingPage() {
   const ui = useAppUI();
 
   const load = async () => {
-    const result = await api<{ data: Connection[] }>(
-      "/api/admin/message-bus?op=connections",
-    );
+    const result = await api<{
+      data: Connection[];
+      organizations?: OrganizationOption[];
+    }>("/api/admin/message-bus?op=connections");
     setConnections(result.data);
+    setOrganizations((result.organizations || []).filter((o) => o.active));
     if (!selectedId && result.data[0]) setSelectedId(String(result.data[0].id));
   };
   useEffect(() => {
@@ -334,6 +342,20 @@ export default function MessagingPage() {
                 />
               </label>
               <label>
+                Organization
+                <select
+                  name="organizationId"
+                  defaultValue={edit?.organization_id || ""}
+                >
+                  <option value="">Shared (all organizations)</option>
+                  {organizations.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
                 Provider
                 <select name="provider" defaultValue="azureServiceBus" disabled>
                   <option value="azureServiceBus">Azure Service Bus</option>
@@ -402,7 +424,8 @@ export default function MessagingPage() {
                     <td>
                       <strong>{item.name}</strong>
                       <small className="table-subtext">
-                        {item.description}
+                        {item.organization_name || "Shared"}
+                        {item.description ? ` · ${item.description}` : ""}
                       </small>
                     </td>
                     <td>Azure Service Bus</td>

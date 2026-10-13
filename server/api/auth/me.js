@@ -11,9 +11,11 @@ module.exports = async (req, res) => {
         email: u.email,
         role: u.role_name,
         permissions: u.permissions,
+        mustChangePassword: Boolean(u.must_change_password),
       },
     });
   } catch (e) {
-    res.status(e.status || 500).json({ error: e.message });
+    console.error("[auth] session lookup failed:", e);
+    res.status(e.status || 500).json({ error: "Unable to read the session." });
   }
 };

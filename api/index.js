@@ -1,58 +1,27 @@
 /**
- * Single Vercel Serverless Function entry point.
+ * Vercel adapter (optional).
  *
- * All public /api/* requests are rewritten here by vercel.json and then
- * dispatched to the existing route handlers. Keeping route implementations
- * outside /api prevents Vercel from creating one function per endpoint.
+ * vercel.json rewrites /api/* to `/api?route=<path>` and client-side pages to
+ * `/api?route=__spa&spaPath=<path>`. This file only translates that into the
+ * host-neutral pipeline used by every deployment; it contains no routing or
+ * security logic of its own. Remove it (and vercel.json) when not hosting on
+ * Vercel — nothing else depends on it.
  */
-const routes = Object.freeze({
-  asset: require("../server/api/asset"),
-  "work-order": require("../server/api/work-order"),
-  "work-order-detail": require("../server/api/work-order-detail"),
-  "work-order-update": require("../server/api/work-order-update"),
-  worklogs: require("../server/api/worklogs"),
-  "auth/login": require("../server/api/auth/login"),
-  "auth/logout": require("../server/api/auth/logout"),
-  "auth/me": require("../server/api/auth/me"),
-  "admin/dashboard": require("../server/api/admin/dashboard"),
-  "admin/environments": require("../server/api/admin/environments"),
-  "admin/external-views": require("../server/api/admin/external-views"),
-  "admin/roles": require("../server/api/admin/roles"),
-  "admin/authentication-profiles": require("../server/api/admin/authentication-profiles"),
-  "admin/users": require("../server/api/admin/users"),
-  "admin/api-logs": require("../server/api/admin/api-logs"),
-  "admin/workflow-executions": require("../server/api/admin/workflow-executions"),
-  "admin/message-bus": require("../server/api/admin/message-bus"),
-  "admin/message-bus-logs": require("../server/api/admin/message-bus-logs"),
-  "admin/organizations": require("../server/api/admin/organizations"),
-  "admin/forms": require("../server/api/admin/forms"),
-  "admin/analytics": require("../server/api/admin/analytics"),
-  "admin/analytics-execute": require("../server/api/admin/analytics-execute"),
-  "admin/form-packages": require("../server/api/admin/form-packages"),
-  "admin/form-integration-test": require("../server/api/admin/form-integration-test"),
-  "admin/form-submissions": require("../server/api/admin/form-submissions"),
-  "public-forms": require("../server/api/public-forms"),
-  "public-analytics": require("../server/api/public-analytics"),
-});
+const { handleApiRequest } = require("../server/http/pipeline");
+const { normalizeRoute } = require("../server/http/route-table");
+const { serveSpaShell } = require("../server/http/spa-shell");
 
-function normalizeRoute(value) {
-  const raw = Array.isArray(value) ? value.join("/") : String(value || "");
-  return raw.replace(/^\/+|\/+$/g, "");
-}
+const SPA_ROUTE = "__spa";
 
 module.exports = async function handler(req, res) {
   const route = normalizeRoute(req.query && req.query.route);
-  const routeHandler = routes[route];
+  // Internal routing metadata must not leak into endpoint logic.
+  if (req.query) delete req.query.route;
 
-  if (!routeHandler) {
-    return res.status(404).json({
-      error: "API endpoint not found.",
-      route: route || "/",
-    });
+  if (route === SPA_ROUTE) {
+    const pagePath = req.query?.spaPath || "";
+    if (req.query) delete req.query.spaPath;
+    return serveSpaShell(String(pagePath), req, res);
   }
-
-  // The route parameter is internal routing metadata and should not leak into
-  // endpoint logic. Preserve all original query-string parameters.
-  delete req.query.route;
-  return routeHandler(req, res);
+  return handleApiRequest(route, req, res);
 };

@@ -1,10 +1,11 @@
 const crypto = require("crypto");
 const { requireAuth } = require("../../lib/auth");
 const repo = require("../../repositories/analytics-repository");
+const { validatedQueryParameters } = require("../../lib/query-params");
 const defaults = {
   dataSource: {
     type: "rest",
-    action: { method: "GET", url: "", headers: {}, params: {} },
+    action: { method: "GET", url: "", headers: {}, params: [] },
     arrayPath: "",
   },
   queryParams: [],
@@ -52,7 +53,15 @@ const map = (r) => {
 };
 function definition(b) {
   return {
-    dataSource: b.dataSource || defaults.dataSource,
+    dataSource: b.dataSource
+      ? {
+          ...b.dataSource,
+          action: {
+            ...(b.dataSource.action || {}),
+            params: validatedQueryParameters(b.dataSource.action?.params),
+          },
+        }
+      : defaults.dataSource,
     queryParams: b.queryParams || [],
     filterMode: b.filterMode || "bib",
     filters: b.filters || [],

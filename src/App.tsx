@@ -24,6 +24,9 @@ import ServiceBusLogsPage from "./pages/admin/ServiceBusLogsPage";
 import AnalyticsListPage from "./pages/integration/AnalyticsListPage";
 import AnalyticsBuilderPage from "./pages/integration/AnalyticsBuilderPage";
 import PublicAnalyticsPage from "./pages/integration/PublicAnalyticsPage";
+import ApiWatcherListPage from "./pages/integration/ApiWatcherListPage";
+import ApiWatcherDesignerPage from "./pages/integration/ApiWatcherDesignerPage";
+import ApiWatcherMonitoringPage from "./pages/integration/ApiWatcherMonitoringPage";
 
 export default function App() {
   return (
@@ -93,6 +96,22 @@ export default function App() {
         element={<AnalyticsBuilderPage />}
       />
       <Route path="/analytics/:analyticsId" element={<PublicAnalyticsPage />} />
+      <Route
+        path="/admin/automation/api-watchers"
+        element={<ApiWatcherListPage />}
+      />
+      <Route
+        path="/admin/automation/api-watchers/new"
+        element={<ApiWatcherDesignerPage />}
+      />
+      <Route
+        path="/admin/monitoring/api-watchers"
+        element={<ApiWatcherMonitoringPage />}
+      />
+      <Route
+        path="/admin/automation/api-watchers/:watcherId"
+        element={<ApiWatcherDesignerPage />}
+      />
       <Route path="/rpa-test" element={<RpaTestPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

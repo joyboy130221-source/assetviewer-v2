@@ -18,6 +18,11 @@ import {
   DEFAULT_ANALYTICS_APPEARANCE,
   normalizeAppearance,
 } from "../../features/analytics/services/analyticsAppearance";
+import {
+  compactQueryParameters,
+  normalizeQueryParameters,
+  type QueryParameters,
+} from "../../shared/http/queryParams";
 const blank = (org = ""): AnalyticsDefinition => ({
   id: "",
   organizationId: org,
@@ -45,8 +50,8 @@ const blank = (org = ""): AnalyticsDefinition => ({
   createdAt: "",
   updatedAt: "",
 });
-const pairs = (obj: Record<string, string>) =>
-  Object.entries(obj).map(([key, value]) => ({ key, value }));
+const pairs = (obj: Record<string, string> | QueryParameters) =>
+  normalizeQueryParameters(obj as QueryParameters);
 const object = (rows: { key: string; value: string }[]) =>
   Object.fromEntries(
     rows.filter((x) => x.key.trim()).map((x) => [x.key.trim(), x.value]),
@@ -103,7 +108,7 @@ export default function AnalyticsBuilderPage() {
         action: {
           ...d.dataSource.action,
           headers: object(headers),
-          params: object(params),
+          params: compactQueryParameters(params),
         },
       },
     }),

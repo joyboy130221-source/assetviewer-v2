@@ -2,9 +2,60 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { render } = require("./form-engine");
+const { readWorkflowLimits } = require("../config/workflow-limits");
+const { createSemaphore } = require("./semaphore");
+const { assertUrlAllowed } = require("./network-policy");
+const { getSecurityConfig } = require("../config/security-config");
 
-const clampTimeout = (value) =>
-  Math.min(Math.max(Number(value) || 15000, 1000), 120000);
+let warnedUploadRoot = false;
+/**
+ * Resolves an Upload File path. With WORKFLOW_RPA_UPLOAD_ROOT set, the file
+ * must live inside that directory (no traversal, no symlink escape).
+ * Without it the legacy behaviour (any runner path) remains, with a warning.
+ */
+async function resolveUploadPath(filePath) {
+  const root = getSecurityConfig().network.rpaUploadRoot;
+  if (!root) {
+    if (!warnedUploadRoot) {
+      warnedUploadRoot = true;
+      console.warn(
+        "[security] WORKFLOW_RPA_UPLOAD_ROOT is not set: Browser RPA Upload File can read any file on the runner.",
+      );
+    }
+    return filePath;
+  }
+  const realRoot = await fs.promises.realpath(path.resolve(root));
+  const candidate = path.resolve(realRoot, String(filePath));
+  let realFile;
+  try {
+    realFile = await fs.promises.realpath(candidate);
+  } catch {
+    throw new Error(
+      "Upload file was not found in the configured upload folder.",
+    );
+  }
+  const relative = path.relative(realRoot, realFile);
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative))
+    throw new Error("Upload file must be inside the configured upload folder.");
+  return realFile;
+}
+
+function loadChromium() {
+  try {
+    return require("playwright").chromium;
+  } catch {
+    throw new Error(
+      "Browser RPA requires Playwright. Run npm install and npx playwright install chromium on the RPA runner.",
+    );
+  }
+}
+
+function timeoutClamp(value, defaultTimeoutMs, maxTimeoutMs) {
+  return Math.min(
+    Math.max(Number(value) || defaultTimeoutMs, 1000),
+    maxTimeoutMs,
+  );
+}
 
 const safeFileName = (value, fallback) => {
   const cleaned = String(value || "")
@@ -13,30 +64,78 @@ const safeFileName = (value, fallback) => {
   return cleaned || fallback;
 };
 
+/**
+ * One isolated browser session (one browser context) for a workflow execution.
+ *
+ * Backward compatible: `new BrowserRpaSession()` launches and owns a private
+ * Chromium instance exactly as before. When `contextProvider` is supplied
+ * (see BrowserPool) the session leases an isolated context from a shared
+ * browser instead, which is much cheaper for high-volume executions.
+ */
 class BrowserRpaSession {
-  constructor() {
+  constructor(options = {}) {
+    const limits = readWorkflowLimits().browser;
     this.browser = null;
     this.context = null;
     this.page = null;
+    this.lease = null;
+    this.networkGuardInstalled = false;
+    this.lastBlockedRequest = null;
     this.artifactDirectory = null;
+    this.contextProvider = options.contextProvider || null;
+    this.headless = options.headless ?? limits.headless;
+    this.maxTimeoutMs = Math.min(
+      Number(options.maxTimeoutMs) || limits.maxTimeoutMs,
+      limits.maxTimeoutMs,
+    );
+    this.defaultTimeoutMs = Math.min(
+      Number(options.defaultTimeoutMs) || limits.defaultTimeoutMs,
+      this.maxTimeoutMs,
+    );
+  }
+
+  get started() {
+    return Boolean(this.context);
   }
 
   async ensurePage() {
     if (this.page && !this.page.isClosed()) return this.page;
-
-    let chromium;
-    try {
-      ({ chromium } = require("playwright"));
-    } catch {
-      throw new Error(
-        "Browser RPA requires Playwright. Run npm install and npx playwright install chromium on the RPA runner.",
-      );
+    if (!this.context) {
+      if (this.contextProvider) {
+        this.lease = await this.contextProvider();
+        this.context = this.lease.context;
+      } else {
+        const chromium = loadChromium();
+        this.browser = await chromium.launch({ headless: this.headless });
+        this.context = await this.browser.newContext({ acceptDownloads: true });
+      }
     }
-
-    this.browser = await chromium.launch({ headless: true });
-    this.context = await this.browser.newContext({ acceptDownloads: true });
+    if (!this.networkGuardInstalled) {
+      await this.installNetworkGuard(this.context);
+      this.networkGuardInstalled = true;
+    }
     this.page = await this.context.newPage();
     return this.page;
+  }
+
+  /**
+   * Applies the outbound network policy to every request the browser makes
+   * (navigations, redirects, sub-resources, pop-ups), not only to the Open
+   * Page URL. WORKFLOW_RPA_NETWORK_POLICY=unrestricted disables it.
+   */
+  async installNetworkGuard(context) {
+    if (getSecurityConfig().network.rpaPolicy === "unrestricted") return;
+    await context.route("**/*", async (route) => {
+      const url = route.request().url();
+      if (!/^https?:/i.test(url)) return route.continue();
+      try {
+        await assertUrlAllowed(url);
+        return route.continue();
+      } catch (error) {
+        this.lastBlockedRequest = { url, reason: error.message };
+        return route.abort("blockedbyclient");
+      }
+    });
   }
 
   async ensureArtifactDirectory() {
@@ -78,13 +177,19 @@ class BrowserRpaSession {
   async execute(rawAction, context) {
     const action = render(rawAction || {}, context);
     const page = await this.ensurePage();
-    const timeout = clampTimeout(action.timeoutMs);
+    const timeout = timeoutClamp(
+      action.timeoutMs,
+      this.defaultTimeoutMs,
+      this.maxTimeoutMs,
+    );
     const started = Date.now();
     let response = { action: action.action };
 
     switch (action.action) {
       case "openPage": {
         if (!action.url) throw new Error("Browser Open Page requires a URL.");
+        if (getSecurityConfig().network.rpaPolicy !== "unrestricted")
+          await assertUrlAllowed(action.url);
         await page.goto(action.url, {
           waitUntil: action.waitUntil || "domcontentloaded",
           timeout,
@@ -170,13 +275,14 @@ class BrowserRpaSession {
             "Browser Upload File requires a runner-local file path.",
           );
         }
-        await this.getLocator(page, action).setInputFiles(action.filePath, {
+        const uploadPath = await resolveUploadPath(action.filePath);
+        await this.getLocator(page, action).setInputFiles(uploadPath, {
           timeout,
         });
         response = {
           action: action.action,
-          value: path.basename(action.filePath),
-          fileName: path.basename(action.filePath),
+          value: path.basename(uploadPath),
+          fileName: path.basename(uploadPath),
         };
         break;
       }
@@ -300,7 +406,9 @@ class BrowserRpaSession {
 
   async captureFailureScreenshot() {
     try {
-      const page = await this.ensurePage();
+      // Never launch a browser just to capture an empty failure screenshot.
+      if (!this.page || this.page.isClosed()) return null;
+      const page = this.page;
       const directory = await this.ensureArtifactDirectory();
       const destination = path.join(directory, `failure-${Date.now()}.png`);
       await page.screenshot({
@@ -315,12 +423,96 @@ class BrowserRpaSession {
   }
 
   async close() {
-    if (this.context) await this.context.close().catch(() => {});
+    if (this.lease) await this.lease.dispose().catch(() => {});
+    else if (this.context) await this.context.close().catch(() => {});
     if (this.browser) await this.browser.close().catch(() => {});
     this.page = null;
     this.context = null;
     this.browser = null;
+    this.lease = null;
+    this.networkGuardInstalled = false;
   }
 }
 
-module.exports = { BrowserRpaSession };
+/**
+ * Shares one lazily-launched Chromium process across many sessions and bounds
+ * the number of concurrently open (isolated) contexts with a semaphore.
+ * Each session still gets its own cookies/storage because it has its own
+ * browser context.
+ */
+class BrowserPool {
+  constructor(options = {}) {
+    const limits = readWorkflowLimits().browser;
+    this.maxConcurrency = Math.min(
+      Math.max(Number(options.maxConcurrency) || 1, 1),
+      limits.maxConcurrency,
+    );
+    this.headless = options.headless ?? limits.headless;
+    this.sessionOptions = {
+      maxTimeoutMs: options.maxTimeoutMs,
+      defaultTimeoutMs: options.defaultTimeoutMs,
+    };
+    this.semaphore = createSemaphore(this.maxConcurrency);
+    this.browserPromise = null;
+    this.closed = false;
+  }
+
+  async getBrowser() {
+    if (this.closed) throw new Error("Browser pool is closed.");
+    if (!this.browserPromise) {
+      const chromium = loadChromium();
+      this.browserPromise = chromium
+        .launch({ headless: this.headless })
+        .then((browser) => {
+          // A crashed browser is relaunched on the next lease.
+          browser.on("disconnected", () => {
+            this.browserPromise = null;
+          });
+          return browser;
+        })
+        .catch((error) => {
+          this.browserPromise = null;
+          throw error;
+        });
+    }
+    return this.browserPromise;
+  }
+
+  async leaseContext() {
+    const release = await this.semaphore.acquire();
+    try {
+      const browser = await this.getBrowser();
+      const context = await browser.newContext({ acceptDownloads: true });
+      return {
+        context,
+        dispose: async () => {
+          await context.close().catch(() => {});
+          release();
+        },
+      };
+    } catch (error) {
+      release();
+      throw error;
+    }
+  }
+
+  createSession() {
+    return new BrowserRpaSession({
+      ...this.sessionOptions,
+      headless: this.headless,
+      contextProvider: () => this.leaseContext(),
+    });
+  }
+
+  async close() {
+    this.closed = true;
+    const pending = this.browserPromise;
+    this.browserPromise = null;
+    if (pending) {
+      const browser = await pending.catch(() => null);
+      if (browser) await browser.close().catch(() => {});
+    }
+  }
+}
+
+module.exports = { BrowserRpaSession, BrowserPool };
