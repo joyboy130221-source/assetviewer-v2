@@ -10,14 +10,28 @@
     {
       "source": "/app.html",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "frame-ancestors 'none'" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Cache-Control", "value": "no-store" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "frame-ancestors 'none'"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
-      "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
     }
   ],
   "rewrites": [
@@ -28,12 +42,6 @@
     {
       "source": "/:path((?!api/|assets/|app\\.html$).*)",
       "destination": "/api?route=__spa&spaPath=:path"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/api-watchers",
-      "schedule": "* * * * *"
     }
   ]
 }
