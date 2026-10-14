@@ -106,3 +106,16 @@ export function colorForCategory(
     return palette[stableHash(category) % palette.length];
   return palette[index % palette.length];
 }
+
+/** Time-series measure color: the measure's own color, else palette by position. */
+export function colorForSeries(
+  color: string | undefined,
+  index: number,
+  appearanceValue?: Partial<AnalyticsAppearance>,
+): string {
+  if (color && HEX_COLOR.test(color)) return color;
+  const appearance = normalizeAppearance(appearanceValue);
+  if (appearance.colorMode === "single") return appearance.singleColor;
+  const palette = ANALYTICS_PALETTES[appearance.palette];
+  return palette[index % palette.length];
+}

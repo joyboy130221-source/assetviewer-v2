@@ -11,6 +11,7 @@
     "start:local": "node --env-file=.env.local server/local-server.js",
     "preview": "vite preview",
     "vercel:dev": "vercel dev",
+    "test": "node --test \"server/tests/*.test.js\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"api/**/*.js\" \"server/**/*.js\""
   },

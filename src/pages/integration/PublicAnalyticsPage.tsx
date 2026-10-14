@@ -1,52 +1,80 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import { AnalyticsRenderer } from "../../features/analytics/components/AnalyticsRenderer";
+import { AnalyticsViewer } from "../../features/analytics/components/AnalyticsViewer";
 import { analyticsApi } from "../../features/analytics/services/analyticsApi";
+import {
+  themeOverride,
+  useResolvedTheme,
+} from "../../features/analytics/services/analyticsTheme";
+import { callerParameters } from "../../features/analytics/services/analyticsViewState";
 import type {
   AnalyticsDefinition,
-  AnalyticsResult,
+  AnalyticsRuntimeInput,
 } from "../../features/analytics/model/analytics.types";
+
 export default function PublicAnalyticsPage() {
   const { analyticsId } = useParams();
   const [d, setD] = useState<AnalyticsDefinition | null>(null),
-    [r, setR] = useState<AnalyticsResult | null>(null),
     [error, setError] = useState("");
+  // Read once: the viewer rewrites its own keys in the URL afterwards.
+  const initialSearch = useMemo(
+    () => new URLSearchParams(window.location.search),
+    [],
+  );
+  const theme = useResolvedTheme(
+    d?.visualization.theme,
+    themeOverride(initialSearch),
+  );
+
   useEffect(() => {
     if (!analyticsId) return;
-    const qs = new URLSearchParams(location.search);
     analyticsApi
       .publicGet(analyticsId)
       .then(setD)
-      .then(() => analyticsApi.publicExecute(analyticsId, qs.toString()))
-      .then(setR)
       .catch((e) => setError(e.message));
   }, [analyticsId]);
-  if (error)
+
+  const execute = useCallback(
+    (input: AnalyticsRuntimeInput) =>
+      analyticsApi.publicRun(
+        analyticsId ?? "",
+        callerParameters(new URLSearchParams(window.location.search)),
+        input,
+      ),
+    [analyticsId],
+  );
+
+  if (error && !d)
     return (
-      <main className="an-public">
+      <main className={`an-public an-theme-${theme}`}>
         <section className="state-card error">
           <h2>Unable to load analytics</h2>
           <p>{error}</p>
         </section>
       </main>
     );
-  if (!d || !r)
+  if (!d)
     return (
-      <main className="an-public">
+      <main className={`an-public an-theme-${theme}`}>
         <section className="state-card">
           <span className="spinner" /> Loading analytics…
         </section>
       </main>
     );
   return (
-    <main className="an-public">
+    <main className={`an-public an-theme-${theme}`}>
       <section className="an-public-card">
         <header>
           <small>ANALYTICS</small>
           <h1>{d.visualization.title || d.name}</h1>
           {d.description && <p>{d.description}</p>}
         </header>
-        <AnalyticsRenderer definition={d} result={r} />
+        <AnalyticsViewer
+          definition={d}
+          execute={execute}
+          theme={theme}
+          syncUrl
+        />
       </section>
     </main>
   );

@@ -1,83 +1,13 @@
 const crypto = require("crypto");
 const { requireAuth } = require("../../lib/auth");
 const repo = require("../../repositories/analytics-repository");
-const { validatedQueryParameters } = require("../../lib/query-params");
-const defaults = {
-  dataSource: {
-    type: "rest",
-    action: { method: "GET", url: "", headers: {}, params: [] },
-    arrayPath: "",
-  },
-  queryParams: [],
-  filterMode: "bib",
-  filters: [],
-  dimension: "",
-  measure: "",
-  aggregation: "count",
-  visualization: {
-    type: "bar",
-    title: "",
-    showLegend: true,
-    showLabels: true,
-    appearance: {
-      colorMode: "palette",
-      palette: "default",
-      singleColor: "#2563eb",
-      categoryColors: {},
-    },
-  },
-};
-const map = (r) => {
-  const stored = r.definition || {};
-  return {
-    id: r.id,
-    organizationId: r.organization_id,
-    organizationName: r.organization_name,
-    name: r.name,
-    description: r.description || "",
-    status: r.status,
-    ...defaults,
-    ...stored,
-    visualization: {
-      ...defaults.visualization,
-      ...(stored.visualization || {}),
-      appearance: {
-        ...defaults.visualization.appearance,
-        ...(stored.visualization?.appearance || {}),
-      },
-    },
-    createdAt: r.created_at,
-    updatedAt: r.updated_at,
-    publishedAt: r.published_at,
-  };
-};
-function definition(b) {
-  return {
-    dataSource: b.dataSource
-      ? {
-          ...b.dataSource,
-          action: {
-            ...(b.dataSource.action || {}),
-            params: validatedQueryParameters(b.dataSource.action?.params),
-          },
-        }
-      : defaults.dataSource,
-    queryParams: b.queryParams || [],
-    filterMode: b.filterMode || "bib",
-    filters: b.filters || [],
-    dimension: b.dimension || "",
-    measure: b.measure || "",
-    aggregation: b.aggregation || "count",
-    visualization: {
-      ...defaults.visualization,
-      ...(b.visualization || {}),
-      appearance: {
-        ...defaults.visualization.appearance,
-        ...(b.visualization?.appearance || {}),
-      },
-    },
-  };
-}
+const {
+  mapDefinitionRow,
+  normalizeDefinitionBody,
+} = require("../../services/analytics-definition");
+const { publicBuilderLimits } = require("../../config/analytics-limits");
+const map = (r) => mapDefinitionRow(r);
+const definition = (b) => normalizeDefinitionBody(b);
 module.exports = async (req, res) => {
   const user = await requireAuth(req, res, "analyticsBuilder");
   if (!user) return;
@@ -85,6 +15,8 @@ module.exports = async (req, res) => {
     const b = req.body || {},
       id = req.query.id;
     if (req.method === "GET") {
+      // Builder settings bounds (e.g. source timeout default and ceiling).
+      if (req.query.limits) return res.json({ data: publicBuilderLimits() });
       const r = await repo.find(id);
       return res.json({
         data: id ? (r.rows[0] ? map(r.rows[0]) : null) : r.rows.map(map),

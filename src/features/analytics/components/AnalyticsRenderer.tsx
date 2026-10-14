@@ -1,131 +1,157 @@
-import { useEffect, useRef } from "react";
-import * as echarts from "echarts";
+import { useMemo, type ReactNode } from "react";
 import type { EChartsOption } from "echarts";
 import type {
   AnalyticsDefinition,
   AnalyticsResult,
+  TimeSeriesChartType,
+  TimeSeriesLayout,
+  TimeSeriesResult,
+  VisualizationType,
 } from "../model/analytics.types";
+import {
+  TIMESERIES_CHART_TYPES,
+  AGGREGATE_CHART_TYPES,
+  withDefaults,
+} from "../model/analyticsCatalog";
 import {
   colorForCategory,
   normalizeAppearance,
 } from "../services/analyticsAppearance";
+import type { ResolvedTheme } from "../services/analyticsTheme";
+import { TimeSeriesChart } from "./TimeSeriesChart";
+import { useEChart } from "./useEChart";
 
 const fmt = (value: unknown) =>
   typeof value === "number"
     ? new Intl.NumberFormat().format(value)
     : String(value ?? "");
 
+/** Presentation overrides chosen in the viewer toolbar. */
+export type AnalyticsRenderView = {
+  chartType?: string;
+  layout?: TimeSeriesLayout | "";
+  hidden?: string[];
+  /** Per-measure chart types chosen on measure toolbars. */
+  measureTypes?: Record<string, TimeSeriesChartType>;
+  /** Measures reloading on their own; only their charts show loading. */
+  pending?: string[];
+};
+
 type RendererProps = {
   definition: AnalyticsDefinition;
   result: AnalyticsResult;
+  view?: AnalyticsRenderView;
+  theme?: ResolvedTheme;
+  /** Renders a measure's own toolbar (time series, Separate layout). */
+  renderMeasureToolbar?: (series: TimeSeriesResult) => ReactNode;
 };
 
-function EChart({ definition, result }: RendererProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!ref.current) return;
-    const chart = echarts.init(ref.current);
-    const rows = result.rows ?? [];
-    const labels = rows.map((row) => String(row.label ?? ""));
-    const values = rows.map((row) => Number(row.value ?? 0));
-    const type = definition.visualization.type;
-    const appearance = normalizeAppearance(definition.visualization.appearance);
-    const colors = labels.map((label, index) =>
-      colorForCategory(label, index, appearance),
-    );
-    const common: EChartsOption = {
-      animationDuration: 350,
-      color: colors,
-      tooltip: { trigger: type === "pie" ? "item" : "axis" },
-      title: { show: false },
-    };
-    let option: EChartsOption;
-    if (type === "pie") {
-      option = {
-        ...common,
-        legend: {
-          show: definition.visualization.showLegend,
-          orient: "vertical",
-          right: 8,
-          top: "middle",
+function aggregateOption(
+  definition: AnalyticsDefinition,
+  result: AnalyticsResult,
+  type: VisualizationType,
+): EChartsOption {
+  const rows = result.rows ?? [];
+  const labels = rows.map((row) => String(row.label ?? ""));
+  const values = rows.map((row) => Number(row.value ?? 0));
+  const appearance = normalizeAppearance(definition.visualization.appearance);
+  const colors = labels.map((label, index) =>
+    colorForCategory(label, index, appearance),
+  );
+  const common: EChartsOption = {
+    animationDuration: 350,
+    color: colors,
+    tooltip: { trigger: type === "pie" ? "item" : "axis" },
+    title: { show: false },
+  };
+  if (type === "pie")
+    return {
+      ...common,
+      legend: {
+        show: definition.visualization.showLegend,
+        orient: "vertical",
+        right: 8,
+        top: "middle",
+      },
+      series: [
+        {
+          type: "pie",
+          radius: ["45%", "72%"],
+          center: ["38%", "50%"],
+          label: { show: definition.visualization.showLabels },
+          data: rows.map((row, index) => ({
+            name: labels[index],
+            value: Number(row.value ?? 0),
+            itemStyle: { color: colors[index] },
+          })),
         },
-        series: [
-          {
-            type: "pie",
-            radius: ["45%", "72%"],
-            center: ["38%", "50%"],
-            label: { show: definition.visualization.showLabels },
-            data: rows.map((row, index) => ({
-              name: labels[index],
-              value: Number(row.value ?? 0),
-              itemStyle: { color: colors[index] },
-            })),
-          },
-        ],
-      };
-    } else {
-      option = {
-        ...common,
-        grid: { left: 45, right: 24, top: 20, bottom: 55, containLabel: true },
-        xAxis: {
-          type: "category",
-          data: labels,
-          axisLabel: { interval: 0, rotate: labels.length > 8 ? 30 : 0 },
-        },
-        yAxis: { type: "value" },
-        series: [
-          {
-            type: type === "line" ? "line" : "bar",
-            data: values.map((value, index) =>
-              type === "bar"
-                ? {
-                    value,
-                    itemStyle: {
-                      color: colors[index],
-                      borderRadius: [4, 4, 0, 0],
-                    },
-                  }
-                : value,
-            ),
-            smooth: type === "line",
-            label: {
-              show: definition.visualization.showLabels,
-              position: "top",
-            },
-            ...(type === "line"
-              ? {
-                  lineStyle: {
-                    color:
-                      appearance.colorMode === "single"
-                        ? appearance.singleColor
-                        : colors[0],
-                  },
-                  itemStyle: {
-                    color:
-                      appearance.colorMode === "single"
-                        ? appearance.singleColor
-                        : colors[0],
-                  },
-                }
-              : {}),
-          },
-        ],
-      };
-    }
-    chart.setOption(option);
-    const observer = new ResizeObserver(() => chart.resize());
-    observer.observe(ref.current);
-    return () => {
-      observer.disconnect();
-      chart.dispose();
+      ],
     };
-  }, [definition, result]);
+  const lineColor =
+    appearance.colorMode === "single" ? appearance.singleColor : colors[0];
+  return {
+    ...common,
+    grid: { left: 45, right: 24, top: 20, bottom: 55, containLabel: true },
+    xAxis: {
+      type: "category",
+      data: labels,
+      axisLabel: { interval: 0, rotate: labels.length > 8 ? 30 : 0 },
+    },
+    yAxis: { type: "value" },
+    series: [
+      {
+        type: type === "line" ? "line" : "bar",
+        data: values.map((value, index) =>
+          type === "bar"
+            ? {
+                value,
+                itemStyle: {
+                  color: colors[index],
+                  borderRadius: [4, 4, 0, 0],
+                },
+              }
+            : value,
+        ),
+        smooth: type === "line",
+        label: {
+          show: definition.visualization.showLabels,
+          position: "top",
+        },
+        ...(type === "line"
+          ? { lineStyle: { color: lineColor }, itemStyle: { color: lineColor } }
+          : {}),
+      },
+    ],
+  };
+}
+
+function AggregateChart({
+  definition,
+  result,
+  type,
+  theme,
+}: Omit<RendererProps, "view" | "theme" | "renderMeasureToolbar"> & {
+  type: VisualizationType;
+  theme: ResolvedTheme;
+}) {
+  const option = useMemo(
+    () => aggregateOption(definition, result, type),
+    [definition, result, type],
+  );
+  const ref = useEChart(option, theme);
   return <div className="an-echart" ref={ref} />;
 }
 
-export function AnalyticsRenderer({ definition, result }: RendererProps) {
+function AggregateRenderer({
+  definition,
+  result,
+  type,
+  theme,
+}: Omit<RendererProps, "view" | "theme" | "renderMeasureToolbar"> & {
+  type: VisualizationType;
+  theme: ResolvedTheme;
+}) {
   const rows = result.rows ?? [];
-  const type = definition.visualization.type;
   if (type === "kpi")
     return (
       <div className="an-kpi">
@@ -166,5 +192,76 @@ export function AnalyticsRenderer({ definition, result }: RendererProps) {
     return (
       <div className="an-empty">No data available for this visualization.</div>
     );
-  return <EChart definition={definition} result={result} />;
+  return (
+    <AggregateChart
+      definition={definition}
+      result={result}
+      type={type}
+      theme={theme}
+    />
+  );
+}
+
+export function AnalyticsRenderer({
+  definition,
+  result,
+  view = {},
+  theme = "light",
+  renderMeasureToolbar,
+}: RendererProps) {
+  // Stable references keep ECharts from redrawing (and losing zoom) on
+  // unrelated re-renders.
+  const d = useMemo(() => withDefaults(definition), [definition]);
+  const hiddenKey = (view.hidden ?? []).join(",");
+  const visibleSeries = useMemo(() => {
+    const hidden = new Set(hiddenKey.split(",").filter(Boolean));
+    return (result.series ?? []).filter((s) => !hidden.has(s.id));
+  }, [result.series, hiddenKey]);
+
+  const colorIndex = useMemo(
+    () => Object.fromEntries((result.series ?? []).map((s, i) => [s.id, i])),
+    [result.series],
+  );
+
+  if (d.mode === "timeseries") {
+    const chartType = (
+      TIMESERIES_CHART_TYPES.some((t) => t.value === view.chartType)
+        ? view.chartType
+        : d.timeSeries.chartType
+    ) as TimeSeriesChartType;
+    if (!result.series)
+      return (
+        <div className="an-empty">
+          Run Test & Preview to load the time series.
+        </div>
+      );
+    return (
+      <TimeSeriesChart
+        series={visibleSeries}
+        colorIndex={colorIndex}
+        chartType={chartType}
+        layout={view.layout || d.timeSeries.layout}
+        settings={d.timeSeries}
+        showLegend={d.visualization.showLegend}
+        appearance={d.visualization.appearance}
+        theme={theme}
+        measureTypes={view.measureTypes}
+        pending={view.pending}
+        renderMeasureToolbar={renderMeasureToolbar}
+      />
+    );
+  }
+  const type = (
+    AGGREGATE_CHART_TYPES.some((t) => t.value === view.chartType)
+      ? view.chartType
+      : d.visualization.type
+  ) as VisualizationType;
+  return (
+    <AggregateRenderer
+      definition={d}
+      result={result}
+      type={type}
+      theme={theme}
+    />
+  );
 }

@@ -1,16 +1,31 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Play, Plus, Save, Trash2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "../../components/AdminLayout";
 import { useAppUI } from "../../components/AppUI";
-import { AnalyticsRenderer } from "../../features/analytics/components/AnalyticsRenderer";
+import { AnalyticsViewer } from "../../features/analytics/components/AnalyticsViewer";
+import { JsonBodyEditor } from "../../features/analytics/components/editors/JsonBodyEditor";
+import { SourceTimeoutField } from "../../features/analytics/components/editors/SourceTimeoutField";
+import { TimeRangeEditor } from "../../features/analytics/components/editors/TimeRangeEditor";
+import { TimeSeriesEditor } from "../../features/analytics/components/editors/TimeSeriesEditor";
+import { ToolbarEditor } from "../../features/analytics/components/editors/ToolbarEditor";
+import {
+  withDefaults,
+  type CompleteAnalyticsDefinition,
+} from "../../features/analytics/model/analyticsCatalog";
+import { useResolvedTheme } from "../../features/analytics/services/analyticsTheme";
 import { api } from "../../services/api";
 import { analyticsApi } from "../../features/analytics/services/analyticsApi";
 import type {
+  AnalyticsBuilderLimits,
   AnalyticsAppearance,
   AnalyticsDefinition,
   AnalyticsFilter,
+  AnalyticsMode,
   AnalyticsResult,
+  AnalyticsRuntimeInput,
+  AnalyticsSourceMethod,
+  AnalyticsTheme,
   Organization,
 } from "../../features/analytics/model/analytics.types";
 import {
@@ -23,33 +38,34 @@ import {
   normalizeQueryParameters,
   type QueryParameters,
 } from "../../shared/http/queryParams";
-const blank = (org = ""): AnalyticsDefinition => ({
-  id: "",
-  organizationId: org,
-  name: "",
-  description: "",
-  status: "draft",
-  dataSource: {
-    type: "rest",
-    action: { method: "GET", url: "", headers: {}, params: {} },
-    arrayPath: "",
-  },
-  queryParams: [],
-  filterMode: "bib",
-  filters: [],
-  dimension: "",
-  measure: "",
-  aggregation: "count",
-  visualization: {
-    type: "bar",
-    title: "",
-    showLegend: true,
-    showLabels: true,
-    appearance: { ...DEFAULT_ANALYTICS_APPEARANCE },
-  },
-  createdAt: "",
-  updatedAt: "",
-});
+const blank = (org = ""): CompleteAnalyticsDefinition =>
+  withDefaults({
+    id: "",
+    organizationId: org,
+    name: "",
+    description: "",
+    status: "draft",
+    dataSource: {
+      type: "rest",
+      action: { method: "GET", url: "", headers: {}, params: {} },
+      arrayPath: "",
+    },
+    queryParams: [],
+    filterMode: "bib",
+    filters: [],
+    dimension: "",
+    measure: "",
+    aggregation: "count",
+    visualization: {
+      type: "bar",
+      title: "",
+      showLegend: true,
+      showLabels: true,
+      appearance: { ...DEFAULT_ANALYTICS_APPEARANCE },
+    },
+    createdAt: "",
+    updatedAt: "",
+  });
 const pairs = (obj: Record<string, string> | QueryParameters) =>
   normalizeQueryParameters(obj as QueryParameters);
 const object = (rows: { key: string; value: string }[]) =>
@@ -59,7 +75,7 @@ const object = (rows: { key: string; value: string }[]) =>
 export default function AnalyticsBuilderPage() {
   const { analyticsId } = useParams();
   const isNew = !analyticsId;
-  const [d, setD] = useState<AnalyticsDefinition>(blank());
+  const [d, setD] = useState<CompleteAnalyticsDefinition>(blank());
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [profiles, setProfiles] = useState<
     { id: string; name: string; active: boolean }[]
@@ -68,6 +84,13 @@ export default function AnalyticsBuilderPage() {
   const [params, setParams] = useState([{ key: "", value: "" }]);
   const [result, setResult] = useState<AnalyticsResult | null>(null);
   const [busy, setBusy] = useState(false);
+  /** Incremented by Test & Preview; the preview viewer reloads on change. */
+  const [reloadToken, setReloadToken] = useState(0);
+  const testPending = useRef(false);
+  /** Builder-only sample values for runtime parameters (not saved). */
+  const [testValues, setTestValues] = useState<Record<string, string>>({});
+  const [limits, setLimits] = useState<AnalyticsBuilderLimits | null>(null);
+  const theme = useResolvedTheme(d.visualization.theme);
   const ui = useAppUI(),
     nav = useNavigate();
   useEffect(() => {
@@ -76,6 +99,11 @@ export default function AnalyticsBuilderPage() {
     )
       .then((x) => setProfiles(x.data.filter((p) => p.active)))
       .catch(() => setProfiles([]));
+    // Bounds are informational; the server clamps values regardless.
+    analyticsApi
+      .limits()
+      .then(setLimits)
+      .catch(() => setLimits(null));
     analyticsApi
       .organizations()
       .then((o) => {
@@ -88,7 +116,7 @@ export default function AnalyticsBuilderPage() {
         .get(analyticsId)
         .then((x) => {
           if (!x) return;
-          setD(x);
+          setD(withDefaults(x));
           setHeaders([
             ...pairs(x.dataSource.action.headers),
             { key: "", value: "" },
@@ -137,32 +165,66 @@ export default function AnalyticsBuilderPage() {
       setBusy(false);
     }
   };
-  const test = async () => {
-    try {
-      setBusy(true);
-      const r = await analyticsApi.execute(
-        prepared,
-        Object.fromEntries((d.queryParams || []).map((p) => [p, `{{${p}}}`])),
+  const previewContext = useMemo(
+    () =>
+      Object.fromEntries(
+        (d.queryParams || []).map((p) => [p, testValues[p] || `{{${p}}}`]),
+      ),
+    [d.queryParams, testValues],
+  );
+  const runPreview = useCallback(
+    (input: AnalyticsRuntimeInput) =>
+      analyticsApi.execute(prepared, previewContext, input),
+    [prepared, previewContext],
+  );
+  const test = () => {
+    testPending.current = true;
+    setBusy(true);
+    setReloadToken((n) => n + 1);
+  };
+  const onPreviewResult = (r: AnalyticsResult) => {
+    setResult(r);
+    if (!testPending.current) return;
+    testPending.current = false;
+    setBusy(false);
+    // Prefer the largest record collection (e.g. readings inside a wrapper
+    // array) over the shallowest one when the author left the path blank.
+    const calls = r.source?.calls ?? 1;
+    const took = r.source
+      ? ` in ${Math.round(r.source.durationMs / 100) / 10} s${calls > 1 ? ` (${calls} source calls)` : ""}${r.source.cacheHits ? ` (${r.source.cacheHits} from cache)` : ""}`
+      : "";
+    const suggested = r.recommendedRecordsPath || r.recordsPath;
+    if (!d.dataSource.arrayPath && suggested) {
+      setD((x) => ({
+        ...x,
+        dataSource: { ...x.dataSource, arrayPath: suggested },
+      }));
+      ui.toast(
+        `Loaded ${r.rawCount} source record(s)${took}. Records Path set to ${suggested}${
+          suggested !== r.recordsPath
+            ? " — run Test & Preview again to use it"
+            : ""
+        }.`,
+        "success",
       );
-      setResult(r);
-      if (!d.dataSource.arrayPath && r.recordsPath) {
-        setD((x) => ({
-          ...x,
-          dataSource: { ...x.dataSource, arrayPath: r.recordsPath },
-        }));
-        ui.toast(
-          `Loaded ${r.rawCount} source record(s). Auto-detected Records Path: ${r.recordsPath}.`,
-          "success",
-        );
-      } else {
-        ui.toast(`Loaded ${r.rawCount} source record(s).`, "success");
-      }
-    } catch (e: any) {
-      ui.toast(e.message, "error");
-    } finally {
-      setBusy(false);
+    } else {
+      ui.toast(`Loaded ${r.rawCount} source record(s)${took}.`, "success");
     }
   };
+  const onPreviewError = (e: Error) => {
+    if (testPending.current) {
+      testPending.current = false;
+      setBusy(false);
+    }
+    ui.toast(e.message, "error");
+  };
+  const setMode = (mode: AnalyticsMode) =>
+    setD((x) => ({
+      ...x,
+      mode,
+      // Chart types offered in the toolbar differ per mode.
+      toolbar: { ...x.toolbar, chartTypes: [] },
+    }));
   const addFilter = () =>
     setD((x) => ({
       ...x,
@@ -186,11 +248,7 @@ export default function AnalyticsBuilderPage() {
           <ArrowLeft size={16} /> Back
         </button>
         <div>
-          <button
-            className="secondary-button"
-            disabled={busy}
-            onClick={() => void test()}
-          >
+          <button className="secondary-button" disabled={busy} onClick={test}>
             <Play size={16} /> Test & Preview
           </button>
           <button
@@ -261,26 +319,95 @@ export default function AnalyticsBuilderPage() {
                 }
               />
             </label>
+            {(d.queryParams || []).length > 0 && (
+              <div className="an-test-values">
+                <b>Test values</b>
+                <small>
+                  Used by Test &amp; Preview only. Viewers supply these in the
+                  published link, e.g. <code>?{d.queryParams[0]}=…</code>
+                </small>
+                <div className="an-fields three">
+                  {d.queryParams.map((p) => (
+                    <label key={p}>
+                      {p}
+                      <input
+                        value={testValues[p] ?? ""}
+                        placeholder={`{{${p}}}`}
+                        onChange={(e) =>
+                          setTestValues((v) => ({ ...v, [p]: e.target.value }))
+                        }
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
           <section className="data-card an-section">
             <h3>REST Data Source</h3>
-            <label>
-              Endpoint URL
-              <input
-                placeholder="https://... or URL with {{parameter}}"
-                value={d.dataSource.action.url}
-                onChange={(e) =>
-                  setD({
-                    ...d,
+            <div className="an-source-line">
+              <label>
+                Method
+                <select
+                  value={d.dataSource.action.method}
+                  onChange={(e) =>
+                    setD({
+                      ...d,
+                      dataSource: {
+                        ...d.dataSource,
+                        action: {
+                          ...d.dataSource.action,
+                          method: e.target.value as AnalyticsSourceMethod,
+                        },
+                      },
+                    })
+                  }
+                >
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                </select>
+              </label>
+              <label>
+                Endpoint URL
+                <input
+                  placeholder="https://... or URL with {{parameter}}"
+                  value={d.dataSource.action.url}
+                  onChange={(e) =>
+                    setD({
+                      ...d,
+                      dataSource: {
+                        ...d.dataSource,
+                        action: { ...d.dataSource.action, url: e.target.value },
+                      },
+                    })
+                  }
+                />
+              </label>
+            </div>
+            {d.dataSource.action.method === "POST" && (
+              <JsonBodyEditor
+                value={d.dataSource.action.body}
+                parameters={[
+                  ...(d.queryParams || []),
+                  ...[d.timeRange.fromParam, d.timeRange.toParam].filter(
+                    Boolean,
+                  ),
+                  ...d.toolbar.filters
+                    .filter((f) => f.applyIn === "source" && f.param)
+                    .map((f) => f.param),
+                ]}
+                onChange={(body) =>
+                  setD((x) => ({
+                    ...x,
                     dataSource: {
-                      ...d.dataSource,
-                      action: { ...d.dataSource.action, url: e.target.value },
+                      ...x.dataSource,
+                      action: { ...x.dataSource.action, body },
                     },
-                  })
+                  }))
                 }
               />
-            </label>
-            <div className="an-fields two">
+            )}
+            <div className="an-fields three">
               <label>
                 Records Path
                 <input
@@ -334,6 +461,20 @@ export default function AnalyticsBuilderPage() {
                   ))}
                 </select>
               </label>
+              <SourceTimeoutField
+                value={d.dataSource.action.timeoutMs}
+                limits={limits?.sourceTimeoutMs ?? null}
+                lastRun={result?.source}
+                onChange={(timeoutMs) =>
+                  setD((x) => ({
+                    ...x,
+                    dataSource: {
+                      ...x.dataSource,
+                      action: { ...x.dataSource.action, timeoutMs },
+                    },
+                  }))
+                }
+              />
             </div>
             <PairEditor title="Headers" rows={headers} setRows={setHeaders} />
             <PairEditor
@@ -380,71 +521,148 @@ export default function AnalyticsBuilderPage() {
             ))}
           </section>
           <section className="data-card an-section">
-            <h3>Aggregation</h3>
+            <h3>Data Shape</h3>
             <datalist id="analytics-source-fields">
               {result?.fields.map((f) => (
                 <option key={f} value={f} />
               ))}
             </datalist>
-            <div className="an-fields three">
-              <label>
-                Dimension (Group By)
-                <input
-                  list="analytics-source-fields"
-                  placeholder="status"
-                  value={d.dimension}
-                  onChange={(e) => setD({ ...d, dimension: e.target.value })}
-                />
-              </label>
-              <label>
-                Measure
-                <input
-                  list="analytics-source-fields"
-                  placeholder="totalcost"
-                  value={d.measure}
-                  onChange={(e) => setD({ ...d, measure: e.target.value })}
-                />
-              </label>
-              <label>
-                Aggregation
-                <select
-                  value={d.aggregation}
-                  onChange={(e) =>
-                    setD({ ...d, aggregation: e.target.value as any })
-                  }
-                >
-                  <option value="count">Count</option>
-                  <option value="sum">Sum</option>
-                  <option value="avg">Average</option>
-                  <option value="min">Min</option>
-                  <option value="max">Max</option>
-                </select>
-              </label>
+            <div className="an-mode" role="radiogroup" aria-label="Mode">
+              <button
+                role="radio"
+                aria-checked={d.mode === "aggregate"}
+                className={d.mode === "aggregate" ? "active" : ""}
+                onClick={() => setMode("aggregate")}
+              >
+                <b>Aggregate</b>
+                <small>
+                  Group records and count, sum or average them (KPI, bar, pie,
+                  table).
+                </small>
+              </button>
+              <button
+                role="radio"
+                aria-checked={d.mode === "timeseries"}
+                className={d.mode === "timeseries" ? "active" : ""}
+                onClick={() => setMode("timeseries")}
+              >
+                <b>Time Series</b>
+                <small>
+                  Plot readings over time, one or more measures (IoT telemetry,
+                  trends).
+                </small>
+              </button>
             </div>
+            {d.mode === "timeseries" ? (
+              <TimeSeriesEditor
+                value={d.timeSeries}
+                onChange={(timeSeries) => setD({ ...d, timeSeries })}
+                fields={result?.fields ?? []}
+                fieldTypes={result?.fieldTypes ?? {}}
+                appearance={d.visualization.appearance}
+                timeRange={d.timeRange}
+                maxSourceCalls={limits?.sourceCalls?.maxPerRun}
+              />
+            ) : (
+              <div className="an-fields three">
+                <label>
+                  Dimension (Group By)
+                  <input
+                    list="analytics-source-fields"
+                    placeholder="status"
+                    value={d.dimension}
+                    onChange={(e) => setD({ ...d, dimension: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Measure
+                  <input
+                    list="analytics-source-fields"
+                    placeholder="totalcost"
+                    value={d.measure}
+                    onChange={(e) => setD({ ...d, measure: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Aggregation
+                  <select
+                    value={d.aggregation}
+                    onChange={(e) =>
+                      setD({ ...d, aggregation: e.target.value as any })
+                    }
+                  >
+                    <option value="count">Count</option>
+                    <option value="sum">Sum</option>
+                    <option value="avg">Average</option>
+                    <option value="min">Min</option>
+                    <option value="max">Max</option>
+                  </select>
+                </label>
+              </div>
+            )}
+          </section>
+          <section className="data-card an-section">
+            <h3>Time Range</h3>
+            <TimeRangeEditor
+              mode={d.mode}
+              value={d.timeRange}
+              onChange={(timeRange) => setD({ ...d, timeRange })}
+            />
+          </section>
+          <section className="data-card an-section">
+            <h3>Viewer Toolbar</h3>
+            <ToolbarEditor
+              mode={d.mode}
+              value={d.toolbar}
+              onChange={(toolbar) => setD({ ...d, toolbar })}
+            />
           </section>
           <section className="data-card an-section">
             <h3>Visualization</h3>
-            <div className="an-fields two">
+            <div className="an-fields three">
+              {d.mode === "aggregate" && (
+                <label>
+                  Type
+                  <select
+                    value={d.visualization.type}
+                    onChange={(e) =>
+                      setD({
+                        ...d,
+                        visualization: {
+                          ...d.visualization,
+                          type: e.target
+                            .value as AnalyticsDefinition["visualization"]["type"],
+                        },
+                      })
+                    }
+                  >
+                    <option value="kpi">KPI Card</option>
+                    <option value="bar">Bar</option>
+                    <option value="line">Line</option>
+                    <option value="pie">Pie / Donut</option>
+                    <option value="table">Table</option>
+                  </select>
+                </label>
+              )}
               <label>
-                Type
+                Theme
                 <select
-                  value={d.visualization.type}
+                  value={d.visualization.theme ?? "auto"}
                   onChange={(e) =>
                     setD({
                       ...d,
                       visualization: {
                         ...d.visualization,
-                        type: e.target
-                          .value as AnalyticsDefinition["visualization"]["type"],
+                        theme: e.target.value as AnalyticsTheme,
                       },
                     })
                   }
                 >
-                  <option value="kpi">KPI Card</option>
-                  <option value="bar">Bar</option>
-                  <option value="line">Line</option>
-                  <option value="pie">Pie / Donut</option>
-                  <option value="table">Table</option>
+                  <option value="auto">
+                    Automatic (viewer's system setting)
+                  </option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
                 </select>
               </label>
               <label>
@@ -464,23 +682,26 @@ export default function AnalyticsBuilderPage() {
               </label>
             </div>
             <div className="an-visual-toggles">
-              <label className="an-check">
-                <input
-                  type="checkbox"
-                  checked={d.visualization.showLabels}
-                  onChange={(e) =>
-                    setD({
-                      ...d,
-                      visualization: {
-                        ...d.visualization,
-                        showLabels: e.target.checked,
-                      },
-                    })
-                  }
-                />{" "}
-                Show value labels
-              </label>
-              {!["kpi", "table"].includes(d.visualization.type) && (
+              {d.mode === "aggregate" && (
+                <label className="an-check">
+                  <input
+                    type="checkbox"
+                    checked={d.visualization.showLabels}
+                    onChange={(e) =>
+                      setD({
+                        ...d,
+                        visualization: {
+                          ...d.visualization,
+                          showLabels: e.target.checked,
+                        },
+                      })
+                    }
+                  />{" "}
+                  Show value labels
+                </label>
+              )}
+              {(d.mode === "timeseries" ||
+                !["kpi", "table"].includes(d.visualization.type)) && (
                 <label className="an-check">
                   <input
                     type="checkbox"
@@ -499,8 +720,10 @@ export default function AnalyticsBuilderPage() {
                 </label>
               )}
             </div>
-            {!["kpi", "table"].includes(d.visualization.type) && (
+            {(d.mode === "timeseries" ||
+              !["kpi", "table"].includes(d.visualization.type)) && (
               <VisualizationAppearanceEditor
+                mode={d.mode}
                 appearance={normalizeAppearance(d.visualization.appearance)}
                 categories={(result?.rows ?? [])
                   .map((r) => String(r.label ?? ""))
@@ -515,7 +738,7 @@ export default function AnalyticsBuilderPage() {
             )}
           </section>
         </div>
-        <aside className="data-card an-preview">
+        <aside className={`data-card an-preview an-theme-${theme}`}>
           <div>
             <small>LIVE PREVIEW</small>
             <h3>{d.visualization.title || d.name || "Untitled Analytics"}</h3>
@@ -525,17 +748,25 @@ export default function AnalyticsBuilderPage() {
               </p>
             )}
           </div>
-          {result ? (
-            <AnalyticsRenderer definition={prepared} result={result} />
-          ) : (
-            <div className="an-empty">
-              <Play size={30} />
-              <p>
-                Use <b>Test & Preview</b> to load source data and render the
-                visualization.
-              </p>
-            </div>
-          )}
+          <AnalyticsViewer
+            key={d.mode}
+            definition={prepared}
+            execute={runPreview}
+            theme={theme}
+            autoLoad={false}
+            reloadToken={reloadToken}
+            onResult={onPreviewResult}
+            onError={onPreviewError}
+            emptyState={
+              <div className="an-empty">
+                <Play size={30} />
+                <p>
+                  Use <b>Test & Preview</b> to load source data and render the
+                  visualization.
+                </p>
+              </div>
+            }
+          />
         </aside>
       </div>
     </AdminLayout>
@@ -619,10 +850,12 @@ function FilterRow({
 }
 
 function VisualizationAppearanceEditor({
+  mode,
   appearance,
   categories,
   onChange,
 }: {
+  mode: AnalyticsMode;
   appearance: AnalyticsAppearance;
   categories: string[];
   onChange: (value: AnalyticsAppearance) => void;
@@ -653,8 +886,12 @@ function VisualizationAppearanceEditor({
           >
             <option value="palette">Automatic Palette</option>
             <option value="single">Single Color</option>
-            <option value="category">Color by Category</option>
-            <option value="custom">Custom Category Colors</option>
+            {mode === "aggregate" && (
+              <>
+                <option value="category">Color by Category</option>
+                <option value="custom">Custom Category Colors</option>
+              </>
+            )}
           </select>
         </label>
         {appearance.colorMode !== "single" && (

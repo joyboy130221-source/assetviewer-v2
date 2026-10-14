@@ -3,6 +3,13 @@ const { flatten, getPath } = require("../lib/integration-http");
 const MAX_DISCOVERY_DEPTH = 6;
 const MAX_DISCOVERY_CANDIDATES = 50;
 const MAX_FIELDS = 500;
+/**
+ * Small arrays of objects are treated as containers (e.g. `DATA.Tab[]` holding
+ * one or two tabs), so the record arrays inside them are offered too, with an
+ * explicit index path such as `DATA.Tab[0].Attributes.Attribute`.
+ */
+const MAX_CONTAINER_ITEMS = 5;
+const TYPE_SAMPLE_SIZE = 25;
 
 function fieldsOf(rows) {
   const samples = Array.isArray(rows) ? rows.slice(0, 25) : [rows];
@@ -25,8 +32,20 @@ function discoverRecordArrays(value, path = "", depth = 0, out = []) {
       count: value.length,
       fields: fieldsOf(value).slice(0, 100),
     });
-    // An array is a dataset boundary. Nested arrays inside its records are child collections,
-    // not alternative top-level datasets, so they are intentionally not suggested here.
+    // An array is a dataset boundary: nested arrays inside its records are child
+    // collections. The exception is a small container array (a few objects that
+    // wrap the real records), whose items are explored with an explicit index.
+    // These deeper candidates never change runtime auto-detection, which still
+    // prefers the shallowest path (see uniqueCandidates).
+    if (
+      value.length <= MAX_CONTAINER_ITEMS &&
+      value.every(
+        (item) => item && typeof item === "object" && !Array.isArray(item),
+      )
+    )
+      value.forEach((item, index) =>
+        discoverRecordArrays(item, `${path}[${index}]`, depth + 1, out),
+      );
     return out;
   }
   if (value && typeof value === "object") {
@@ -54,6 +73,46 @@ function uniqueCandidates(candidates) {
     const depthB = b.path ? b.path.split(".").length : 0;
     return depthA - depthB || b.count - a.count || a.path.localeCompare(b.path);
   });
+}
+
+/**
+ * Best candidate for the builder to suggest: the largest record collection.
+ * Builder-only; runtime auto-detection is unchanged for backward compatibility.
+ */
+function recommendedPath(candidates) {
+  let best = null;
+  for (const candidate of candidates)
+    if (!best || candidate.count > best.count) best = candidate;
+  return best ? best.path : "";
+}
+
+/** Samples records to label each field as number, date or string for the builder. */
+function fieldTypesOf(rows, fields) {
+  // Required lazily to keep this module free of load-order coupling.
+  const { toNumber } = require("./analytics-timeseries");
+  const { parseTime } = require("./analytics-runtime");
+  const samples = (Array.isArray(rows) ? rows : []).slice(0, TYPE_SAMPLE_SIZE);
+  const types = {};
+  for (const field of fields) {
+    let seen = 0,
+      numeric = 0,
+      dates = 0;
+    for (const row of samples) {
+      const value = getPath(row, field);
+      if (value == null || value === "") continue;
+      seen += 1;
+      if (toNumber(value) != null && typeof value !== "boolean") numeric += 1;
+      else if (typeof value === "string" && parseTime(value) != null)
+        dates += 1;
+    }
+    types[field] =
+      seen && numeric === seen
+        ? "number"
+        : seen && dates === seen
+          ? "date"
+          : "string";
+  }
+  return types;
 }
 
 function resolveRecords(data, configuredPath = "") {
@@ -86,4 +145,10 @@ function resolveRecords(data, configuredPath = "") {
   return { rows: [], path: "", candidates };
 }
 
-module.exports = { fieldsOf, discoverRecordArrays, resolveRecords };
+module.exports = {
+  fieldsOf,
+  fieldTypesOf,
+  discoverRecordArrays,
+  recommendedPath,
+  resolveRecords,
+};

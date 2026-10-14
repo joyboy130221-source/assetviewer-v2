@@ -7,11 +7,23 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: "Method not allowed" });
   try {
     return res.json({
-      data: await run(req.body?.definition || {}, req.body?.context || {}),
+      data: await run(
+        req.body?.definition || {},
+        req.body?.context || {},
+        req.body?.runtime || {},
+        // Authors see the source's own error message on a failed measure.
+        { detailedErrors: true },
+      ),
     });
   } catch (e) {
-    return res
-      .status(e.status || 500)
-      .json({ error: e.message, details: e.details });
+    if (e.code === "SOURCE_TIMEOUT" || e.code === "SOURCE_UNREACHABLE")
+      console.warn(`Analytics source error: ${e.message}`);
+    else if ((e.status || 500) >= 500)
+      console.error("Analytics execute error", e);
+    return res.status(e.status || 500).json({
+      error: e.message,
+      details: e.details,
+      ...(e.code ? { code: e.code } : {}),
+    });
   }
 };

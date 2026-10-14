@@ -1,36 +1,18 @@
 const repo = require("../repositories/analytics-repository");
 const { run } = require("../services/analytics-service");
-const defaultAppearance = {
-  colorMode: "palette",
-  palette: "default",
-  singleColor: "#2563eb",
-  categoryColors: {},
-};
-const map = (r) => {
-  const stored = r.definition || {};
-  return {
-    id: r.id,
-    organizationId: r.organization_id,
-    name: r.name,
-    description: r.description || "",
-    status: r.status,
-    ...stored,
-    visualization: {
-      type: "bar",
-      title: "",
-      showLegend: true,
-      showLabels: true,
-      ...(stored.visualization || {}),
-      appearance: {
-        ...defaultAppearance,
-        ...(stored.visualization?.appearance || {}),
-      },
-    },
-    createdAt: r.created_at,
-    updatedAt: r.updated_at,
-    publishedAt: r.published_at,
-  };
-};
+const { mapDefinitionRow } = require("../services/analytics-definition");
+const { splitPublicQuery } = require("../services/analytics-runtime");
+
+/**
+ * What an anonymous viewer needs to render a published definition. The data
+ * source (URL, headers, query parameters) and static filter values stay
+ * server-side: they can reveal internal endpoints or credentials.
+ */
+function publicView(d) {
+  const { dataSource, filters, filterMode, ...view } = d;
+  return view;
+}
+
 module.exports = async (req, res) => {
   try {
     if (req.method !== "GET")
@@ -38,16 +20,28 @@ module.exports = async (req, res) => {
     const r = (await repo.find(req.query.id)).rows[0];
     if (!r || r.status !== "published")
       return res.status(404).json({ error: "Published analytics not found." });
-    const d = map(r);
-    const context = { ...req.query };
-    delete context.id;
-    delete context.execute;
-    if (req.query.execute === "1")
-      return res.json({ data: await run(d, context) });
-    return res.json({ data: d });
+    const d = mapDefinitionRow(r, { includeOrganizationName: false });
+    if (req.query.execute === "1") {
+      const query = { ...req.query };
+      delete query.id;
+      delete query.execute;
+      const { context, input } = splitPublicQuery(query);
+      return res.json({ data: await run(d, context, input) });
+    }
+    return res.json({ data: publicView(d) });
   } catch (e) {
-    return res
-      .status(e.status || 500)
-      .json({ error: e.message, details: e.details });
+    const status = e.status || 500;
+    if (e.code === "SOURCE_TIMEOUT" || e.code === "SOURCE_UNREACHABLE")
+      console.warn(`Public analytics source error: ${e.message}`);
+    else if (status >= 500) console.error("Public analytics error", e);
+    // Source response bodies are not echoed to anonymous viewers; errors that
+    // carry a vetted publicMessage (e.g. source timeout) show that instead.
+    return res.status(status).json({
+      error:
+        status >= 500
+          ? e.publicMessage || "Analytics could not be loaded."
+          : e.message,
+      ...(e.code ? { code: e.code } : {}),
+    });
   }
 };

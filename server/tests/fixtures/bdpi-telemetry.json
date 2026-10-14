@@ -1,0 +1,2817 @@
+{
+    "DATA": {
+        "Tab": [
+            {
+                "Name": "MS Azure IoT",
+                "TabType": "MultiLine TAB",
+                "ChartType": "Line",
+                "UoM_X": "Temperature",
+                "UoM_Y": "Time",
+                "Attributes": {
+                    "Attribute": [
+                        {
+                            "Label": "2026-10-13T06:43:45.893Z",
+                            "X": "2026-10-13T06:43:45.892Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "61.412175121801724",
+                                    "EnergyAmountkWh": "59.13350481191855",
+                                    "NominalVoltage": "71.9451677207094",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "42.28268939023537",
+                                    "Temperature": "32.62881437411256"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T06:45:00.426Z",
+                            "Label": "2026-10-13T06:45:00.427Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "45.14122431036978",
+                                    "EnergyAmountkWh": "60.74724155580825",
+                                    "NominalVoltage": "46.57192249304901",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "23.40396793050921",
+                                    "Temperature": "69.82744365333096"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T06:46:14.976Z",
+                            "Label": "2026-10-13T06:46:14.977Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "64.3702854970211",
+                                    "EnergyAmountkWh": "43.82428515680246",
+                                    "NominalVoltage": "67.13383228223779",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "88.23411094168303",
+                                    "Temperature": "37.79611840596206"
+                                }
+                            }
+                        },
+                        {
+                            "Label": "2026-10-13T06:47:29.553Z",
+                            "X": "2026-10-13T06:47:29.553Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "37.204201984823875",
+                                    "EnergyAmountkWh": "84.17412224575837",
+                                    "NominalVoltage": "65.164260155513",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "45.88074212487795",
+                                    "Temperature": "52.39056575932485"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T06:48:44.071Z",
+                            "Label": "2026-10-13T06:48:44.070Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "43.09236635197874",
+                                    "EnergyAmountkWh": "66.64663169553434",
+                                    "NominalVoltage": "51.0501989144775",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "45.79708346145341",
+                                    "Temperature": "69.35429321816336"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T06:49:58.618Z",
+                            "Label": "2026-10-13T06:49:58.617Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "36.76592796842773",
+                                    "EnergyAmountkWh": "57.76845887128113",
+                                    "NominalVoltage": "63.53221283163467",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "43.53484309266383",
+                                    "Temperature": "53.05527022706231"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T06:51:13.184Z",
+                            "Label": "2026-10-13T06:51:13.183Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "70.9721545555421",
+                                    "EnergyAmountkWh": "97.4630837842547",
+                                    "NominalVoltage": "39.110093267103046",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "28.03782164435098",
+                                    "Temperature": "30.13837312149381"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T06:52:27.749Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "53.572398599366764",
+                                    "EnergyAmountkWh": "59.529938629704745",
+                                    "NominalVoltage": "26.638916767843774",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "89.05213194696545",
+                                    "Temperature": "73.30275831934347"
+                                }
+                            },
+                            "Label": "2026-10-13T06:52:27.750Z"
+                        },
+                        {
+                            "X": "2026-10-13T06:53:42.299Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "65.62384167636066",
+                                    "EnergyAmountkWh": "64.69407174147204",
+                                    "NominalVoltage": "48.97677717729342",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "47.38881739458672",
+                                    "Temperature": "82.65753606326732"
+                                }
+                            },
+                            "Label": "2026-10-13T06:53:42.300Z"
+                        },
+                        {
+                            "X": "2026-10-13T06:54:56.834Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "15.255998178433817",
+                                    "EnergyAmountkWh": "91.91137304335373",
+                                    "NominalVoltage": "36.13703282351871",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "36.17601264806892",
+                                    "Temperature": "15.167883945366986"
+                                }
+                            },
+                            "Label": "2026-10-13T06:54:56.833Z"
+                        },
+                        {
+                            "X": "2026-10-13T06:56:11.400Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "62.41522541261047",
+                                    "EnergyAmountkWh": "41.31791947909197",
+                                    "NominalVoltage": "37.36682687406052",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "46.64564286211738",
+                                    "Temperature": "55.63456790469521"
+                                }
+                            },
+                            "Label": "2026-10-13T06:56:11.400Z"
+                        },
+                        {
+                            "X": "2026-10-13T06:57:25.964Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "38.661348408061215",
+                                    "EnergyAmountkWh": "62.75964994191191",
+                                    "NominalVoltage": "45.94618116443227",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "34.349943519062165",
+                                    "Temperature": "81.61796818607232"
+                                }
+                            },
+                            "Label": "2026-10-13T06:57:25.963Z"
+                        },
+                        {
+                            "X": "2026-10-13T06:58:40.546Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "64.39125870136951",
+                                    "EnergyAmountkWh": "70.16746394762511",
+                                    "NominalVoltage": "15.569016035270561",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "87.41197156497442",
+                                    "Temperature": "49.63045754212823"
+                                }
+                            },
+                            "Label": "2026-10-13T06:58:40.547Z"
+                        },
+                        {
+                            "X": "2026-10-13T06:59:55.161Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.91978104886554",
+                                    "EnergyAmountkWh": "20.882599543672377",
+                                    "NominalVoltage": "21.461636272690676",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "47.590998940326315",
+                                    "Temperature": "23.037654086182275"
+                                }
+                            },
+                            "Label": "2026-10-13T06:59:55.160Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:01:09.617Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "84.24137451118318",
+                                    "EnergyAmountkWh": "55.268915639896555",
+                                    "NominalVoltage": "38.06914586038906",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "27.579861397783862",
+                                    "Temperature": "66.36337023853916"
+                                }
+                            },
+                            "Label": "2026-10-13T07:01:09.617Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:02:24.196Z",
+                            "Label": "2026-10-13T07:02:24.197Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "13.744974009759872",
+                                    "EnergyAmountkWh": "42.66347843222873",
+                                    "NominalVoltage": "25.98268017688251",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "51.60704658274942",
+                                    "Temperature": "63.019580500593364"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:03:38.731Z",
+                            "Label": "2026-10-13T07:03:38.730Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "55.18404494456646",
+                                    "EnergyAmountkWh": "8.58648341826619",
+                                    "NominalVoltage": "45.440852118267166",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "41.27331272024539",
+                                    "Temperature": "24.09610184825027"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:04:53.295Z",
+                            "Label": "2026-10-13T07:04:53.297Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "30.255539261179052",
+                                    "EnergyAmountkWh": "48.41724491229577",
+                                    "NominalVoltage": "46.65259887592238",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "82.91405323269814",
+                                    "Temperature": "58.96117595418902"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:06:07.860Z",
+                            "Label": "2026-10-13T07:06:07.860Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "83.2461852089746",
+                                    "EnergyAmountkWh": "22.98856370599752",
+                                    "NominalVoltage": "25.60665352338039",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "46.99128965579914",
+                                    "Temperature": "42.69042824380806"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:07:22.394Z",
+                            "Label": "2026-10-13T07:07:22.393Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "38.31180011988743",
+                                    "EnergyAmountkWh": "11.433271130807514",
+                                    "NominalVoltage": "50.32176189876103",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "21.02875555579678",
+                                    "Temperature": "37.379804390586905"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:08:36.963Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "71.14950743070058",
+                                    "EnergyAmountkWh": "47.65048249918002",
+                                    "NominalVoltage": "59.2723223311208",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "57.87798777541464",
+                                    "Temperature": "50.605884445158765"
+                                }
+                            },
+                            "Label": "2026-10-13T07:08:36.963Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:09:51.497Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "16.863845567250692",
+                                    "EnergyAmountkWh": "19.558014239730653",
+                                    "NominalVoltage": "59.47767435375515",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "47.7006075285381",
+                                    "Temperature": "57.251806788576076"
+                                }
+                            },
+                            "Label": "2026-10-13T07:09:51.497Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:11:06.077Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "72.60933904072473",
+                                    "EnergyAmountkWh": "28.833240170456243",
+                                    "NominalVoltage": "87.86887010797227",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "75.68714207685686",
+                                    "Temperature": "20.045080449997993"
+                                }
+                            },
+                            "Label": "2026-10-13T07:11:06.077Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:12:20.595Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "17.292246524043158",
+                                    "EnergyAmountkWh": "54.388977342774766",
+                                    "NominalVoltage": "74.53973834349804",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "46.506306303422555",
+                                    "Temperature": "40.494584897396244"
+                                }
+                            },
+                            "Label": "2026-10-13T07:12:20.597Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:13:35.147Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "73.50675239019644",
+                                    "EnergyAmountkWh": "32.30265400458846",
+                                    "NominalVoltage": "62.872234955988425",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "17.1383477006456",
+                                    "Temperature": "85.01163598880763"
+                                }
+                            },
+                            "Label": "2026-10-13T07:13:35.147Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:14:49.680Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "50.403118111599774",
+                                    "EnergyAmountkWh": "52.75234421619553",
+                                    "NominalVoltage": "84.05244177186349",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "64.54236295160726",
+                                    "Temperature": "23.352001651624327"
+                                }
+                            },
+                            "Label": "2026-10-13T07:14:49.680Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:16:04.261Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "78.04985048257775",
+                                    "EnergyAmountkWh": "65.09064536963436",
+                                    "NominalVoltage": "72.33969872072772",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "52.72030377245617",
+                                    "Temperature": "28.165902591833998"
+                                }
+                            },
+                            "Label": "2026-10-13T07:16:04.260Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:17:18.825Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "5.739810668587455",
+                                    "EnergyAmountkWh": "52.399075639098825",
+                                    "NominalVoltage": "75.59289845687397",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "66.41007108436685",
+                                    "Temperature": "71.1797791967618"
+                                }
+                            },
+                            "Label": "2026-10-13T07:17:18.827Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:18:33.376Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "66.66283209588578",
+                                    "EnergyAmountkWh": "71.88062809057216",
+                                    "NominalVoltage": "86.94450887688754",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "47.184415166845774",
+                                    "Temperature": "69.84743863586098"
+                                }
+                            },
+                            "Label": "2026-10-13T07:18:33.377Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:19:47.927Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "30.445249012599696",
+                                    "EnergyAmountkWh": "73.17188277505784",
+                                    "NominalVoltage": "51.89403197774931",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "15.904942844004863",
+                                    "Temperature": "20.556535016664874"
+                                }
+                            },
+                            "Label": "2026-10-13T07:19:47.927Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:21:02.557Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "75.41347244348346",
+                                    "EnergyAmountkWh": "67.8037134358746",
+                                    "NominalVoltage": "44.396425667520326",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "70.40729134707607",
+                                    "Temperature": "52.427578506291496"
+                                }
+                            },
+                            "Label": "2026-10-13T07:21:02.557Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:22:17.030Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "38.73320384590147",
+                                    "EnergyAmountkWh": "77.71163142892838",
+                                    "NominalVoltage": "48.21614439878286",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "55.898529317981115",
+                                    "Temperature": "82.48173031838301"
+                                }
+                            },
+                            "Label": "2026-10-13T07:22:17.030Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:23:31.580Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "73.67146808568027",
+                                    "EnergyAmountkWh": "72.85027096832933",
+                                    "NominalVoltage": "26.498804351709193",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "56.20500293208776",
+                                    "Temperature": "36.74775555172316"
+                                }
+                            },
+                            "Label": "2026-10-13T07:23:31.580Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:24:46.158Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "26.567578140872843",
+                                    "EnergyAmountkWh": "69.84681409210611",
+                                    "NominalVoltage": "40.83798645263304",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "49.528936659704456",
+                                    "Temperature": "56.560028994052544"
+                                }
+                            },
+                            "Label": "2026-10-13T07:24:46.157Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:26:00.708Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "58.314181444001214",
+                                    "EnergyAmountkWh": "68.47241785642305",
+                                    "NominalVoltage": "39.83163256277091",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "16.825936966764502",
+                                    "Temperature": "60.67936569775999"
+                                }
+                            },
+                            "Label": "2026-10-13T07:26:00.707Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:27:15.257Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "18.692210482511943",
+                                    "EnergyAmountkWh": "62.63397775684692",
+                                    "NominalVoltage": "10.307175133016042",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "74.48233280075652",
+                                    "Temperature": "52.78684021398426"
+                                }
+                            },
+                            "Label": "2026-10-13T07:27:15.257Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:28:29.868Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "79.69209936444595",
+                                    "EnergyAmountkWh": "58.20582248406355",
+                                    "NominalVoltage": "22.46791934083748",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "57.32896280349477",
+                                    "Temperature": "49.23023886807024"
+                                }
+                            },
+                            "Label": "2026-10-13T07:28:29.867Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:29:44.416Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "56.18421327850286",
+                                    "EnergyAmountkWh": "49.8648243439541",
+                                    "NominalVoltage": "22.34205204197689",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "46.307251736454994",
+                                    "Temperature": "73.90923362274164"
+                                }
+                            },
+                            "Label": "2026-10-13T07:29:44.417Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:30:58.935Z",
+                            "Label": "2026-10-13T07:30:58.937Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "56.117056433514314",
+                                    "EnergyAmountkWh": "46.58875463499988",
+                                    "NominalVoltage": "18.231947451890736",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "53.70138498996674",
+                                    "Temperature": "42.58860384067538"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:32:13.468Z",
+                            "Label": "2026-10-13T07:32:13.467Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "25.743939777032992",
+                                    "EnergyAmountkWh": "40.50673144944221",
+                                    "NominalVoltage": "50.19883594007227",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "19.06008807160061",
+                                    "Temperature": "28.382407454316866"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:33:28.032Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "62.958198528299484",
+                                    "EnergyAmountkWh": "31.852950448243924",
+                                    "NominalVoltage": "43.420737547367004",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "76.0932613742505",
+                                    "Temperature": "86.4823322467455"
+                                }
+                            },
+                            "Label": "2026-10-13T07:33:28.033Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:34:42.595Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "31.087716195382914",
+                                    "EnergyAmountkWh": "32.68352917531095",
+                                    "NominalVoltage": "32.48004486601861",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "57.54539092906039",
+                                    "Temperature": "49.05041621736922"
+                                }
+                            },
+                            "Label": "2026-10-13T07:34:42.597Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:35:57.128Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "60.429871668309666",
+                                    "EnergyAmountkWh": "28.072108812421487",
+                                    "NominalVoltage": "53.09397926750381",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "37.85833948890032",
+                                    "Temperature": "19.741338905939816"
+                                }
+                            },
+                            "Label": "2026-10-13T07:35:57.127Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:37:11.742Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "58.690836425280004",
+                                    "EnergyAmountkWh": "23.28204237753687",
+                                    "NominalVoltage": "43.88224825922432",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "59.25763624028458",
+                                    "Temperature": "48.66820364665847"
+                                }
+                            },
+                            "Label": "2026-10-13T07:37:11.743Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:38:26.228Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "62.47478997765498",
+                                    "EnergyAmountkWh": "28.531039030329048",
+                                    "NominalVoltage": "54.61053834439057",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "21.559560494344797",
+                                    "Temperature": "80.53473773810137"
+                                }
+                            },
+                            "Label": "2026-10-13T07:38:26.227Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:39:40.794Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "37.186567135245134",
+                                    "EnergyAmountkWh": "28.80439445251786",
+                                    "NominalVoltage": "81.46323995164416",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "75.04557585899468",
+                                    "Temperature": "24.498494977585985"
+                                }
+                            },
+                            "Label": "2026-10-13T07:39:40.793Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:40:55.330Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "37.67573467456235",
+                                    "EnergyAmountkWh": "27.33819567071411",
+                                    "NominalVoltage": "61.29266803696689",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "57.43730175291504",
+                                    "Temperature": "22.078379587664127"
+                                }
+                            },
+                            "Label": "2026-10-13T07:40:55.330Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:42:09.881Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.78382627924284",
+                                    "EnergyAmountkWh": "37.37008475436802",
+                                    "NominalVoltage": "61.359434598005095",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "31.603350906299866",
+                                    "Temperature": "74.10462389314154"
+                                }
+                            },
+                            "Label": "2026-10-13T07:42:09.880Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:43:24.432Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "68.0651141779987",
+                                    "EnergyAmountkWh": "42.63342018776594",
+                                    "NominalVoltage": "70.0803299282558",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "65.32462123333427",
+                                    "Temperature": "39.34830308051326"
+                                }
+                            },
+                            "Label": "2026-10-13T07:43:24.433Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:44:38.982Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "59.277238571532166",
+                                    "EnergyAmountkWh": "40.36700036685386",
+                                    "NominalVoltage": "52.187027111164454",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "23.503958720757975",
+                                    "Temperature": "35.29456264143197"
+                                }
+                            },
+                            "Label": "2026-10-13T07:44:38.983Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:45:53.534Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.10505737473511",
+                                    "EnergyAmountkWh": "55.9478352351727",
+                                    "NominalVoltage": "73.36376734983261",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "71.75188188012588",
+                                    "Temperature": "47.34485158576691"
+                                }
+                            },
+                            "Label": "2026-10-13T07:45:53.533Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:47:08.099Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "57.5508519885801",
+                                    "EnergyAmountkWh": "61.28557205083971",
+                                    "NominalVoltage": "83.4714582084219",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "57.96209406500087",
+                                    "Temperature": "53.651217871084754"
+                                }
+                            },
+                            "Label": "2026-10-13T07:47:08.100Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:48:22.632Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "37.25480079568626",
+                                    "EnergyAmountkWh": "54.35432880437181",
+                                    "NominalVoltage": "58.98727137965618",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "27.77771761337239",
+                                    "Temperature": "33.374004412812205"
+                                }
+                            },
+                            "Label": "2026-10-13T07:48:22.633Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:49:37.214Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "39.27219725594468",
+                                    "EnergyAmountkWh": "75.90512093239653",
+                                    "NominalVoltage": "67.22658759455857",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "70.81050177430424",
+                                    "Temperature": "62.73341732654888"
+                                }
+                            },
+                            "Label": "2026-10-13T07:49:37.213Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:50:51.731Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "52.38243856907763",
+                                    "EnergyAmountkWh": "72.93061393521903",
+                                    "NominalVoltage": "58.075138477188545",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "24.40302985577223",
+                                    "Temperature": "57.24834675050844"
+                                }
+                            },
+                            "Label": "2026-10-13T07:50:51.730Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:52:06.283Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "79.06144566236787",
+                                    "EnergyAmountkWh": "61.680944853728434",
+                                    "NominalVoltage": "42.17355127075365",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "67.11645454102008",
+                                    "Temperature": "19.935377545115358"
+                                }
+                            },
+                            "Label": "2026-10-13T07:52:06.283Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:53:20.863Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "39.1328064594187",
+                                    "EnergyAmountkWh": "87.72555972388095",
+                                    "NominalVoltage": "66.81521494389713",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "59.810764043829636",
+                                    "Temperature": "72.50916623167892"
+                                }
+                            },
+                            "Label": "2026-10-13T07:53:20.863Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:54:35.365Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "52.859822773872686",
+                                    "EnergyAmountkWh": "69.03884845907965",
+                                    "NominalVoltage": "56.341727845489984",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "26.051146711960136",
+                                    "Temperature": "72.1550754556171"
+                                }
+                            },
+                            "Label": "2026-10-13T07:54:35.367Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:55:49.913Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "24.67731473271465",
+                                    "EnergyAmountkWh": "59.31806847620143",
+                                    "NominalVoltage": "36.67653692160425",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "74.60999089865223",
+                                    "Temperature": "35.07117129967321"
+                                }
+                            },
+                            "Label": "2026-10-13T07:55:49.913Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:57:04.480Z",
+                            "Label": "2026-10-13T07:57:04.480Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "63.45880133880741",
+                                    "EnergyAmountkWh": "85.67052144783561",
+                                    "NominalVoltage": "43.93217645454692",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "24.287295647140194",
+                                    "Temperature": "34.548398856582246"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T07:58:19.028Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "43.613995090717175",
+                                    "EnergyAmountkWh": "49.66411598226711",
+                                    "NominalVoltage": "19.198895174969984",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "62.18415664061712",
+                                    "Temperature": "92.5758740970646"
+                                }
+                            },
+                            "Label": "2026-10-13T07:58:19.027Z"
+                        },
+                        {
+                            "X": "2026-10-13T07:59:33.544Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.37860689526107",
+                                    "EnergyAmountkWh": "50.41031553079347",
+                                    "NominalVoltage": "16.736055999831123",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "63.26935599901584",
+                                    "Temperature": "58.24029398192808"
+                                }
+                            },
+                            "Label": "2026-10-13T07:59:33.543Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:00:48.112Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "39.18596695969204",
+                                    "EnergyAmountkWh": "70.78022737725124",
+                                    "NominalVoltage": "40.34856466545229",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "25.642115381864716",
+                                    "Temperature": "19.68792195861021"
+                                }
+                            },
+                            "Label": "2026-10-13T08:00:48.113Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:02:02.676Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "73.78812481124783",
+                                    "EnergyAmountkWh": "23.733477511642832",
+                                    "NominalVoltage": "22.769044973912266",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "75.95223064032956",
+                                    "Temperature": "73.96213645842506"
+                                }
+                            },
+                            "Label": "2026-10-13T08:02:02.677Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:03:17.224Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "8.154001655076435",
+                                    "EnergyAmountkWh": "42.12471013887186",
+                                    "NominalVoltage": "24.095614553472593",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "23.69204039614129",
+                                    "Temperature": "65.2687036078417"
+                                }
+                            },
+                            "Label": "2026-10-13T08:03:17.223Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:04:31.774Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "59.395360919536145",
+                                    "EnergyAmountkWh": "50.404695401273116",
+                                    "NominalVoltage": "32.702213336390344",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "57.98182192208377",
+                                    "Temperature": "43.170343606105874"
+                                }
+                            },
+                            "Label": "2026-10-13T08:04:31.773Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:05:46.321Z",
+                            "Label": "2026-10-13T08:05:46.320Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "48.24693175878546",
+                                    "EnergyAmountkWh": "4.601444978490744",
+                                    "NominalVoltage": "13.386813579599401",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "68.11200490037729",
+                                    "Temperature": "42.581330773503204"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:07:00.870Z",
+                            "Label": "2026-10-13T08:07:00.870Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "81.88685386091112",
+                                    "EnergyAmountkWh": "41.281073148168026",
+                                    "NominalVoltage": "37.51493330107264",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "25.598929668062492",
+                                    "Temperature": "66.37920321929155"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:08:15.418Z",
+                            "Label": "2026-10-13T08:08:15.417Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "24.591567268591383",
+                                    "EnergyAmountkWh": "33.85031209677838",
+                                    "NominalVoltage": "60.24503429146569",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "74.5397517725465",
+                                    "Temperature": "36.57880260191358"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:09:29.981Z",
+                            "Label": "2026-10-13T08:09:29.980Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "70.95545118452081",
+                                    "EnergyAmountkWh": "2.533669524578269",
+                                    "NominalVoltage": "50.84309203955279",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "23.508570083135684",
+                                    "Temperature": "48.15895504994284"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:10:44.626Z",
+                            "Label": "2026-10-13T08:10:44.627Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "17.259897586768947",
+                                    "EnergyAmountkWh": "50.227143884752714",
+                                    "NominalVoltage": "71.01641936910158",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "55.28647746039278",
+                                    "Temperature": "65.81458788028203"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:11:59.111Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "67.80361003723027",
+                                    "EnergyAmountkWh": "28.34903618494602",
+                                    "NominalVoltage": "69.36033395085339",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "73.55967935035073",
+                                    "Temperature": "19.13548417350568"
+                                }
+                            },
+                            "Label": "2026-10-13T08:11:59.110Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:13:13.661Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "29.17876247112558",
+                                    "EnergyAmountkWh": "19.24680309121176",
+                                    "NominalVoltage": "55.68280907290508",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "25.09408282158339",
+                                    "Temperature": "44.445395245605965"
+                                }
+                            },
+                            "Label": "2026-10-13T08:13:13.660Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:14:28.224Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "82.96386506835196",
+                                    "EnergyAmountkWh": "65.33214338137698",
+                                    "NominalVoltage": "85.37798541043611",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "70.64665925384054",
+                                    "Temperature": "67.28326129925499"
+                                }
+                            },
+                            "Label": "2026-10-13T08:14:28.223Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:15:42.818Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "40.91751483377315",
+                                    "EnergyAmountkWh": "34.592932769018795",
+                                    "NominalVoltage": "85.80499566572199",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "24.70699247623038",
+                                    "Temperature": "43.98921706257568"
+                                }
+                            },
+                            "Label": "2026-10-13T08:15:42.817Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:16:57.319Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "66.9174853829692",
+                                    "EnergyAmountkWh": "46.97572245194201",
+                                    "NominalVoltage": "75.09334656872402",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "54.290364265854016",
+                                    "Temperature": "7.958657736565465"
+                                }
+                            },
+                            "Label": "2026-10-13T08:16:57.320Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:18:11.882Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "2.140007471663772",
+                                    "EnergyAmountkWh": "78.8610936910216",
+                                    "NominalVoltage": "86.79392794565437",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "78.53846998095408",
+                                    "Temperature": "66.88196313726222"
+                                }
+                            },
+                            "Label": "2026-10-13T08:18:11.883Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:19:26.448Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "76.46746938841768",
+                                    "EnergyAmountkWh": "47.26186121152486",
+                                    "NominalVoltage": "59.2286237936411",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "23.606217484844883",
+                                    "Temperature": "71.3734753084925"
+                                }
+                            },
+                            "Label": "2026-10-13T08:19:26.447Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:20:40.983Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "40.13664491643594",
+                                    "EnergyAmountkWh": "72.15432022073806",
+                                    "NominalVoltage": "47.641454318353595",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "65.04773087537123",
+                                    "Temperature": "11.838504806426187"
+                                }
+                            },
+                            "Label": "2026-10-13T08:20:40.983Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:21:55.581Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "71.85620302094094",
+                                    "EnergyAmountkWh": "83.1135312277459",
+                                    "NominalVoltage": "66.33943782529374",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "28.037308444125504",
+                                    "Temperature": "47.050594309663616"
+                                }
+                            },
+                            "Label": "2026-10-13T08:21:55.580Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:23:10.084Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "34.875453645719986",
+                                    "EnergyAmountkWh": "57.98178384534744",
+                                    "NominalVoltage": "47.9613831858193",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "54.777751290171906",
+                                    "Temperature": "68.95505022504392"
+                                }
+                            },
+                            "Label": "2026-10-13T08:23:10.083Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:24:24.664Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "74.66396538877974",
+                                    "EnergyAmountkWh": "82.93765403037365",
+                                    "NominalVoltage": "46.701285705152216",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "81.96230932879128",
+                                    "Temperature": "52.111401822831695"
+                                }
+                            },
+                            "Label": "2026-10-13T08:24:24.663Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:25:39.245Z",
+                            "Label": "2026-10-13T08:25:39.247Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "13.039229294970225",
+                                    "EnergyAmountkWh": "74.83433065479912",
+                                    "NominalVoltage": "49.70987398294337",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "21.12542065597326",
+                                    "Temperature": "30.874187922314494"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:26:53.809Z",
+                            "Label": "2026-10-13T08:26:53.810Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "60.755284744369675",
+                                    "EnergyAmountkWh": "60.139432765356695",
+                                    "NominalVoltage": "17.26046240254249",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "58.822222451397174",
+                                    "Temperature": "69.60794354874909"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:28:08.326Z",
+                            "Label": "2026-10-13T08:28:08.327Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "36.83750510257724",
+                                    "EnergyAmountkWh": "75.09356032666327",
+                                    "NominalVoltage": "25.21359918888405",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "33.85666240282718",
+                                    "Temperature": "52.6870096834464"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:29:22.937Z",
+                            "Label": "2026-10-13T08:29:22.937Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "83.17933057633698",
+                                    "EnergyAmountkWh": "57.11700129575414",
+                                    "NominalVoltage": "39.07691919139734",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "55.9440836969025",
+                                    "Temperature": "43.802978095121894"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:30:37.440Z",
+                            "Label": "2026-10-13T08:30:37.440Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "42.53594523898865",
+                                    "EnergyAmountkWh": "52.64137331705244",
+                                    "NominalVoltage": "25.39844342682151",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "82.99308894155247",
+                                    "Temperature": "77.1753773641341"
+                                }
+                            }
+                        },
+                        {
+                            "Label": "2026-10-13T08:31:52.003Z",
+                            "X": "2026-10-13T08:31:52.004Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "52.119217419535744",
+                                    "EnergyAmountkWh": "54.26355116772432",
+                                    "NominalVoltage": "43.040026693847544",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "18.105107353442982",
+                                    "Temperature": "43.88215024794241"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:33:06.554Z",
+                            "Label": "2026-10-13T08:33:06.553Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "22.591196527064582",
+                                    "EnergyAmountkWh": "38.0926495947223",
+                                    "NominalVoltage": "38.2676837433723",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "53.08947646114359",
+                                    "Temperature": "42.6786280069968"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:34:21.119Z",
+                            "Label": "2026-10-13T08:34:21.120Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.72117646792292",
+                                    "EnergyAmountkWh": "40.38088858816825",
+                                    "NominalVoltage": "15.703730306094998",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "41.97122198744077",
+                                    "Temperature": "69.18033477470206"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:35:35.714Z",
+                            "Label": "2026-10-13T08:35:35.713Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "34.875057290825055",
+                                    "EnergyAmountkWh": "32.38545990509476",
+                                    "NominalVoltage": "38.76135543384373",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "56.90700875940118",
+                                    "Temperature": "75.81331211813234"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:36:50.218Z",
+                            "Label": "2026-10-13T08:36:50.217Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "64.8344766844992",
+                                    "EnergyAmountkWh": "26.771887629679913",
+                                    "NominalVoltage": "41.960312110688406",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "81.1576821534699",
+                                    "Temperature": "17.60161034026121"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:38:04.750Z",
+                            "Label": "2026-10-13T08:38:04.750Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "59.27962586356274",
+                                    "EnergyAmountkWh": "31.424521474692884",
+                                    "NominalVoltage": "39.56988031677773",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "15.387238170483508",
+                                    "Temperature": "50.05925596905215"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:39:19.313Z",
+                            "Label": "2026-10-13T08:39:19.313Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "53.847434963472374",
+                                    "EnergyAmountkWh": "21.165721667722664",
+                                    "NominalVoltage": "63.83688348417048",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "48.77471667681104",
+                                    "Temperature": "89.9133942037152"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T08:40:33.876Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "21.292058796351373",
+                                    "EnergyAmountkWh": "28.57163399852793",
+                                    "NominalVoltage": "46.71534726628179",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "51.6537234101884",
+                                    "Temperature": "30.608363566583247"
+                                }
+                            },
+                            "Label": "2026-10-13T08:40:33.877Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:41:48.443Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "52.583042744940464",
+                                    "EnergyAmountkWh": "32.08383035590883",
+                                    "NominalVoltage": "39.24984526404632",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "56.76267230853799",
+                                    "Temperature": "28.903984769155734"
+                                }
+                            },
+                            "Label": "2026-10-13T08:41:48.443Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:43:02.975Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "54.064877842661154",
+                                    "EnergyAmountkWh": "25.807760830967553",
+                                    "NominalVoltage": "64.63195300924271",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "76.64401874683303",
+                                    "Temperature": "61.32312035172004"
+                                }
+                            },
+                            "Label": "2026-10-13T08:43:02.977Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:44:17.541Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "64.29189432727928",
+                                    "EnergyAmountkWh": "42.48134025315251",
+                                    "NominalVoltage": "58.19643007693055",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "13.981090280696929",
+                                    "Temperature": "64.44621799512699"
+                                }
+                            },
+                            "Label": "2026-10-13T08:44:17.540Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:45:32.108Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "53.10858471473578",
+                                    "EnergyAmountkWh": "43.05175141273594",
+                                    "NominalVoltage": "71.02262799473829",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "46.203444184289296",
+                                    "Temperature": "18.595252179039782"
+                                }
+                            },
+                            "Label": "2026-10-13T08:45:32.107Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:46:46.641Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.43070766463753",
+                                    "EnergyAmountkWh": "42.300605421101686",
+                                    "NominalVoltage": "88.61665763007962",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "61.792647362608065",
+                                    "Temperature": "50.34495568839768"
+                                }
+                            },
+                            "Label": "2026-10-13T08:46:46.640Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:48:01.191Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "47.69446527913709",
+                                    "EnergyAmountkWh": "61.74861738373403",
+                                    "NominalVoltage": "62.2347299434849",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "54.82769613551295",
+                                    "Temperature": "54.77856349454699"
+                                }
+                            },
+                            "Label": "2026-10-13T08:48:01.190Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:49:15.771Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.20513939960529",
+                                    "EnergyAmountkWh": "58.59116228960885",
+                                    "NominalVoltage": "67.0682320306873",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "70.14561344911297",
+                                    "Temperature": "28.25653871943809"
+                                }
+                            },
+                            "Label": "2026-10-13T08:49:15.770Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:50:30.303Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "46.54352425439865",
+                                    "EnergyAmountkWh": "60.214629966085155",
+                                    "NominalVoltage": "77.77210194934105",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "14.786354003451866",
+                                    "Temperature": "57.6603464774034"
+                                }
+                            },
+                            "Label": "2026-10-13T08:50:30.303Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:51:44.835Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "62.35239729450237",
+                                    "EnergyAmountkWh": "77.27861541208435",
+                                    "NominalVoltage": "61.9327448158274",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "45.342246068180586",
+                                    "Temperature": "46.634301021979155"
+                                }
+                            },
+                            "Label": "2026-10-13T08:51:44.837Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:52:59.382Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "74.53768332511808",
+                                    "EnergyAmountkWh": "69.46016196128781",
+                                    "NominalVoltage": "78.95945839230315",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "71.13473971082294",
+                                    "Temperature": "32.21775540714676"
+                                }
+                            },
+                            "Label": "2026-10-13T08:52:59.383Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:54:13.931Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "24.650023100856437",
+                                    "EnergyAmountkWh": "68.96234576762077",
+                                    "NominalVoltage": "72.5361328968202",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "50.99040057946077",
+                                    "Temperature": "43.208266872003485"
+                                }
+                            },
+                            "Label": "2026-10-13T08:54:13.930Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:55:28.528Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "46.71847939625393",
+                                    "EnergyAmountkWh": "82.30626148248639",
+                                    "NominalVoltage": "38.948023907757104",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "62.73043984514227",
+                                    "Temperature": "81.47717953177396"
+                                }
+                            },
+                            "Label": "2026-10-13T08:55:28.527Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:56:43.030Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "40.88353658133848",
+                                    "EnergyAmountkWh": "68.13524555869115",
+                                    "NominalVoltage": "45.65401550575187",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "18.325357523192352",
+                                    "Temperature": "29.42839769794257"
+                                }
+                            },
+                            "Label": "2026-10-13T08:56:43.030Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:57:57.641Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "63.917630865527954",
+                                    "EnergyAmountkWh": "63.83987405880258",
+                                    "NominalVoltage": "34.97862646572248",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "45.70424699856452",
+                                    "Temperature": "26.103233967109656"
+                                }
+                            },
+                            "Label": "2026-10-13T08:57:57.640Z"
+                        },
+                        {
+                            "X": "2026-10-13T08:59:12.126Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "43.824893314785825",
+                                    "EnergyAmountkWh": "75.44672952976104",
+                                    "NominalVoltage": "22.710030291326085",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "78.57636166625274",
+                                    "Temperature": "88.22902810580244"
+                                }
+                            },
+                            "Label": "2026-10-13T08:59:12.127Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:00:26.725Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "73.6169772585926",
+                                    "EnergyAmountkWh": "53.17906111949864",
+                                    "NominalVoltage": "43.58512880683056",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "45.62875227020904",
+                                    "Temperature": "57.85933845736704"
+                                }
+                            },
+                            "Label": "2026-10-13T09:00:26.727Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:01:41.196Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "31.816424816431716",
+                                    "EnergyAmountkWh": "48.87052620742664",
+                                    "NominalVoltage": "24.164885687776056",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "55.50476467799774",
+                                    "Temperature": "28.51171805269239"
+                                }
+                            },
+                            "Label": "2026-10-13T09:01:41.197Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:02:55.746Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "59.59012349789624",
+                                    "EnergyAmountkWh": "61.12354703808646",
+                                    "NominalVoltage": "8.423824424516264",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "24.57519383533424",
+                                    "Temperature": "52.43876576361676"
+                                }
+                            },
+                            "Label": "2026-10-13T09:02:55.747Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:04:10.299Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "16.351232533655207",
+                                    "EnergyAmountkWh": "30.705078103827372",
+                                    "NominalVoltage": "25.051457336813233",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "46.34723157679152",
+                                    "Temperature": "88.72491666528501"
+                                }
+                            },
+                            "Label": "2026-10-13T09:04:10.300Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:05:24.851Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "70.52471069282757",
+                                    "EnergyAmountkWh": "34.36660361578033",
+                                    "NominalVoltage": "14.04743766366156",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "83.37578187453146",
+                                    "Temperature": "36.709093806420654"
+                                }
+                            },
+                            "Label": "2026-10-13T09:05:24.850Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:06:39.494Z",
+                            "Label": "2026-10-13T09:06:39.493Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "54.15251743431254",
+                                    "EnergyAmountkWh": "46.891607098329416",
+                                    "NominalVoltage": "28.907354374967635",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "39.588112594572664",
+                                    "Temperature": "45.966807430025284"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:07:53.953Z",
+                            "Label": "2026-10-13T09:07:53.953Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "74.10115392645987",
+                                    "EnergyAmountkWh": "11.644938420186703",
+                                    "NominalVoltage": "56.33825594800127",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "49.54448102487821",
+                                    "Temperature": "72.61119769665872"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:09:08.488Z",
+                            "Label": "2026-10-13T09:09:08.487Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "13.809288581455906",
+                                    "EnergyAmountkWh": "30.749130461183682",
+                                    "NominalVoltage": "39.10824715113928",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "32.99774299887463",
+                                    "Temperature": "44.22738301533438"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:10:23.053Z",
+                            "Label": "2026-10-13T09:10:23.053Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "71.9499920447749",
+                                    "EnergyAmountkWh": "39.29644040904752",
+                                    "NominalVoltage": "47.5245728530125",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "46.132573843189405",
+                                    "Temperature": "54.90639312997501"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:11:37.602Z",
+                            "Label": "2026-10-13T09:11:37.603Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "22.149810424562382",
+                                    "EnergyAmountkWh": "5.690673428833162",
+                                    "NominalVoltage": "61.047168550749255",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "85.43258698219476",
+                                    "Temperature": "58.6876059761657"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:12:52.167Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "66.36478423184279",
+                                    "EnergyAmountkWh": "42.32665750694999",
+                                    "NominalVoltage": "50.079646911874285",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "34.01167388072976",
+                                    "Temperature": "47.12264465703454"
+                                }
+                            },
+                            "Label": "2026-10-13T09:12:52.167Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:14:06.687Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "40.61768221984102",
+                                    "EnergyAmountkWh": "40.42267541287771",
+                                    "NominalVoltage": "77.81876459447152",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "45.3855890652588",
+                                    "Temperature": "29.147992064560547"
+                                }
+                            },
+                            "Label": "2026-10-13T09:14:06.687Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:15:21.250Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "86.52159225130919",
+                                    "EnergyAmountkWh": "16.33806171432797",
+                                    "NominalVoltage": "87.25373752844914",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "42.57662321147201",
+                                    "Temperature": "77.61524949097668"
+                                }
+                            },
+                            "Label": "2026-10-13T09:15:21.250Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:16:35.799Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "22.018651450222904",
+                                    "EnergyAmountkWh": "64.3948061884357",
+                                    "NominalVoltage": "64.78932309602459",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "44.50912251844943",
+                                    "Temperature": "48.81373521483991"
+                                }
+                            },
+                            "Label": "2026-10-13T09:16:35.800Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:17:50.365Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "60.34681673957041",
+                                    "EnergyAmountkWh": "47.24764787704693",
+                                    "NominalVoltage": "75.63468622051191",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "85.13896583575907",
+                                    "Temperature": "9.221382339375653"
+                                }
+                            },
+                            "Label": "2026-10-13T09:17:50.367Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:19:04.915Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "13.524837745528723",
+                                    "EnergyAmountkWh": "38.798249628585076",
+                                    "NominalVoltage": "65.86616903711841",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "30.00268131589832",
+                                    "Temperature": "62.5910626335466"
+                                }
+                            },
+                            "Label": "2026-10-13T09:19:04.917Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:20:19.462Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "83.57040213282147",
+                                    "EnergyAmountkWh": "85.77515122829554",
+                                    "NominalVoltage": "53.849414075673806",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "43.05575797587778",
+                                    "Temperature": "67.00175944606941"
+                                }
+                            },
+                            "Label": "2026-10-13T09:20:19.463Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:21:34.088Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.742197705749085",
+                                    "EnergyAmountkWh": "53.81771038124895",
+                                    "NominalVoltage": "79.69446016986554",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "52.05755223823017",
+                                    "Temperature": "26.62622294121783"
+                                }
+                            },
+                            "Label": "2026-10-13T09:21:34.087Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:22:48.573Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.42019346095924",
+                                    "EnergyAmountkWh": "62.48396065128618",
+                                    "NominalVoltage": "66.91958289480712",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "41.18813691530331",
+                                    "Temperature": "19.321137346289785"
+                                }
+                            },
+                            "Label": "2026-10-13T09:22:48.573Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:24:03.123Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "27.60351118539183",
+                                    "EnergyAmountkWh": "94.78825746671194",
+                                    "NominalVoltage": "50.181843018472186",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "83.3284683109717",
+                                    "Temperature": "79.64611111777361"
+                                }
+                            },
+                            "Label": "2026-10-13T09:24:03.123Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:25:17.707Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "72.63898705232788",
+                                    "EnergyAmountkWh": "54.77408381429419",
+                                    "NominalVoltage": "58.90467183021326",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "28.29089918746449",
+                                    "Temperature": "43.817503630253086"
+                                }
+                            },
+                            "Label": "2026-10-13T09:25:17.707Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:26:32.241Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "8.85153176116581",
+                                    "EnergyAmountkWh": "76.37169250504896",
+                                    "NominalVoltage": "35.517498149194786",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "42.06203352347895",
+                                    "Temperature": "24.382516766747326"
+                                }
+                            },
+                            "Label": "2026-10-13T09:26:32.240Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:27:46.793Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.56096692327789",
+                                    "EnergyAmountkWh": "85.79668291843868",
+                                    "NominalVoltage": "37.685154726677865",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "60.28168808411307",
+                                    "Temperature": "60.887974017135726"
+                                }
+                            },
+                            "Label": "2026-10-13T09:27:46.793Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:29:01.359Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "51.59896519786871",
+                                    "EnergyAmountkWh": "48.47157215338777",
+                                    "NominalVoltage": "59.28084350952426",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "36.52841210193063",
+                                    "Temperature": "50.27338168277864"
+                                }
+                            },
+                            "Label": "2026-10-13T09:29:01.360Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:30:15.974Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "76.67893481470603",
+                                    "EnergyAmountkWh": "74.74123214202272",
+                                    "NominalVoltage": "37.491647723291535",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "80.97923844415634",
+                                    "Temperature": "46.00968083696665"
+                                }
+                            },
+                            "Label": "2026-10-13T09:30:15.973Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:31:30.461Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "23.779519278579805",
+                                    "EnergyAmountkWh": "62.39824143016198",
+                                    "NominalVoltage": "36.19622312770063",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "29.126145692679206",
+                                    "Temperature": "53.58577154819957"
+                                }
+                            },
+                            "Label": "2026-10-13T09:31:30.460Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:32:45.010Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "57.14616873229774",
+                                    "EnergyAmountkWh": "38.10395687654975",
+                                    "NominalVoltage": "37.29854461754028",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "41.58554396121452",
+                                    "Temperature": "63.561116460840736"
+                                }
+                            },
+                            "Label": "2026-10-13T09:32:45.010Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:33:59.574Z",
+                            "Label": "2026-10-13T09:33:59.573Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "26.153476543199538",
+                                    "EnergyAmountkWh": "60.0880540280498",
+                                    "NominalVoltage": "12.134855332235706",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "66.3958180740985",
+                                    "Temperature": "28.352474136843707"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:35:14.110Z",
+                            "Label": "2026-10-13T09:35:14.110Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "72.13405473579905",
+                                    "EnergyAmountkWh": "35.94740414066561",
+                                    "NominalVoltage": "31.064954628282475",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "31.280214163371028",
+                                    "Temperature": "70.13522574443903"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:36:28.675Z",
+                            "Label": "2026-10-13T09:36:28.677Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "41.02649261264243",
+                                    "EnergyAmountkWh": "29.749705566453716",
+                                    "NominalVoltage": "42.6407028439292",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "78.97973913086341",
+                                    "Temperature": "77.22585225032155"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:37:43.209Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "67.61570799727085",
+                                    "EnergyAmountkWh": "41.40087374862984",
+                                    "NominalVoltage": "25.211668064331192",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "32.188905217310804",
+                                    "Temperature": "24.725623876035886"
+                                }
+                            },
+                            "Label": "2026-10-13T09:37:43.210Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:38:57.741Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "47.987595746638775",
+                                    "EnergyAmountkWh": "19.399856510590865",
+                                    "NominalVoltage": "39.95411902659849",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "40.73068069182533",
+                                    "Temperature": "50.92080810617294"
+                                }
+                            },
+                            "Label": "2026-10-13T09:38:57.740Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:40:12.353Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "47.40324376709396",
+                                    "EnergyAmountkWh": "29.003557242031636",
+                                    "NominalVoltage": "32.90962600462514",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "70.0677261874189",
+                                    "Temperature": "83.52408546838063"
+                                }
+                            },
+                            "Label": "2026-10-13T09:40:12.353Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:41:26.853Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "18.98447200955335",
+                                    "EnergyAmountkWh": "29.335022652653397",
+                                    "NominalVoltage": "22.29648389366583",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "26.534582998402435",
+                                    "Temperature": "58.70924002632706"
+                                }
+                            },
+                            "Label": "2026-10-13T09:41:26.853Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:42:41.420Z",
+                            "Label": "2026-10-13T09:42:41.420Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.52834375222511",
+                                    "EnergyAmountkWh": "20.7178298011398",
+                                    "NominalVoltage": "56.55003702386171",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "77.91447235566943",
+                                    "Temperature": "14.053260010237285"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:43:56.051Z",
+                            "Label": "2026-10-13T09:43:56.050Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "60.474285589305524",
+                                    "EnergyAmountkWh": "37.502976913695235",
+                                    "NominalVoltage": "60.25971035683296",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "36.734077031359895",
+                                    "Temperature": "74.94719315724429"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:45:10.523Z",
+                            "Label": "2026-10-13T09:45:10.523Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "53.685732920247005",
+                                    "EnergyAmountkWh": "30.096939760996772",
+                                    "NominalVoltage": "59.147560881854325",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "38.68136132970539",
+                                    "Temperature": "69.6807286992562"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:46:25.088Z",
+                            "Label": "2026-10-13T09:46:25.087Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "45.607155299583354",
+                                    "EnergyAmountkWh": "38.40506412747359",
+                                    "NominalVoltage": "79.85116026291004",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "71.60492736297034",
+                                    "Temperature": "26.53256197640229"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:47:39.716Z",
+                            "Label": "2026-10-13T09:47:39.717Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "46.33117382653725",
+                                    "EnergyAmountkWh": "51.85228976541537",
+                                    "NominalVoltage": "62.01272285767286",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "23.337686154842643",
+                                    "Temperature": "48.62903284067051"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:48:54.187Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "39.16074088438299",
+                                    "EnergyAmountkWh": "42.265825767600425",
+                                    "NominalVoltage": "64.82700900455673",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "77.85131068079768",
+                                    "Temperature": "56.991493624990255"
+                                }
+                            },
+                            "Label": "2026-10-13T09:48:54.187Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:50:08.736Z",
+                            "Label": "2026-10-13T09:50:08.737Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "48.990635939794245",
+                                    "EnergyAmountkWh": "62.82362533266358",
+                                    "NominalVoltage": "91.6593284302586",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "41.68196948538982",
+                                    "Temperature": "45.0518298631064"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:51:23.300Z",
+                            "Label": "2026-10-13T09:51:23.300Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "59.35863717540022",
+                                    "EnergyAmountkWh": "65.05668727005238",
+                                    "NominalVoltage": "77.72392458793358",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "35.09091031868329",
+                                    "Temperature": "35.58475557916721"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:52:37.833Z",
+                            "Label": "2026-10-13T09:52:37.833Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "60.78559563114698",
+                                    "EnergyAmountkWh": "57.847397385239105",
+                                    "NominalVoltage": "80.72348337585336",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "71.65943047897184",
+                                    "Temperature": "63.46723320895906"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T09:53:52.371Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "59.47276441521606",
+                                    "EnergyAmountkWh": "81.3878121299113",
+                                    "NominalVoltage": "80.85368695742152",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "22.566877224067415",
+                                    "Temperature": "24.436042796395178"
+                                }
+                            },
+                            "Label": "2026-10-13T09:53:52.370Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:55:06.920Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "20.539418391444578",
+                                    "EnergyAmountkWh": "69.988519622136",
+                                    "NominalVoltage": "46.00485983421947",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "78.35452334519685",
+                                    "Temperature": "40.46060594725953"
+                                }
+                            },
+                            "Label": "2026-10-13T09:55:06.920Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:56:21.488Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "48.98804849190899",
+                                    "EnergyAmountkWh": "67.15079763346353",
+                                    "NominalVoltage": "52.30235214307453",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "45.9065833220551",
+                                    "Temperature": "72.88081038225633"
+                                }
+                            },
+                            "Label": "2026-10-13T09:56:21.487Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:57:36.035Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "54.74265930063584",
+                                    "EnergyAmountkWh": "85.22054922736693",
+                                    "NominalVoltage": "57.089088429194334",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "30.1443245411942",
+                                    "Temperature": "30.734512104420247"
+                                }
+                            },
+                            "Label": "2026-10-13T09:57:36.037Z"
+                        },
+                        {
+                            "X": "2026-10-13T09:58:50.648Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "63.30278851279112",
+                                    "EnergyAmountkWh": "63.27105488217596",
+                                    "NominalVoltage": "35.60996245285153",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "71.1860066374432",
+                                    "Temperature": "24.165567931013847"
+                                }
+                            },
+                            "Label": "2026-10-13T09:58:50.647Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:00:05.134Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "40.5515260483295",
+                                    "EnergyAmountkWh": "64.37914070224828",
+                                    "NominalVoltage": "45.7211531477324",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "24.574984168433712",
+                                    "Temperature": "63.79879387927038"
+                                }
+                            },
+                            "Label": "2026-10-13T10:00:05.133Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:01:19.702Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "73.11590280566088",
+                                    "EnergyAmountkWh": "73.79658952058136",
+                                    "NominalVoltage": "30.74874583225507",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "78.60132382253992",
+                                    "Temperature": "75.49411525038772"
+                                }
+                            },
+                            "Label": "2026-10-13T10:01:19.703Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:02:34.328Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "24.36251361735243",
+                                    "EnergyAmountkWh": "47.12346575846478",
+                                    "NominalVoltage": "5.492424530961791",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "48.66802422620277",
+                                    "Temperature": "9.89478252723725"
+                                }
+                            },
+                            "Label": "2026-10-13T10:02:34.327Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:03:48.783Z",
+                            "Label": "2026-10-13T10:03:48.783Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "50.10448576188963",
+                                    "EnergyAmountkWh": "51.395708222082106",
+                                    "NominalVoltage": "27.114241041901437",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "24.48027494558858",
+                                    "Temperature": "50.581260281207385"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:05:03.348Z",
+                            "Label": "2026-10-13T10:05:03.347Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "34.63958717083212",
+                                    "EnergyAmountkWh": "54.68914737285204",
+                                    "NominalVoltage": "26.286439994650852",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "71.10227951931914",
+                                    "Temperature": "82.73752005295576"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:06:17.912Z",
+                            "Label": "2026-10-13T10:06:17.913Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "80.38028948831058",
+                                    "EnergyAmountkWh": "28.460522178862686",
+                                    "NominalVoltage": "24.914654357622897",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "29.172774063735684",
+                                    "Temperature": "41.78965912207376"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:07:32.523Z",
+                            "Label": "2026-10-13T10:07:32.523Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "45.118272252959294",
+                                    "EnergyAmountkWh": "36.595780958680336",
+                                    "NominalVoltage": "47.9075884205169",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "77.62500817511354",
+                                    "Temperature": "40.464449124198985"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:08:47.013Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "64.84681042921545",
+                                    "EnergyAmountkWh": "38.89944552027205",
+                                    "NominalVoltage": "29.3621981186295",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "49.598857144622734",
+                                    "Temperature": "64.1090157167726"
+                                }
+                            },
+                            "Label": "2026-10-13T10:08:47.013Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:10:01.546Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "12.460114428348763",
+                                    "EnergyAmountkWh": "15.600967600075222",
+                                    "NominalVoltage": "26.73581277092692",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "19.12511717515074",
+                                    "Temperature": "66.36266262736015"
+                                }
+                            },
+                            "Label": "2026-10-13T10:10:01.547Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:11:16.176Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "72.2774056185575",
+                                    "EnergyAmountkWh": "30.19466765639705",
+                                    "NominalVoltage": "53.173663638190014",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "72.02849791198574",
+                                    "Temperature": "37.245849018073486"
+                                }
+                            },
+                            "Label": "2026-10-13T10:11:16.177Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:12:30.662Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "29.450733131463235",
+                                    "EnergyAmountkWh": "34.50145888295688",
+                                    "NominalVoltage": "46.35974907357388",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "35.63444687096695",
+                                    "Temperature": "73.26128763784196"
+                                }
+                            },
+                            "Label": "2026-10-13T10:12:30.663Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:13:45.212Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.56637171129816",
+                                    "EnergyAmountkWh": "14.154449873411668",
+                                    "NominalVoltage": "61.15900868529528",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "74.61653040574515",
+                                    "Temperature": "49.30520344284408"
+                                }
+                            },
+                            "Label": "2026-10-13T10:13:45.213Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:14:59.778Z",
+                            "Label": "2026-10-13T10:14:59.777Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "44.58243700298109",
+                                    "EnergyAmountkWh": "38.14628255283481",
+                                    "NominalVoltage": "75.40777829495016",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "48.79437622125124",
+                                    "Temperature": "38.298788412540304"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:16:14.296Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "81.39018337519303",
+                                    "EnergyAmountkWh": "42.383940303651826",
+                                    "NominalVoltage": "48.881659477978715",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "15.220179466987393",
+                                    "Temperature": "75.39525822864974"
+                                }
+                            },
+                            "Label": "2026-10-13T10:16:14.297Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:17:28.843Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "5.402549076287712",
+                                    "EnergyAmountkWh": "24.483533752908475",
+                                    "NominalVoltage": "58.57575579458397",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "74.1423793977279",
+                                    "Temperature": "57.375846389571926"
+                                }
+                            },
+                            "Label": "2026-10-13T10:17:28.843Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:18:43.424Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "62.66192443064601",
+                                    "EnergyAmountkWh": "58.39527068830041",
+                                    "NominalVoltage": "70.29628086517744",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "42.8645555725381",
+                                    "Temperature": "26.658265585817148"
+                                }
+                            },
+                            "Label": "2026-10-13T10:18:43.423Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:19:57.940Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "32.34182681392361",
+                                    "EnergyAmountkWh": "55.911539438104796",
+                                    "NominalVoltage": "59.13335435373639",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "69.12079972894023",
+                                    "Temperature": "44.450752150040984"
+                                }
+                            },
+                            "Label": "2026-10-13T10:19:57.940Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:21:12.488Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "83.73152005988324",
+                                    "EnergyAmountkWh": "41.394804677415145",
+                                    "NominalVoltage": "81.87579403732738",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "46.99603582987996",
+                                    "Temperature": "89.34861777013656"
+                                }
+                            },
+                            "Label": "2026-10-13T10:21:12.487Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:22:27.067Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "34.895590447277684",
+                                    "EnergyAmountkWh": "81.36182671259293",
+                                    "NominalVoltage": "77.24209093585189",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "13.688904855833755",
+                                    "Temperature": "22.896435518906177"
+                                }
+                            },
+                            "Label": "2026-10-13T10:22:27.067Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:23:41.584Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.98057515625669",
+                                    "EnergyAmountkWh": "65.01908659536615",
+                                    "NominalVoltage": "51.8660405842039",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "77.0679448726845",
+                                    "Temperature": "22.90878005467114"
+                                }
+                            },
+                            "Label": "2026-10-13T10:23:41.583Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:24:56.132Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "19.747490621458542",
+                                    "EnergyAmountkWh": "57.15855659478951",
+                                    "NominalVoltage": "67.16492546931227",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "49.70567008810326",
+                                    "Temperature": "72.53608875918091"
+                                }
+                            },
+                            "Label": "2026-10-13T10:24:56.133Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:26:10.758Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "69.48889289035812",
+                                    "EnergyAmountkWh": "94.92659481686249",
+                                    "NominalVoltage": "60.50780583188412",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "61.20866541468799",
+                                    "Temperature": "51.48427037707965"
+                                }
+                            },
+                            "Label": "2026-10-13T10:26:10.757Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:27:25.227Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "16.710375309280675",
+                                    "EnergyAmountkWh": "62.407637394994296",
+                                    "NominalVoltage": "54.59346165554534",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "45.13005128562235",
+                                    "Temperature": "23.497915808296675"
+                                }
+                            },
+                            "Label": "2026-10-13T10:27:25.227Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:28:39.778Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "79.79257696711606",
+                                    "EnergyAmountkWh": "65.20535162942572",
+                                    "NominalVoltage": "75.43139616582972",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "15.026482829891686",
+                                    "Temperature": "40.849623975502055"
+                                }
+                            },
+                            "Label": "2026-10-13T10:28:39.777Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:29:54.327Z",
+                            "Label": "2026-10-13T10:29:54.327Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "52.93280656956999",
+                                    "EnergyAmountkWh": "91.31330590258364",
+                                    "NominalVoltage": "51.013202616360296",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "79.95250398549399",
+                                    "Temperature": "67.51675522831269"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:31:08.877Z",
+                            "Label": "2026-10-13T10:31:08.877Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "65.36461239624988",
+                                    "EnergyAmountkWh": "47.95455444836438",
+                                    "NominalVoltage": "33.6462000400837",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "55.15006457409719",
+                                    "Temperature": "26.0790271815496"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:32:23.427Z",
+                            "Label": "2026-10-13T10:32:23.427Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "10.48533421891319",
+                                    "EnergyAmountkWh": "63.26390763140972",
+                                    "NominalVoltage": "43.20616257311485",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "51.523952250295466",
+                                    "Temperature": "53.23792891942956"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:33:37.976Z",
+                            "Label": "2026-10-13T10:33:37.977Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "68.50635723787497",
+                                    "EnergyAmountkWh": "71.30418635222287",
+                                    "NominalVoltage": "22.86658698307058",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "44.28274732201742",
+                                    "Temperature": "54.040217011978775"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:34:52.525Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "33.014424906886966",
+                                    "EnergyAmountkWh": "28.852786467991077",
+                                    "NominalVoltage": "30.072332777252026",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "19.200490185988787",
+                                    "Temperature": "31.41819847616484"
+                                }
+                            },
+                            "Label": "2026-10-13T10:34:52.527Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:36:07.059Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "70.54353378656205",
+                                    "EnergyAmountkWh": "54.532585796147245",
+                                    "NominalVoltage": "43.579843184502174",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "81.83203156433017",
+                                    "Temperature": "57.555610637970034"
+                                }
+                            },
+                            "Label": "2026-10-13T10:36:07.060Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:37:21.627Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "45.13769779264889",
+                                    "EnergyAmountkWh": "44.268550551415274",
+                                    "NominalVoltage": "15.031057469333012",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "58.705292438804534",
+                                    "Temperature": "68.33461500687338"
+                                }
+                            },
+                            "Label": "2026-10-13T10:37:21.627Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:38:36.190Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "67.56249765069605",
+                                    "EnergyAmountkWh": "15.809798155746552",
+                                    "NominalVoltage": "18.41077607916499",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "41.13686420629815",
+                                    "Temperature": "40.81137040576478"
+                                }
+                            },
+                            "Label": "2026-10-13T10:38:36.190Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:39:50.817Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "30.060023120487024",
+                                    "EnergyAmountkWh": "45.134711683017244",
+                                    "NominalVoltage": "25.806861045409974",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "45.083962428298975",
+                                    "Temperature": "27.569489599639436"
+                                }
+                            },
+                            "Label": "2026-10-13T10:39:50.817Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:41:05.274Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "48.93336686384521",
+                                    "EnergyAmountkWh": "23.417801677786425",
+                                    "NominalVoltage": "14.984574252165931",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "25.568694555182525",
+                                    "Temperature": "94.30787781577311"
+                                }
+                            },
+                            "Label": "2026-10-13T10:41:05.273Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:42:19.810Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "30.25131953757494",
+                                    "EnergyAmountkWh": "16.791441076694205",
+                                    "NominalVoltage": "46.16629735478903",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "81.78046429224153",
+                                    "Temperature": "56.38320008102908"
+                                }
+                            },
+                            "Label": "2026-10-13T10:42:19.810Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:43:34.374Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "79.07054568703144",
+                                    "EnergyAmountkWh": "40.961712124915316",
+                                    "NominalVoltage": "56.180214129913",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "60.33332832081767",
+                                    "Temperature": "22.0473612857521"
+                                }
+                            },
+                            "Label": "2026-10-13T10:43:34.373Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:44:48.910Z",
+                            "Label": "2026-10-13T10:44:48.910Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "56.37726325638892",
+                                    "EnergyAmountkWh": "18.632428330440508",
+                                    "NominalVoltage": "41.43821535274295",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "31.309998930586445",
+                                    "Temperature": "67.12511685705344"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:46:03.460Z",
+                            "Label": "2026-10-13T10:46:03.460Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "44.51713600680506",
+                                    "EnergyAmountkWh": "32.466346592223985",
+                                    "NominalVoltage": "62.422653525608865",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "47.80507326573382",
+                                    "Temperature": "79.35482601528902"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:47:18.009Z",
+                            "Label": "2026-10-13T10:47:18.010Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "39.213877191851594",
+                                    "EnergyAmountkWh": "44.28228480609733",
+                                    "NominalVoltage": "60.65578869409279",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "33.17766543939573",
+                                    "Temperature": "41.63914331868771"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:48:32.573Z",
+                            "Label": "2026-10-13T10:48:32.573Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "53.652669734875104",
+                                    "EnergyAmountkWh": "31.600556323977848",
+                                    "NominalVoltage": "61.051321039806716",
+                                    "PanelStatus": "1",
+                                    "PowerAmountKW": "79.13531165880238",
+                                    "Temperature": "33.27305822240665"
+                                }
+                            }
+                        },
+                        {
+                            "X": "2026-10-13T10:49:47.122Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "36.24020485781963",
+                                    "EnergyAmountkWh": "55.49781795608422",
+                                    "NominalVoltage": "94.20795308197916",
+                                    "PanelStatus": "2",
+                                    "PowerAmountKW": "60.55662114558187",
+                                    "Temperature": "80.80486989230329"
+                                }
+                            },
+                            "Label": "2026-10-13T10:49:47.123Z"
+                        },
+                        {
+                            "X": "2026-10-13T10:51:01.670Z",
+                            "Y": {
+                                "telemetry": {
+                                    "Efficiency": "57.72498824474739",
+                                    "EnergyAmountkWh": "52.61843424672244",
+                                    "NominalVoltage": "83.40036417370378",
+                                    "PanelStatus": "3",
+                                    "PowerAmountKW": "23.204371316689016",
+                                    "Temperature": "42.3163091095346"
+                                }
+                            },
+                            "Label": "2026-10-13T10:51:01.670Z"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
