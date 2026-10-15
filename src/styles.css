@@ -6430,3 +6430,197 @@ input[type="search"] {
   height: 12px;
   align-self: center;
 }
+
+/* ---- Analytics Pages ---------------------------------------------------- */
+/* The page viewer carries the same design tokens as .an-viewer, so the
+   dropdown bar and state cards follow the page theme (light / dark). */
+.ap-viewer {
+  --an-surface: #ffffff;
+  --an-panel: #f8fafc;
+  --an-border: #e2e8f0;
+  --an-text: #172033;
+  --an-muted: #64748b;
+  --an-accent: #2563eb;
+  display: grid;
+  gap: 14px;
+  color: var(--an-text);
+}
+.an-theme-dark .ap-viewer {
+  --an-surface: #2f3337;
+  --an-panel: #383c40;
+  --an-border: #4a4f55;
+  --an-text: #e6e8eb;
+  --an-muted: #a3aab3;
+  --an-accent: #60a5fa;
+}
+.ap-selector-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--an-border);
+  border-radius: 10px;
+  background: var(--an-panel);
+}
+.ap-select {
+  display: grid;
+  gap: 4px;
+  min-width: min(100%, 280px);
+}
+.ap-select > label {
+  color: var(--an-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.ap-select-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ap-select select,
+.ap-search input {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--an-border);
+  border-radius: 8px;
+  background: var(--an-surface);
+  color: var(--an-text);
+  font: inherit;
+}
+.ap-select select {
+  min-width: 240px;
+  max-width: 100%;
+}
+.ap-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--an-muted);
+}
+.ap-select-count {
+  color: var(--an-muted);
+  font-size: 12px;
+}
+.ap-selector-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  color: var(--an-text);
+}
+.ap-viewer .state-card {
+  background: var(--an-surface);
+  border-color: var(--an-border);
+  color: var(--an-text);
+}
+.ap-viewer .state-card.error {
+  border-color: color-mix(in srgb, #ef4444 45%, var(--an-border));
+  background: color-mix(in srgb, #ef4444 8%, var(--an-surface));
+}
+.ap-chart h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  color: var(--an-text);
+}
+
+/* Builder editors */
+.ap-rows,
+.ap-rules,
+.ap-selector-editor,
+.ap-rest {
+  display: grid;
+  gap: 8px;
+}
+.ap-row {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+}
+.ap-row.two {
+  grid-template-columns: minmax(120px, 1fr) minmax(160px, 2fr) 32px;
+}
+.ap-row.three {
+  grid-template-columns: minmax(120px, 1fr) minmax(150px, 1fr) minmax(
+      120px,
+      1fr
+    ) 32px;
+}
+.ap-method-url {
+  grid-template-columns: 110px 1fr;
+}
+.ap-rule {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #dde5f0;
+  border-radius: 10px;
+}
+.ap-rule header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ap-rule-when {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.ap-rule-when input:not([type="checkbox"]) {
+  flex: 1 1 180px;
+}
+.ap-toggle {
+  font-weight: 600;
+}
+.ap-test {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.ap-preview-table {
+  display: grid;
+  border: 1px solid #dde5f0;
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 13px;
+}
+.ap-preview-table > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 6px 10px;
+  border-top: 1px solid #eef2f7;
+}
+.ap-preview-table > .ap-preview-head {
+  border-top: 0;
+  font-weight: 600;
+  background: #f8fafc;
+}
+.ap-issues ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+.ap-issues li.error {
+  color: #b91c1c;
+}
+.ap-issues h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+@media (max-width: 720px) {
+  .ap-row.two,
+  .ap-row.three,
+  .ap-method-url {
+    grid-template-columns: 1fr;
+  }
+  .ap-select select {
+    min-width: 0;
+    width: 100%;
+  }
+}

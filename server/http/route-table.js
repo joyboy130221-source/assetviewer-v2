@@ -49,6 +49,11 @@ const ROUTES = Object.freeze({
   "admin/forms": r("admin", "../api/admin/forms"),
   "admin/analytics": r("admin", "../api/admin/analytics"),
   "admin/analytics-execute": r("admin", "../api/admin/analytics-execute"),
+  "admin/analytics-pages": r("admin", "../api/admin/analytics-pages"),
+  "admin/analytics-pages-execute": r(
+    "admin",
+    "../api/admin/analytics-pages-execute",
+  ),
   "admin/api-watchers": r("admin", "../api/admin/api-watchers"),
   "admin/form-packages": r("admin", "../api/admin/form-packages"),
   "admin/form-integration-test": r(
@@ -59,6 +64,7 @@ const ROUTES = Object.freeze({
   // Anonymous published content
   "public-forms": r("public", "../api/public-forms"),
   "public-analytics": r("public", "../api/public-analytics"),
+  "public-analytics-pages": r("public", "../api/public-analytics-pages"),
   // System
   "cron/api-watchers": r("system", "../api/cron-api-watchers"),
   health: r("system", "../api/system/health"),

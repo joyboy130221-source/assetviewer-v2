@@ -16,6 +16,7 @@ import {
   MessageSquareMore,
   BarChart3,
   Radar,
+  LayoutDashboard,
 } from "lucide-react";
 import { api } from "../services/api";
 import { authApi } from "../features/auth/services/authApi";
@@ -80,6 +81,12 @@ const integration: MenuItem[] = [
     label: "Analytics Builder",
     permission: "analyticsBuilder",
     icon: <BarChart3 size={17} />,
+  },
+  {
+    to: "/admin/integration/analytics-pages",
+    label: "Analytics Pages",
+    permission: "analyticsBuilder",
+    icon: <LayoutDashboard size={17} />,
   },
   {
     to: "/admin/integration/messaging",

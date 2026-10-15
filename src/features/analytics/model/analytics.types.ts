@@ -233,6 +233,8 @@ export type AnalyticsBuilderLimits = {
   sourceTimeoutMs: { default: number; min: number; max: number };
   /** Optional: absent on servers older than per-measure toolbars. */
   sourceCalls?: { maxPerRun: number };
+  /** Analytics Pages bounds; absent on servers without Analytics Pages. */
+  pages?: { maxItems: number; maxRules: number; maxParameters: number };
 };
 /** Viewer input that the server validates against the definition. */
 export type AnalyticsRuntimeInput = {

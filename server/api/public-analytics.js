@@ -1,17 +1,10 @@
 const repo = require("../repositories/analytics-repository");
 const { run } = require("../services/analytics-service");
-const { mapDefinitionRow } = require("../services/analytics-definition");
+const {
+  mapDefinitionRow,
+  publicView,
+} = require("../services/analytics-definition");
 const { splitPublicQuery } = require("../services/analytics-runtime");
-
-/**
- * What an anonymous viewer needs to render a published definition. The data
- * source (URL, headers, query parameters) and static filter values stay
- * server-side: they can reveal internal endpoints or credentials.
- */
-function publicView(d) {
-  const { dataSource, filters, filterMode, ...view } = d;
-  return view;
-}
 
 module.exports = async (req, res) => {
   try {

@@ -334,6 +334,18 @@ async function ensureSchema() {
     await db.query(
       `CREATE INDEX IF NOT EXISTS idx_analytics_org ON analytics_definitions(organization_id, updated_at DESC)`,
     );
+    // Analytics Pages: a page shows one of several analytics, optionally
+    // chosen from a dropdown (static items or items from an API).
+    await db.query(`CREATE TABLE IF NOT EXISTS analytics_pages (
+      id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
+      status VARCHAR(30) NOT NULL DEFAULT 'draft', definition JSONB NOT NULL DEFAULT '{}'::jsonb,
+      created_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), published_at TIMESTAMPTZ,
+      deleted_at TIMESTAMPTZ, deleted_by BIGINT REFERENCES app_users(id) ON DELETE SET NULL
+    )`);
+    await db.query(
+      `CREATE INDEX IF NOT EXISTS idx_analytics_pages_not_deleted ON analytics_pages(organization_id, updated_at DESC) WHERE deleted_at IS NULL`,
+    );
     await db.query(`CREATE TABLE IF NOT EXISTS form_definitions (
       id UUID PRIMARY KEY, organization_id UUID NOT NULL REFERENCES organizations(id), name VARCHAR(180) NOT NULL, description TEXT,
       mode VARCHAR(30) NOT NULL DEFAULT 'empty', status VARCHAR(30) NOT NULL DEFAULT 'draft', fields JSONB NOT NULL DEFAULT '[]'::jsonb,

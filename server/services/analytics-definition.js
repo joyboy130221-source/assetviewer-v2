@@ -395,9 +395,33 @@ function mapDefinitionRow(row, { includeOrganizationName = true } = {}) {
 const sendsRangeToSource = (definition) =>
   !!(definition.timeRange?.fromParam || definition.timeRange?.toParam);
 
+/**
+ * A REST data source normalized exactly like an analytic's (method, query
+ * parameters, JSON body, timeout). Reused by Analytics Pages for their item API.
+ */
+function normalizeRestSource(dataSource) {
+  return normalizeDataSource(
+    dataSource || {},
+    defaults().dataSource,
+    readAnalyticsLimits(),
+  );
+}
+
+/**
+ * What an anonymous viewer needs to render a published definition. The data
+ * source (URL, headers, query parameters) and static filter values stay
+ * server-side: they can reveal internal endpoints or credentials.
+ */
+function publicView(d) {
+  const { dataSource, filters, filterMode, ...view } = d;
+  return view;
+}
+
 module.exports = {
   BUCKETS,
   sendsRangeToSource,
+  normalizeRestSource,
+  publicView,
   PRESETS,
   FILTER_OPERATORS,
   normalizeDefinitionBody,

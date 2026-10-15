@@ -92,6 +92,7 @@ function readSecurityConfig() {
               "/work-order-update.html",
               "/forms/",
               "/analytics/",
+              "/analytics-page/",
             ],
       ),
       /**

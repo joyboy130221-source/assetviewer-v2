@@ -38,6 +38,26 @@ function readAnalyticsLimits() {
       ),
       maxSourceTimeoutMs,
     ),
+    /** Analytics Pages: items one dropdown may hold (static or from the API). */
+    pageMaxItems: envInt("ANALYTICS_PAGE_MAX_ITEMS", 500, 1, 5000),
+    /** Analytics Pages: routing rules per page. */
+    pageMaxRules: envInt("ANALYTICS_PAGE_MAX_RULES", 50, 1, 200),
+    /** Analytics Pages: host-link parameters a page may accept. */
+    pageMaxParameters: envInt("ANALYTICS_PAGE_MAX_PARAMETERS", 20, 1, 100),
+    /** Analytics Pages: seconds an item list from the API is reused (0 = off). */
+    pageItemsCacheTtlSeconds: envInt(
+      "ANALYTICS_PAGE_ITEMS_CACHE_TTL_SECONDS",
+      60,
+      0,
+      3600,
+    ),
+    /** Analytics Pages: cached item lists per server process. */
+    pageItemsCacheMaxEntries: envInt(
+      "ANALYTICS_PAGE_ITEMS_CACHE_MAX_ENTRIES",
+      200,
+      1,
+      5000,
+    ),
     /** Lowest timeout a definition may set. */
     minSourceTimeoutMs: SOURCE_TIMEOUT_FLOOR_MS,
     /**
@@ -137,6 +157,11 @@ function publicBuilderLimits(limits = readAnalyticsLimits()) {
       max: limits.maxSourceTimeoutMs,
     },
     sourceCalls: { maxPerRun: limits.maxSourceCallsPerRun },
+    pages: {
+      maxItems: limits.pageMaxItems,
+      maxRules: limits.pageMaxRules,
+      maxParameters: limits.pageMaxParameters,
+    },
   };
 }
 

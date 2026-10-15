@@ -24,6 +24,9 @@ import ServiceBusLogsPage from "./pages/admin/ServiceBusLogsPage";
 import AnalyticsListPage from "./pages/integration/AnalyticsListPage";
 import AnalyticsBuilderPage from "./pages/integration/AnalyticsBuilderPage";
 import PublicAnalyticsPage from "./pages/integration/PublicAnalyticsPage";
+import AnalyticsPagesListPage from "./pages/integration/AnalyticsPagesListPage";
+import AnalyticsPageBuilderPage from "./pages/integration/AnalyticsPageBuilderPage";
+import PublicAnalyticsPageView from "./pages/integration/PublicAnalyticsPageView";
 import ApiWatcherListPage from "./pages/integration/ApiWatcherListPage";
 import ApiWatcherDesignerPage from "./pages/integration/ApiWatcherDesignerPage";
 import ApiWatcherMonitoringPage from "./pages/integration/ApiWatcherMonitoringPage";
@@ -95,7 +98,23 @@ export default function App() {
         path="/admin/integration/analytics/:analyticsId/design"
         element={<AnalyticsBuilderPage />}
       />
+      <Route
+        path="/admin/integration/analytics-pages"
+        element={<AnalyticsPagesListPage />}
+      />
+      <Route
+        path="/admin/integration/analytics-pages/new"
+        element={<AnalyticsPageBuilderPage />}
+      />
+      <Route
+        path="/admin/integration/analytics-pages/:pageId/design"
+        element={<AnalyticsPageBuilderPage />}
+      />
       <Route path="/analytics/:analyticsId" element={<PublicAnalyticsPage />} />
+      <Route
+        path="/analytics-page/:pageId"
+        element={<PublicAnalyticsPageView />}
+      />
       <Route
         path="/admin/automation/api-watchers"
         element={<ApiWatcherListPage />}
